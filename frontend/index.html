@@ -6,20 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#a61f1e" />
     <title>TRADEY - Menjaj, ne bacaj</title>
-    <!-- Google Fonts - Anton and Garamond fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- FaytePixelTest-Hard font definition -->
+    <style>
+      @font-face {
+        font-family: 'FaytePixelTest-Hard';
+        src: url('./src/assets/FaytePixelTest-Hard.otf') format('opentype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
+    
+    <!-- Avara-Black font definition -->
+    <style>
+      @font-face {
+        font-family: 'Avara-Black';
+        src: url('./src/assets/Avara-Black.woff') format('woff');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
     
     <!-- Base styles -->
     <style>
       body {
         margin: 0;
         padding: 0;
-        font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+        font-family: 'Avara-Black', sans-serif;
       }
       h1, h2, h3, h4, h5, h6 {
-        font-family: 'Anton', sans-serif;
+        font-family: 'FaytePixelTest-Hard', sans-serif;
       }
     </style>
   </head>

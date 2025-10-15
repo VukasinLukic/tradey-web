@@ -3,8 +3,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'anton': ['Anton', 'sans-serif'],
-        'garamond': ['EB Garamond', 'Cormorant Garamond', 'serif'],
+        'anton': ['FaytePixelTest-Hard', 'sans-serif'],
+        'garamond': ['Avara-Black', 'sans-serif'],
+        'fayte': ['FaytePixelTest-Hard', 'sans-serif'],
       },
       colors: {
         'tradey-red': 'var(--color-tradey-red)',

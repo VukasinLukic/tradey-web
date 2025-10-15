@@ -67,7 +67,7 @@ export class ChatController {
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
-        errors: validation.error.errors,
+        errors: validation.error.issues,
       });
       return;
     }
@@ -203,7 +203,7 @@ export class ChatController {
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
-        errors: validation.error.errors,
+        errors: validation.error.issues,
       });
       return;
     }

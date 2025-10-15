@@ -20,7 +20,7 @@ export function Header() {
   return (
     <header className="bg-black/80 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-white font-serif tracking-wider">
+        <Link to="/" className="text-2xl font-bold text-white font-fayte tracking-wider">
           TRADEY
         </Link>
         <div className="flex items-center space-x-4">

@@ -2,6 +2,42 @@
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 
+/* FaytePixelTest-Hard font definition - hardcoded path */
+@font-face {
+  font-family: 'FaytePixelTest-Hard';
+  src: url('C:/Users/Tea/Downloads/tradey-web/frontend/src/assets/FaytePixelTest-Hard.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Alternative font-face with relative path */
+@font-face {
+  font-family: 'FaytePixelTest-Hard-Relative';
+  src: url('./assets/FaytePixelTest-Hard.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Avara-Black font definition - hardcoded path */
+@font-face {
+  font-family: 'Avara-Black';
+  src: url('C:/Users/Tea/Downloads/tradey-web/frontend/src/assets/Avara-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Alternative font-face with relative path */
+@font-face {
+  font-family: 'Avara-Black-Relative';
+  src: url('./assets/Avara-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   /* Tradey specific colors */
   --color-tradey-red: #a61f1e;
@@ -34,23 +70,27 @@
 
 @layer base {
   body {
-    font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+    font-family: 'Avara-Black', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Anton', sans-serif;
+    font-family: 'FaytePixelTest-Hard', sans-serif;
   }
   
   p, span, div, a, button, input, textarea {
-    font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+    font-family: 'Avara-Black', sans-serif;
   }
   
   button, .font-anton {
-    font-family: 'Anton', sans-serif;
+    font-family: 'FaytePixelTest-Hard', sans-serif;
   }
   
   .font-garamond {
-    font-family: 'EB Garamond', 'Cormorant Garamond', serif;
+    font-family: 'Avara-Black', sans-serif;
+  }
+  
+  .font-fayte {
+    font-family: 'FaytePixelTest-Hard', sans-serif;
   }
 }
 
