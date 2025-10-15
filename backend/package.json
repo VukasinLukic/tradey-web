@@ -5,9 +5,11 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
+    "dev:clean": "npm run kill-port && npm run dev",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "kill-port": "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :5000') DO TaskKill /PID %P /F || echo Port 5000 is not in use"
   },
   "dependencies": {
     "express": "^4.21.2",

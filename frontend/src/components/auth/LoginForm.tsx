@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebase/config';
+import { usersApi } from '../../services/api';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
@@ -18,8 +19,19 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/profile'); // Redirect to profile on successful login
+      // Step 1: Sign in with Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+      // Step 2: Verify user profile exists in backend
+      try {
+        await usersApi.getById(userCredential.user.uid);
+      } catch (profileError: any) {
+        // If user profile doesn't exist in backend, log it but continue
+        console.warn('User profile not found in backend:', profileError);
+      }
+
+      // Step 3: Navigate to profile page
+      navigate('/profile');
     } catch (error: any) {
       // Map Firebase error codes to user-friendly messages
       switch (error.code) {

@@ -1,73 +1,103 @@
-# TRADEY Backend
+# TRADEY Backend API
 
-Express + TypeScript + Firebase Admin SDK
+Backend REST API for the TRADEY clothing exchange platform built with Node.js, Express, TypeScript, and Firebase Admin SDK.
 
-## ⚠️ IMPORTANT: Security Setup Required
+## Quick Start
 
-**Before running the backend, you MUST:**
-
-1. **Rotate Firebase API Keys** (already done in frontend/.env)
-2. **Download Firebase Service Account Key:**
-   - Go to [Firebase Console](https://console.firebase.google.com) → Project Settings → Service Accounts
-   - Click "Generate new private key"
-   - Save the downloaded file as `firebase-service-account.json` in this directory
-   - **NEVER commit this file!** It's already in .gitignore
-
-3. **Environment is already configured** in `backend/.env` (created with your Firebase project ID)
-
-## Setup
-
-1. Install dependencies:
 ```bash
+# Install dependencies
 npm install
-```
 
-2. **Add Firebase Service Account Key** (see IMPORTANT section above)
+# Set up environment
+cp .env.example .env
+# Edit .env and add your Firebase credentials
 
-3. Run development server:
-```bash
+# Add Firebase service account key to firebase-service-account.json
+
+# Run development server
 npm run dev
 ```
 
-Server will start on http://localhost:5000
+Server: http://localhost:5000
 
 ## API Endpoints
 
-See `../docs/API.md` for complete API documentation.
+See `/docs/API.md` for complete documentation.
 
-### Health Check
-- `GET /api/health`
-
-### Posts
-- `GET /api/posts` - List posts
-- `GET /api/posts/:id` - Get post
-- `POST /api/posts` - Create post (auth)
-- `PUT /api/posts/:id` - Update post (auth)
-- `DELETE /api/posts/:id` - Delete post (auth)
-- `POST /api/posts/:id/like` - Like/unlike post (auth)
-
-### Users
+### Core Endpoints
+- `GET /api/health` - Health check
+- `GET /api/posts` - Get posts (public)
+- `POST /api/posts` - Create post (protected)
 - `GET /api/users/:id` - Get user profile
-- `PUT /api/users/:id` - Update profile (auth)
-- `POST /api/users/:id/follow` - Follow/unfollow (auth)
+- `POST /api/users/:id/follow` - Follow user (protected)
+- `GET /api/chats` - Get chats (protected)
+- `POST /api/chats/:chatId/messages` - Send message (protected)
 
-### Chat
-- `GET /api/chats` - List chats (auth)
-- `GET /api/chats/:chatId/messages` - Get messages (auth)
-- `POST /api/chats/:chatId/messages` - Send message (auth)
-- `POST /api/chats` - Create chat (auth)
+## Authentication
 
-## Build
+Protected routes require Firebase JWT token:
+```bash
+Authorization: Bearer <firebase-jwt-token>
+```
+
+## Project Structure
+
+```
+backend/src/
+├── config/         # Firebase Admin, CORS
+├── controllers/    # Request handlers
+├── middleware/     # Auth, error handling, rate limiting
+├── routes/        # API routes
+├── services/      # Firestore, Storage services
+└── server.ts      # Entry point
+```
+
+## Firestore Indexes
+
+Some queries require composite indexes. When you see an index error, click the provided URL to create it automatically.
+
+Required indexes:
+- Posts: `isAvailable` (ASC) + `createdAt` (DESC)
+- Chats: `participants` (ARRAY_CONTAINS) + `updatedAt` (DESC)
+
+## Environment Variables
+
+```env
+PORT=5000
+NODE_ENV=development
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_ADMIN_KEY_PATH=./firebase-service-account.json
+CORS_ORIGIN=http://localhost:5173
+```
+
+## Testing
 
 ```bash
-npm run build
-npm start
+# Health check
+curl http://localhost:5000/api/health
+
+# Get posts
+curl http://localhost:5000/api/posts
+
+# Protected route (requires token)
+curl -X POST http://localhost:5000/api/chats \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ## Docker
 
 ```bash
-docker build -t tradey-backend .
-docker run -p 5000:5000 --env-file .env tradey-backend
+docker-compose up backend
 ```
 
+## Security Features
+
+- JWT authentication
+- Rate limiting (100 req/15min)
+- Input validation (Zod)
+- CORS protection
+- Owner-only operations
+
+## License
+
+MIT

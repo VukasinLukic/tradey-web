@@ -1,25 +1,22 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { postsApi } from '../services/api';
 import type { Post } from '../types/entities';
 
 export function useRecentPosts(postLimit: number = 3) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const postsRef = collection(db, 'posts');
-        const q = query(postsRef, orderBy('createdAt', 'desc'), limit(postLimit));
-        const querySnapshot = await getDocs(q);
-        const recentPosts = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Post[];
-        setPosts(recentPosts);
-      } catch (err) {
+        const response = await postsApi.getAll({ limit: postLimit });
+        setPosts(response.data);
+      } catch (err: any) {
         console.error("Error fetching recent posts:", err);
+        setError(err);
       } finally {
         setLoading(false);
       }
@@ -28,5 +25,5 @@ export function useRecentPosts(postLimit: number = 3) {
     fetchPosts();
   }, [postLimit]);
 
-  return { posts, loading };
+  return { posts, loading, error };
 } 

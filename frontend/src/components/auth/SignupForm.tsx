@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/config';
+import { auth } from '../../firebase/config';
+import { usersApi } from '../../services/api';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { BELGRADE_MUNICIPALITIES } from '../../constants/locations';
-import type { UserProfile } from '../../types/entities';
 
 export function SignupForm() {
   const [username, setUsername] = useState('');
@@ -34,36 +33,50 @@ export function SignupForm() {
     setLoading(true);
 
     try {
+      // Step 1: Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const newUserProfile: Omit<UserProfile, 'following' | 'likes'> = {
+      // Step 2: Create user profile in backend (which writes to Firestore)
+      await usersApi.createProfile({
         uid: user.uid,
         username,
         email: user.email!,
         phone,
         location,
-        createdAt: new Date(),
-      };
+      });
 
-      await setDoc(doc(db, 'users', user.uid), newUserProfile);
-
+      // Step 3: Navigate to profile page
       navigate('/profile');
     } catch (error: any) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          setError('This email address is already in use.');
-          break;
-        case 'auth/invalid-email':
-          setError('Please enter a valid email address.');
-          break;
-        case 'auth/weak-password':
-          setError('The password is too weak. Please choose a stronger one.');
-          break;
-        default:
-          setError('An unexpected error occurred. Please try again.');
-          console.error(error);
-          break;
+      // Handle Firebase Auth errors
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            setError('This email address is already in use.');
+            break;
+          case 'auth/invalid-email':
+            setError('Please enter a valid email address.');
+            break;
+          case 'auth/weak-password':
+            setError('The password is too weak. Please choose a stronger one.');
+            break;
+          default:
+            setError('An unexpected error occurred. Please try again.');
+            console.error(error);
+            break;
+        }
+      }
+      // Handle backend API errors
+      else if (error.response) {
+        const message = error.response.data?.error || 'Failed to create user profile.';
+        setError(message);
+        console.error('Backend error:', error.response.data);
+      }
+      // Handle network errors
+      else {
+        setError('Network error. Please check if the backend is running.');
+        console.error(error);
       }
     } finally {
       setLoading(false);

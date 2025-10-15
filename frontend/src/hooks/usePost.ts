@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { postsApi } from '../services/api';
 import type { Post } from '../types/entities';
 
 export function usePost(postId: string | undefined) {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!postId) {
@@ -15,16 +15,18 @@ export function usePost(postId: string | undefined) {
 
     const fetchPost = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const docRef = doc(db, 'posts', postId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setPost({ id: docSnap.id, ...docSnap.data() } as Post);
-        } else {
-          console.log("No such document!");
-        }
-      } catch (err) {
+        const response = await postsApi.getById(postId);
+        setPost(response.data);
+      } catch (err: any) {
         console.error("Error fetching post:", err);
+        setError(err);
+
+        // Handle 404 - post not found
+        if (err.response?.status === 404) {
+          console.log("Post not found");
+        }
       } finally {
         setLoading(false);
       }
@@ -33,5 +35,5 @@ export function usePost(postId: string | undefined) {
     fetchPost();
   }, [postId]);
 
-  return { post, loading };
+  return { post, loading, error };
 } 

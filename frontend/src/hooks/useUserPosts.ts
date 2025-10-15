@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { usersApi } from '../services/api';
 import type { Post } from '../types/entities';
 
 export function useUserPosts(userId: string | undefined) {
@@ -16,21 +15,10 @@ export function useUserPosts(userId: string | undefined) {
 
     const fetchPosts = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const postsRef = collection(db, 'posts');
-        const q = query(
-          postsRef, 
-          where('authorId', '==', userId), 
-          orderBy('createdAt', 'desc')
-        );
-
-        const querySnapshot = await getDocs(q);
-        const userPosts = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Post[];
-        
-        setPosts(userPosts);
+        const response = await usersApi.getUserPosts(userId);
+        setPosts(response.data);
       } catch (err: any) {
         console.error("Error fetching user posts:", err);
         setError(err);

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { usersApi } from '../services/api';
 import type { UserProfile } from '../types/entities';
 
 export function useUserProfile(uid: string | undefined) {
@@ -16,19 +15,18 @@ export function useUserProfile(uid: string | undefined) {
 
     const fetchUserProfile = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const userDocRef = doc(db, 'users', uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          setUserProfile(userDocSnap.data() as UserProfile);
-        } else {
-          console.log('No such user profile!');
-          setError(new Error('User profile not found.'));
-        }
+        const response = await usersApi.getById(uid);
+        setUserProfile(response.data);
       } catch (err: any) {
         console.error('Error fetching user profile:', err);
         setError(err);
+
+        // Handle 404 - user not found
+        if (err.response?.status === 404) {
+          console.log('User profile not found');
+        }
       } finally {
         setLoading(false);
       }

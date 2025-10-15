@@ -1,0 +1,60 @@
+import { Router } from 'express';
+import userController from '../controllers/userController';
+import { authenticate, optionalAuthenticate } from '../middleware/authMiddleware';
+import multer from 'multer';
+
+const router = Router();
+
+// Configure multer for avatar uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 2 * 1024 * 1024, // 2MB for avatars
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed for avatars'));
+    }
+  },
+});
+
+/**
+ * Protected Routes (authentication required)
+ */
+
+// POST /api/users - Create user profile
+router.post('/', authenticate, userController.createUser);
+
+/**
+ * Public Routes
+ */
+
+// GET /api/users/:id - Get user profile
+router.get('/:id', optionalAuthenticate, userController.getUser);
+
+// GET /api/users/:id/posts - Get user's posts
+router.get('/:id/posts', optionalAuthenticate, userController.getUserPosts);
+
+// GET /api/users/:id/following - Get users that this user follows
+router.get('/:id/following', optionalAuthenticate, userController.getFollowing);
+
+/**
+ * Protected Routes (require authentication)
+ */
+
+// PUT /api/users/:id - Update user profile (owner only)
+router.put('/:id', authenticate, upload.single('avatar'), userController.updateUser);
+
+// POST /api/users/:id/follow - Follow/unfollow user
+router.post('/:id/follow', authenticate, userController.toggleFollow);
+
+// GET /api/users/:id/liked - Get liked posts (owner only)
+router.get('/:id/liked', authenticate, userController.getLikedPosts);
+
+// GET /api/users/:id/feed - Get feed from followed users
+router.get('/:id/feed', authenticate, userController.getFeed);
+
+export default router;

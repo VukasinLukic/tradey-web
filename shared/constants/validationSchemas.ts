@@ -14,6 +14,14 @@ export const createPostSchema = z.object({
 export const updatePostSchema = createPostSchema.partial();
 
 // User validation schemas
+export const createUserProfileSchema = z.object({
+  uid: z.string().min(1, 'User ID is required'),
+  username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username must be less than 30 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().regex(/^\d{9,10}$/, 'Phone number must be 9-10 digits'),
+  location: z.string().min(1, 'Location is required'),
+});
+
 export const updateUserProfileSchema = z.object({
   username: z.string().min(3).max(30).optional(),
   bio: z.string().max(500).optional(),
