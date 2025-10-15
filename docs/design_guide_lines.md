@@ -1,4 +1,7 @@
 TRADEY – Design Guidelines
+Sajt na engleskom jeziku!@!!!!!!
+
+
 Visual Style
 Fonts
 Naslovni font: FaytePixelTest-Soft – pixelni, gotički stil. Koristi se za glavne naslove stranica i elemente koji treba da budu highlightovani (hero sekcije, CTA-ovi, bannere).
@@ -45,4 +48,4 @@ Brend Ton
 Savremen, buntovan, ali inkluzivan
 Glavna poruka: „Dont throw it, tradey it."
 Gotički i kul estetika
-Sajt na engleskom jeziku
+Sajt na engleskom jeziku!@!!!!!!
