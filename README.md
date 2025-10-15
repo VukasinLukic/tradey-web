@@ -1,54 +1,187 @@
-# React + TypeScript + Vite
+# TRADEY - Platforma za Razmenu Polovne Odeće
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Moderan second-hand clothing trading platform koji omogućava korisnicima da razmenjuju odeću bez novca.
 
-Currently, two official plugins are available:
+## 🏗️ Struktura Projekta (Monorepo)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+tradey-web/
+├── frontend/          # React + Vite aplikacija
+├── backend/           # Express + Firebase Admin API
+├── shared/            # Deljeni tipovi i validacije
+├── docs/              # Dokumentacija projekta
+└── docker-compose.yaml
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Quick Start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Preduslovi
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+- Node.js 18+
+- npm ili yarn
+- Firebase projekat (Auth + Firestore + Storage)
+- Docker (opciono, za kontejnerizaciju)
+
+### Instalacija
+
+1. **Klonirajte repo:**
+   ```bash
+   git clone <repo-url>
+   cd tradey-web
+   ```
+
+2. **Instalirajte zavisnosti:**
+   ```bash
+   # Frontend
+   cd frontend
+   npm install
+   
+   # Backend
+   cd ../backend
+   npm install
+   
+   # Shared
+   cd ../shared
+   npm install
+   ```
+
+3. **Konfigurišite environment varijable:**
+
+   **Frontend (.env):**
+   ```bash
+   cd frontend
+   cp .env.example .env
+   # Popunite Firebase credentials
+   ```
+
+   **Backend (.env):**
+   ```bash
+   cd backend
+   cp .env.example .env
+   # Dodajte Firebase Admin SDK key path
+   ```
+
+4. **Preuzmite Firebase Service Account Key:**
+   - Idite na [Firebase Console](https://console.firebase.google.com) → Project Settings → Service Accounts
+   - Kliknite "Generate new private key"
+   - Sačuvajte kao `backend/firebase-service-account.json`
+   - **NEVER commit this file!** It's already in .gitignore
+
+5. **Environment files are already created** with your Firebase configuration:
+   - `frontend/.env` (Firebase client SDK)
+   - `backend/.env` (Server configuration)
+
+### Pokretanje (Development)
+
+**Opcija 1: Ručno pokretanje**
+
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
+cd frontend
+npm run dev
 ```
+
+Frontend: http://localhost:5173  
+Backend: http://localhost:5000
+
+**Opcija 2: Docker Compose**
+
+```bash
+docker-compose up --build
+```
+
+Frontend: http://localhost:3000  
+Backend: http://localhost:5000
+
+## 📦 Tech Stack
+
+### Frontend
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS 4
+- React Router
+- Firebase Client SDK (Auth only)
+- Axios
+- Zustand (state management)
+- Zod (validation)
+
+### Backend
+- Node.js + Express
+- TypeScript
+- Firebase Admin SDK
+- Multer (file uploads)
+- Express Rate Limit
+- CORS
+
+### Database & Services
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Storage
+
+## 🏛️ Arhitektura
+
+- **Frontend**: Komunicira sa backendom preko REST API-ja
+- **Backend**: Validira JWT tokene, upravlja Firestore i Storage operacijama
+- **Shared**: Centralizovani tipovi i Zod validacione šeme
+
+## 📚 Dokumentacija
+
+- [API Documentation](docs/API.md)
+- [Master Plan](docs/masterplan.md)
+- [Implementation Plan](docs/implementationplan.md)
+- [Project Structure](docs/struktura_projekta.md)
+
+## 🔐 Bezbednost
+
+- **NIKADA** ne commit-ujte `.env` fajlove
+- **NIKADA** ne commit-ujte `firebase-service-account.json`
+- Firebase API ključevi u frontendu su samo za Auth (security rules su na backendu)
+- Sve Firestore/Storage operacije idu preko backend API-ja
+
+## 🧪 Testiranje
+
+```bash
+# Frontend
+cd frontend
+npm run lint
+
+# Backend
+cd backend
+npm run lint
+```
+
+## 🐳 Docker
+
+Build i pokretanje:
+```bash
+docker-compose up --build
+```
+
+Zaustavljanje:
+```bash
+docker-compose down
+```
+
+## 📝 Git Workflow
+
+1. Kreirajte feature branch: `git checkout -b feature/nova-funkcija`
+2. Commit-ujte izmene: `git commit -m "feat: opis izmene"`
+3. Push na GitHub: `git push origin feature/nova-funkcija`
+4. Kreirajte Pull Request
+
+## 👥 Tim
+
+- **Vukašin** - Backend development, Firebase integration, Docker
+- **Teodora** - Frontend development, UI/UX design
+
+## 📄 Licenca
+
+MIT License
+
+---
+
+**Made with ❤️ for sustainable fashion**
