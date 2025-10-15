@@ -1,0 +1,18 @@
+export const BELGRADE_MUNICIPALITIES = [
+  'Čukarica',
+  'Novi Beograd',
+  'Palilula',
+  'Rakovica',
+  'Savski venac',
+  'Stari grad',
+  'Voždovac',
+  'Vračar',
+  'Zemun',
+  'Grocka',
+  'Barajevo',
+  'Lazarevac',
+  'Mladenovac',
+  'Obrenovac',
+  'Sopot',
+  'Surčin',
+]; 
