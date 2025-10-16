@@ -49,27 +49,33 @@ export function FooterContent() {
           <Link to="/chat" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             Messages
           </Link>
-          <a href="#" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/contact" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             Contact Us
-          </a>
+          </Link>
         </div>
 
         <div className="flex flex-col gap-2">
           <h3 className="mb-2 uppercase text-tradey-black font-garamond text-sm font-bold">
             Community
           </h3>
-          <a href="#" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/how-it-works" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             How it works
-          </a>
-          <a href="#" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+          </Link>
+          <Link to="/community-guidelines" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             Guidelines
-          </a>
-          <a href="#" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+          </Link>
+          <Link to="/support" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             Support
-          </a>
-          <a href="#" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+          </Link>
+          <Link to="/faq" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            FAQ
+          </Link>
+          <Link to="/privacy" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
             Privacy
-          </a>
+          </Link>
+          <Link to="/terms" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Terms of use
+          </Link>
         </div>
       </div>
 

@@ -1,14 +1,26 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { Spinner } from '../components/ui/Spinner';
 import { PostCard } from '../components/post/PostCard';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 export function ProfilePage() {
   const { user } = useAuth();
   const { userProfile, loading: profileLoading } = useUserProfile(user?.uid);
   const { posts, loading: postsLoading } = useUserPosts(user?.uid);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
 
   if (profileLoading) {
     return (
@@ -50,9 +62,17 @@ export function ProfilePage() {
 
           {/* Profile Info */}
           <div className="flex-grow">
-            <h1 className="font-fayte text-4xl md:text-5xl text-tradey-white mb-2">
-              {userProfile.username}
-            </h1>
+            <div className="flex items-center gap-4 mb-2">
+              <h1 className="font-fayte text-4xl md:text-5xl text-tradey-white">
+                {userProfile.username}
+              </h1>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 border-2 border-tradey-blue text-tradey-blue rounded-lg font-garamond font-bold hover:bg-tradey-blue/10 transition-colors"
+              >
+                Log Out
+              </button>
+            </div>
             <div className="space-y-1 font-garamond text-tradey-blue mb-4">
               <p className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

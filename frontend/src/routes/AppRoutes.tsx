@@ -12,6 +12,13 @@ import { LikedPage } from '../pages/Liked';
 import { FollowingPage } from '../pages/Following';
 import { UserProfilePage } from '../pages/UserProfile';
 import { NewPostPage } from '../pages/NewPost';
+import { HowItWorksPage } from '../pages/HowItWorks';
+import { CommunityGuidelinesPage } from '../pages/CommunityGuidelines';
+import { SupportPage } from '../pages/Support';
+import { ContactPage } from '../pages/Contact';
+import { FAQPage } from '../pages/FAQ';
+import { PrivacyPage } from '../pages/Privacy';
+import { TermsOfUsePage } from '../pages/TermsOfUse';
 
 export function AppRoutes() {
   return (
@@ -22,6 +29,15 @@ export function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/item/:id" element={<ItemViewPage />} />
       <Route path="/user/:id" element={<UserProfilePage />} />
+
+      {/* Static Pages */}
+      <Route path="/how-it-works" element={<HowItWorksPage />} />
+      <Route path="/community-guidelines" element={<CommunityGuidelinesPage />} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/faq" element={<FAQPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsOfUsePage />} />
 
       {/* Protected Routes */}
       <Route element={<AuthWrapper />}>
