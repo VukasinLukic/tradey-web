@@ -35,11 +35,9 @@ export function Header() {
               <Link to="/liked" className="text-tradey-blue hover:text-tradey-white transition-colors font-garamond">
                 Liked
               </Link>
-              <div className="w-24">
-                <Button onClick={handleLogout} variant="secondary" className="font-garamond">
-                  Log Out
-                </Button>
-              </div>
+              <Button onClick={handleLogout} tone="tradey-blue">
+                Log Out
+              </Button>
             </>
           ) : (
             <>

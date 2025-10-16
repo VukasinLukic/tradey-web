@@ -74,7 +74,7 @@ export function LoginForm() {
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <div>
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} tone="tradey-red">
           {loading ? 'Logging in...' : 'Log In'}
         </Button>
       </div>

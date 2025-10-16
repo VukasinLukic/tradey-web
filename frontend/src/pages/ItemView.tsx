@@ -52,7 +52,7 @@ export function ItemViewPage() {
           <p className="text-gray-300">{post.tradePreferences || 'N/A'}</p>
         </div>
         <div className="mt-8">
-          <Button>Start a Trade</Button>
+          <Button tone="tradey-red">Start a Trade</Button>
         </div>
       </div>
     </div>

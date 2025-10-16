@@ -123,7 +123,7 @@ export function PostEditor() {
 
       <div className="md:col-span-2 text-right">
         <div className="w-full md:w-auto md:inline-block">
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading} tone="tradey-red">
             {loading ? 'Submitting...' : 'Submit Post'}
           </Button>
         </div>

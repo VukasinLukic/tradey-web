@@ -4,8 +4,9 @@ export default {
     extend: {
       fontFamily: {
         'anton': ['FaytePixelTest-Hard', 'sans-serif'],
-        'garamond': ['Avara-Black', 'sans-serif'],
+        'garamond': ['Avara-Bold', 'sans-serif'],
         'fayte': ['FaytePixelTest-Hard', 'sans-serif'],
+        'avarabold': ['Avara-Bold', 'sans-serif'],
       },
       colors: {
         'tradey-red': 'var(--color-tradey-red)',

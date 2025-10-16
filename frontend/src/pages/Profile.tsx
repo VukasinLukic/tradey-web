@@ -38,7 +38,7 @@ export function ProfilePage() {
         </div>
         <div className="w-full md:w-auto">
           <Link to="/post/new">
-            <Button>Post New Item</Button>
+            <Button tone="tradey-red">Post New Item</Button>
           </Link>
         </div>
       </div>

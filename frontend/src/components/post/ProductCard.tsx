@@ -57,7 +57,7 @@ const ProductCard = ({ title, description, image, user, size, condition }: Produ
           </div>
         </div>
         
-        <Button className="w-full bg-red-700 hover:bg-red-800 text-white font-anton transition-all duration-300 rounded-xl shadow-lg transform hover:scale-105">
+        <Button tone="tradey-red" className="w-full">
           <MessageCircle className="mr-2 h-5 w-5" />
           KONTAKTIRAJ
         </Button>

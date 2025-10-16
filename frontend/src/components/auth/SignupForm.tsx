@@ -140,7 +140,7 @@ export function SignupForm() {
       />
       {error && <p className="text-red-500 text-sm py-2">{error}</p>}
       <div className="pt-2">
-        <Button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading} tone="tradey-red">
           {loading ? 'Creating Account...' : 'Create Account'}
         </Button>
       </div>
