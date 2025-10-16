@@ -11,7 +11,9 @@
       "Bash(findstr:*)",
       "Bash(timeout:*)",
       "Bash(npm run lint)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(cat:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
