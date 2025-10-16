@@ -7,19 +7,17 @@ const TOTAL_IMAGES = GRID_COLS * GRID_ROWS;
 // Array of image paths - you can replace these with different images
 const IMAGE_PATHS = [
   "/photos/home_page_photos/mjauuuuu.jpeg",  
-  "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/dont bela.jpg",
   "/photos/home_page_photos/download (14).jpeg",
   "/photos/home_page_photos/home_2.jpeg",
   "/photos/home_page_photos/download (13).jpeg",
   "/photos/home_page_photos/download (13).jpeg",
   "/photos/home_page_photos/download (2).jpeg",
   "/photos/home_page_photos/home_3.jpeg",  
-  "/photos/home_page_photos/download (14).jpeg",
   "/photos/home_page_photos/home_2.jpeg",
-  "/photos/home_page_photos/home_2.jpeg",
-  "/photos/home_page_photos/download (13).jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",  
+  "/photos/home_page_photos/throw it.jpg", 
   "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/tradey it.jpg",  
   "/photos/home_page_photos/download (14).jpeg",
   "/photos/home_page_photos/home_2.jpeg",
 ];
