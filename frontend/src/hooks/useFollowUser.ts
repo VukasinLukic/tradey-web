@@ -12,9 +12,9 @@ export function useFollowUser() {
     try {
       await usersApi.toggleFollow(userId);
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error toggling follow:', err);
-      setError(err);
+      setError(err as Error);
       return false;
     } finally {
       setLoading(false);

@@ -1,26 +1,20 @@
-import { Link } from 'react-router-dom';
+import { AuthLayout } from '../components/layout/AuthLayout';
 import { SignupForm } from '../components/auth/SignupForm';
 
 export function SignupPage() {
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white font-fayte tracking-wider">TRADEY</h1>
-          <p className="text-gray-400 mt-2">Create an account to join the community.</p>
-        </div>
-
-        <div className="bg-gray-900/50 p-8 rounded-lg shadow-lg backdrop-blur-sm border border-gray-800">
-          <SignupForm />
-        </div>
-
-        <p className="text-center text-gray-500 mt-6">
+    <AuthLayout
+      title="Create account"
+    >
+      <div className="mb-6">
+        <p className="text-sm text-tradey-black/70 font-sans">
           Already have an account?{' '}
-          <Link to="/login" className="text-red-500 hover:text-red-400 font-semibold">
-            Log in
-          </Link>
+          <a href="/login" className="text-tradey-red font-semibold hover:underline">
+            Sign in
+          </a>
         </p>
       </div>
-    </div>
+      <SignupForm />
+    </AuthLayout>
   );
 } 

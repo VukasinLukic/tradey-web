@@ -14,9 +14,9 @@ export function useRecentPosts(postLimit: number = 3) {
       try {
         const response = await postsApi.getAll({ limit: postLimit });
         setPosts(response.data);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching recent posts:", err);
-        setError(err);
+        setError(err as Error);
       } finally {
         setLoading(false);
       }

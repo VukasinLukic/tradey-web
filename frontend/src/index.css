@@ -2,37 +2,19 @@
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 
-/* FaytePixelTest-Hard font definition - hardcoded path */
+/* FaytePixelTest-Hard font definition */
 @font-face {
   font-family: 'FaytePixelTest-Hard';
-  src: url('C:/Users/Tea/Downloads/tradey-web/frontend/src/assets/FaytePixelTest-Hard.otf') format('opentype');
+  src: url('/src/assets/FaytePixelTest-Hard.otf') format('opentype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
 
-/* Alternative font-face with relative path */
-@font-face {
-  font-family: 'FaytePixelTest-Hard-Relative';
-  src: url('./assets/FaytePixelTest-Hard.otf') format('opentype');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Avara-Black font definition - hardcoded path */
+/* Avara-Black font definition */
 @font-face {
   font-family: 'Avara-Black';
-  src: url('C:/Users/Tea/Downloads/tradey-web/frontend/src/assets/Avara-Black.woff') format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Alternative font-face with relative path */
-@font-face {
-  font-family: 'Avara-Black-Relative';
-  src: url('./assets/Avara-Black.woff') format('woff');
+  src: url('/src/assets/Avara-Black.woff') format('woff');
   font-weight: 900;
   font-style: normal;
   font-display: swap;

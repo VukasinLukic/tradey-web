@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { usersApi } from '../../services/api';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
 import { BELGRADE_MUNICIPALITIES } from '../../constants/locations';
 
 export function SignupForm() {
@@ -33,11 +31,17 @@ export function SignupForm() {
     setLoading(true);
 
     try {
-      // Step 1: Create user in Firebase Auth
+      // Step 1: Ensure persistence is set to LOCAL (persists across browser sessions)
+      await setPersistence(auth, browserLocalPersistence);
+
+      // Step 2: Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Step 2: Create user profile in backend (which writes to Firestore)
+      // Step 3: Force token refresh to ensure it's cached
+      await user.getIdToken(true);
+
+      // Step 4: Create user profile in backend (which writes to Firestore)
       await usersApi.createProfile({
         uid: user.uid,
         username,
@@ -46,12 +50,13 @@ export function SignupForm() {
         location,
       });
 
-      // Step 3: Navigate to profile page
+      // Step 5: Navigate to profile page
       navigate('/profile');
-    } catch (error: any) {
+    } catch (error) {
       // Handle Firebase Auth errors
-      if (error.code) {
-        switch (error.code) {
+      const firebaseError = error as { code?: string; response?: { data?: { error?: string } }; message?: string };
+      if (firebaseError.code) {
+        switch (firebaseError.code) {
           case 'auth/email-already-in-use':
             setError('This email address is already in use.');
             break;
@@ -68,10 +73,10 @@ export function SignupForm() {
         }
       }
       // Handle backend API errors
-      else if (error.response) {
-        const message = error.response.data?.error || 'Failed to create user profile.';
+      else if (firebaseError.response) {
+        const message = firebaseError.response.data?.error || 'Failed to create user profile.';
         setError(message);
-        console.error('Backend error:', error.response.data);
+        console.error('Backend error:', firebaseError.response.data);
       }
       // Handle network errors
       else {
@@ -84,66 +89,130 @@ export function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        id="username"
-        label="Username"
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        required
-        autoComplete="username"
-      />
-      <Input
-        id="email"
-        label="Email Address"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-        autoComplete="email"
-      />
-      <Input
-        id="phone"
-        label="Phone Number"
-        type="tel"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        required
-        autoComplete="tel"
-      />
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Username Input */}
       <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="username" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          Username
+        </label>
+        <input
+          id="username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          autoComplete="username"
+          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          placeholder="your_username"
+        />
+      </div>
+
+      {/* Email Input */}
+      <div>
+        <label htmlFor="email" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          autoComplete="email"
+          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          placeholder="name@example.com"
+        />
+      </div>
+
+      {/* Phone Input */}
+      <div>
+        <label htmlFor="phone" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          Phone Number
+        </label>
+        <input
+          id="phone"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+          autoComplete="tel"
+          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          placeholder="060 123 4567"
+        />
+      </div>
+
+      {/* Location Select */}
+      <div>
+        <label htmlFor="location" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
           Location (Belgrade)
         </label>
         <select
           id="location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
         >
           {BELGRADE_MUNICIPALITIES.map((loc) => (
-            <option key={loc} value={loc}>
+            <option key={loc} value={loc} className="bg-tradey-white text-tradey-black">
               {loc}
             </option>
           ))}
         </select>
       </div>
-      <Input
-        id="password"
-        label="Password (min. 6 characters)"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        autoComplete="new-password"
-      />
-      {error && <p className="text-red-500 text-sm py-2">{error}</p>}
-      <div className="pt-2">
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Creating Account...' : 'Create Account'}
-        </Button>
+
+      {/* Password Input */}
+      <div>
+        <label htmlFor="password" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          Password
+        </label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="new-password"
+          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          placeholder="••••••••"
+        />
+        <p className="text-tradey-black/60 text-xs font-sans mt-1">Must be at least 6 characters</p>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-tradey-red/10 border border-tradey-red rounded-lg p-3">
+          <p className="text-tradey-red text-sm font-sans">{error}</p>
+        </div>
+      )}
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3.5 bg-tradey-red hover:bg-tradey-red/80 text-tradey-white font-sans text-base font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-6"
+      >
+        {loading ? 'Creating account...' : 'Create account'}
+      </button>
+
+      {/* Divider */}
+      <div className="relative py-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-tradey-black/10"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-tradey-white text-tradey-black/60 font-sans">
+            Already have an account?
+          </span>
+        </div>
+      </div>
+
+      {/* Log In Link */}
+      <a
+        href="/login"
+        className="block w-full py-3.5 text-center bg-tradey-white hover:bg-tradey-black/5 border border-tradey-black/20 text-tradey-black font-sans text-base font-semibold rounded-full transition-colors"
+      >
+        Log in
+      </a>
     </form>
   );
 } 

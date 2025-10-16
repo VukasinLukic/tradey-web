@@ -12,9 +12,9 @@ export function useLikePost() {
     try {
       await postsApi.toggleLike(postId);
       return true;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error toggling like:', err);
-      setError(err);
+      setError(err as Error);
       return false;
     } finally {
       setLoading(false);

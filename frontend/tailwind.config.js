@@ -16,19 +16,19 @@ export default {
       translate: {
         '101': '101%',
       },
-      animation: {
-        'fade-in': 'fadeIn 0.6s ease-out forwards',
-        'marquee': 'marquee 15s linear infinite',
-      },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: 0, transform: 'translateY(10px)' },
-          '100%': { opacity: 1, transform: 'translateY(0)' },
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         marquee: {
           'from': { transform: 'translateX(0%)' },
           'to': { transform: 'translateX(-50%)' }
         },
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'marquee': 'marquee 15s linear infinite',
       },
     },
   },
