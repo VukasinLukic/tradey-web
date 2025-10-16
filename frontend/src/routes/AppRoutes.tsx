@@ -6,6 +6,7 @@ import { IndexPage } from '../pages/Index';
 import { LoginPage } from '../pages/Login';
 import { SignupPage } from '../pages/Signup';
 import { ProfilePage } from '../pages/Profile';
+import { MarketplacePage } from '../pages/Marketplace';
 import { ItemViewPage } from '../pages/ItemView';
 import { ChatPage } from '../pages/Chat';
 import { LikedPage } from '../pages/Liked';
@@ -27,6 +28,7 @@ export function AppRoutes() {
       <Route path="/" element={<IndexPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/item/:id" element={<ItemViewPage />} />
       <Route path="/user/:id" element={<UserProfilePage />} />
 
