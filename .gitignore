@@ -1,44 +1,49 @@
-# Logs
+Logs
 logs
-*.log
-npm-debug.log*
+.log
+npm-debug.log
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
+Dependencies
 node_modules/
-**/node_modules/
+/node_modules/
 
-# Build outputs
+Build outputs
 dist/
 dist-ssr/
-**/dist/
-*.local
+/dist/
+.local
 
-# Environment variables
+Environment variables
+.env
+.env.local
+.env..local
+/.env
+/.env.local
 
+Firebase credentials (CRITICAL - NEVER COMMIT!)
+*/firebase-service-account.json
+firebase-service-account.json
 
-# Firebase credentials (CRITICAL - NEVER COMMIT!)
-
-
-# Editor directories and files
+Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
-*.ntvs*
+.ntvs
 *.njsproj
 *.sln
 *.sw?
 
-# OS files
+OS files
 Thumbs.db
 .DS_Store
 
-# Old root files (after restructuring)
+Old root files (after restructuring)
 /src/
 /public/
 /vite.config.ts
