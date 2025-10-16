@@ -95,13 +95,13 @@ export function FooterContent() {
       </div>
 
       {/* Logo and Copyright */}
-      <div className="mt-8 flex flex-col items-center gap-6">
+      <div className="mt-8 flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <img 
           src="/photos/svg logo.svg" 
           alt="TRADEY" 
-          className="w-48 md:w-64 h-auto"
+          className="w-64 md:w-80 lg:w-96 h-auto"
         />
-        <p className="text-tradey-blue font-garamond text-sm text-center">
+        <p className="text-tradey-blue font-garamond text-sm md:text-base text-center md:text-right md:pb-4">
           ©2024 TRADEY. All rights reserved.
         </p>
       </div>

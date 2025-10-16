@@ -27,8 +27,22 @@ const IMAGE_PATHS = [
 export function HeroSection() {
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
   const [showLogo, setShowLogo] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   useEffect(() => {
+    // Check if animation has already run
+    const animationCompleted = sessionStorage.getItem('heroAnimationCompleted');
+    
+    if (animationCompleted) {
+      // If already animated in this session, show everything immediately
+      setShowLogo(true);
+      const allIndices = Array.from({ length: TOTAL_IMAGES }, (_, i) => i);
+      setLoadedImages(new Set(allIndices));
+      setHasAnimated(true);
+      return;
+    }
+
+    // First time animation
     // Wait 2 seconds, then show logo
     setTimeout(() => {
       setShowLogo(true);
@@ -42,6 +56,12 @@ export function HeroSection() {
     shuffled.forEach((index, i) => {
       setTimeout(() => {
         setLoadedImages(prev => new Set([...prev, index]));
+        
+        // Mark animation as completed after last image loads
+        if (index === shuffled[shuffled.length - 1]) {
+          sessionStorage.setItem('heroAnimationCompleted', 'true');
+          setHasAnimated(true);
+        }
       }, 3000 + i * 150); // Start after 3s, then 150ms delay between each image
     });
   }, []);
