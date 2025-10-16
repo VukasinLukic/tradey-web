@@ -6,6 +6,7 @@ import { useUserPosts } from '../hooks/useUserPosts';
 import { Spinner } from '../components/ui/Spinner';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
 
 export function ProfilePage() {
   const { user } = useAuth();
@@ -45,9 +46,10 @@ export function ProfilePage() {
   const followersCount = 0;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12">
-      {/* Profile Header - Modern Grid Layout */}
-      <div className="mb-16">
+    <>
+      <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12">
+        {/* Profile Header - Modern Grid Layout */}
+        <div className="mb-16">
         {/* Top Row - Avatar + Name + Bio */}
         <div className="flex flex-col md:flex-row gap-8 mb-10">
           {/* Avatar */}
@@ -262,124 +264,129 @@ export function ProfilePage() {
         )}
       </div>
 
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <div
-          className="fixed inset-0 bg-tradey-black/50 flex items-center justify-center z-50 px-4"
-          onClick={() => setShowEditModal(false)}
-        >
+        {/* Edit Profile Modal */}
+        {showEditModal && (
           <div
-            className="bg-white border border-tradey-black/20 max-w-lg w-full p-8"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-tradey-black/50 flex items-center justify-center z-50 px-4"
+            onClick={() => setShowEditModal(false)}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-fayte text-2xl text-tradey-black uppercase">Edit Profile</h3>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="text-tradey-black/50 hover:text-tradey-black transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <form className="space-y-5">
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center mb-6">
-                <div className="w-24 h-24 rounded-full bg-gray-100 overflow-hidden mb-4">
-                  {userProfile.avatarUrl ? (
-                    <img
-                      src={userProfile.avatarUrl}
-                      alt={userProfile.username}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-tradey-red/10">
-                      <span className="font-fayte text-4xl text-tradey-red">
-                        {userProfile.username.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <label className="px-4 py-2 border border-tradey-black text-tradey-black font-sans text-xs hover:bg-tradey-black hover:text-white transition-all cursor-pointer">
-                  Change Photo
-                  <input type="file" accept="image/*" className="hidden" />
-                </label>
-              </div>
-
-              {/* Username */}
-              <div>
-                <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  defaultValue={userProfile.username}
-                  className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors"
-                />
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
-                  Bio
-                </label>
-                <textarea
-                  defaultValue={userProfile.bio}
-                  placeholder="Tell us about yourself..."
-                  rows={3}
-                  className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors resize-none"
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  defaultValue={userProfile.location}
-                  placeholder="City, Country"
-                  className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors"
-                />
-              </div>
-
-              {/* Email (readonly) */}
-              <div>
-                <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={userProfile.email}
-                  readOnly
-                  className="w-full px-4 py-2 border border-tradey-black/10 text-tradey-black/40 font-sans text-sm bg-gray-50 cursor-not-allowed"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 pt-4">
+            <div
+              className="bg-white border border-tradey-black/20 max-w-lg w-full p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-fayte text-2xl text-tradey-black uppercase">Edit Profile</h3>
                 <button
-                  type="button"
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-6 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm hover:border-tradey-black transition-colors"
+                  className="text-tradey-black/50 hover:text-tradey-black transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-2 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
-                >
-                  Save Changes
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
-            </form>
+
+              <form className="space-y-5">
+                {/* Avatar Upload */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 overflow-hidden mb-4">
+                    {userProfile.avatarUrl ? (
+                      <img
+                        src={userProfile.avatarUrl}
+                        alt={userProfile.username}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-tradey-red/10">
+                        <span className="font-fayte text-4xl text-tradey-red">
+                          {userProfile.username.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <label className="px-4 py-2 border border-tradey-black text-tradey-black font-sans text-xs hover:bg-tradey-black hover:text-white transition-all cursor-pointer">
+                    Change Photo
+                    <input type="file" accept="image/*" className="hidden" />
+                  </label>
+                </div>
+
+                {/* Username */}
+                <div>
+                  <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={userProfile.username}
+                    className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors"
+                  />
+                </div>
+
+                {/* Bio */}
+                <div>
+                  <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
+                    Bio
+                  </label>
+                  <textarea
+                    defaultValue={userProfile.bio}
+                    placeholder="Tell us about yourself..."
+                    rows={3}
+                    className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors resize-none"
+                  />
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={userProfile.location}
+                    placeholder="City, Country"
+                    className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors"
+                  />
+                </div>
+
+                {/* Email (readonly) */}
+                <div>
+                  <label className="block font-sans text-tradey-black/60 text-xs uppercase tracking-wide mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={userProfile.email}
+                    readOnly
+                    className="w-full px-4 py-2 border border-tradey-black/10 text-tradey-black/40 font-sans text-sm bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 px-6 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm hover:border-tradey-black transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-2 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+
+      <StickyFooter heightValue="80dvh">
+        <FooterContent />
+      </StickyFooter>
+    </>
   );
 }
 
