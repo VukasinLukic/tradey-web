@@ -34,60 +34,48 @@ export function StickyFooter({
 
 export function FooterContent() {
   return (
-    <div className="py-12 px-6 md:px-12 lg:px-20 h-full w-full flex flex-col justify-between bg-tradey-black">
-      {/* Main Content */}
-      <div className="flex-grow flex flex-col justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 lg:gap-20 mb-16">
-          {/* Logo Section - Takes full width on mobile, spans columns on larger screens */}
-          <div className="lg:col-span-1 flex flex-col justify-start">
-            <div className="w-full max-w-md">
-            <svg viewBox="0 0 200 60" className="text-tradey-blue w-full h-auto">
-  <path d="M10 ... Z" fill="currentColor" />  
-</svg>
+    <div className="py-8 px-6 md:px-12 h-full w-full flex flex-col justify-between bg-tradey-blue">
+      <div className="grid sm:grid-cols-2 grid-cols-1 shrink-0 gap-12 md:gap-20">
+        <div className="flex flex-col gap-2">
+          <h3 className="mb-2 uppercase text-tradey-black font-garamond text-sm font-bold">
+            About
+          </h3>
+          <Link to="/" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Home
+          </Link>
+          <Link to="/profile" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Profile
+          </Link>
+          <Link to="/chat" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Messages
+          </Link>
+          <Link to="/contact" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Contact Us
+          </Link>
+        </div>
 
-            </div>
-            <p className="text-tradey-blue font-garamond text-sm mt-6 max-w-xs">
-              A platform for direct clothing exchange. Sustainable fashion through creative trade.
-            </p>
-          </div>
-
-          {/* About Links */}
-          <div className="flex flex-col gap-3">
-            <h3 className="mb-3 uppercase text-tradey-blue font-garamond text-xs font-bold tracking-wider">
-              About
-            </h3>
-            <Link to="/" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Home
-            </Link>
-            <Link to="/profile" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Profile
-            </Link>
-            <Link to="/chat" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Messages
-            </Link>
-            <a href="#" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Contact Us
-            </a>
-          </div>
-
-          {/* Community Links */}
-          <div className="flex flex-col gap-3">
-            <h3 className="mb-3 uppercase text-tradey-blue font-garamond text-xs font-bold tracking-wider">
-              Community
-            </h3>
-            <a href="#" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              How it works
-            </a>
-            <a href="#" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Guidelines
-            </a>
-            <a href="#" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Support
-            </a>
-            <a href="#" className="text-tradey-blue font-garamond hover:text-tradey-white transition-colors text-sm">
-              Privacy
-            </a>
-          </div>
+        <div className="flex flex-col gap-2">
+          <h3 className="mb-2 uppercase text-tradey-black font-garamond text-sm font-bold">
+            Community
+          </h3>
+          <Link to="/how-it-works" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            How it works
+          </Link>
+          <Link to="/community-guidelines" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Guidelines
+          </Link>
+          <Link to="/support" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Support
+          </Link>
+          <Link to="/faq" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            FAQ
+          </Link>
+          <Link to="/privacy" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Privacy
+          </Link>
+          <Link to="/terms" className="text-tradey-black font-garamond hover:opacity-70 transition-opacity">
+            Terms of use
+          </Link>
         </div>
       </div>
 
