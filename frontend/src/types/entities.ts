@@ -21,6 +21,7 @@ export interface UserProfile {
   following?: string[];
   likedPosts?: string[];
   createdAt: Timestamp | Date;
+  role?: 'user' | 'admin' | 'moderator';
 }
 
 export interface Post {

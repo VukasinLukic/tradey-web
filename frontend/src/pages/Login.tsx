@@ -3,10 +3,7 @@ import { LoginForm } from '../components/auth/LoginForm';
 
 export function LoginPage() {
   return (
-    <AuthLayout
-      title="Welcome back"
-      subtitle="Log in to your TRADEY account"
-    >
+    <AuthLayout title="Welcome back">
       <LoginForm />
     </AuthLayout>
   );
