@@ -7,23 +7,26 @@ export function useChatMessages(chatId: string | null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (silent = false) => {
     if (!chatId) return;
 
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const response = await chatApi.getMessages(chatId);
       // Backend returns { messages: [...], nextCursor, hasMore }
-      setMessages(response.data.messages || []);
+      const fetchedMessages = response.data.messages || [];
+      // Reverse order - newest at bottom (backend returns desc order)
+      setMessages(fetchedMessages.reverse());
     } catch (err) {
       console.error('Error fetching messages:', err);
       setError(err as Error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [chatId]);
 
+  // Initial fetch
   useEffect(() => {
     if (!chatId) {
       setMessages([]);
@@ -31,6 +34,17 @@ export function useChatMessages(chatId: string | null) {
     }
 
     fetchMessages();
+  }, [chatId, fetchMessages]);
+
+  // Poll for new messages every 3 seconds
+  useEffect(() => {
+    if (!chatId) return;
+
+    const interval = setInterval(() => {
+      fetchMessages(true); // Silent fetch (no loading spinner)
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [chatId, fetchMessages]);
 
   const sendMessage = async (text: string): Promise<boolean> => {

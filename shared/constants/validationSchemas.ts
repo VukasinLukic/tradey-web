@@ -26,10 +26,10 @@ export const createUserProfileSchema = z.object({
 
 export const updateUserProfileSchema = z.object({
   username: z.string().min(3).max(30).optional(),
-  bio: z.string().max(500).optional(),
-  location: z.string().optional(),
-  avatarUrl: z.string().url().optional(),
-  phone: z.string().regex(/^\d{9,10}$/).optional()
+  bio: z.string().max(500).optional().or(z.literal('')),
+  location: z.string().optional().or(z.literal('')),
+  avatarUrl: z.string().url().optional().or(z.literal('')),
+  phone: z.string().regex(/^\d{9,10}$/).optional().or(z.literal(''))
 });
 
 // Chat validation schemas

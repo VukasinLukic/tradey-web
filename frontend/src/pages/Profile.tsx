@@ -37,6 +37,11 @@ export function ProfilePage() {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Image is too large. Maximum size is 5MB.', 'error');
+        return;
+      }
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
     }
@@ -61,9 +66,10 @@ export function ProfilePage() {
       showToast('Profile updated successfully!', 'success');
       setShowEditModal(false);
       refetch(); // Refetch profile data
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
-      showToast('Failed to update profile.', 'error');
+      const errorMessage = error.response?.data?.error || 'Failed to update profile.';
+      showToast(errorMessage, 'error');
     } finally {
       setIsUpdating(false);
     }

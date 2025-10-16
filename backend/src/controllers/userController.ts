@@ -138,6 +138,12 @@ export class UserController {
     const { id } = req.params;
     const userId = req.user!.uid;
 
+    console.log('🔍 UPDATE USER - Request received:');
+    console.log('   User ID:', id);
+    console.log('   Auth User ID:', userId);
+    console.log('   Body:', req.body);
+    console.log('   File:', req.file);
+
     // Check ownership
     if (id !== userId) {
       res.status(403).json({ error: 'Forbidden: You can only update your own profile' });
@@ -151,15 +157,20 @@ export class UserController {
       return;
     }
 
+    console.log('✅ Current user data:', user);
+
     // Validate request body
     const validation = updateUserProfileSchema.safeParse(req.body);
     if (!validation.success) {
+      console.error('❌ Validation failed:', validation.error.issues);
       res.status(400).json({
         error: 'Validation failed',
         errors: validation.error.issues,
       });
       return;
     }
+
+    console.log('✅ Validation passed:', validation.data);
 
     // Handle avatar upload if provided
     let avatarUrl = validation.data.avatarUrl;

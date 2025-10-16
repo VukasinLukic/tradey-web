@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useChats } from '../hooks/useChats';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { Spinner } from '../components/ui/Spinner';
+import { Toast } from '../components/ui/Toast';
+import { usersApi } from '../services/api';
 
 export function ChatPage() {
   const { user } = useAuth();
@@ -11,6 +13,47 @@ export function ChatPage() {
   const { messages, loading: messagesLoading, sendMessage, markAllAsRead } = useChatMessages(selectedChatId);
   const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string; username: string } | null>(null);
+  const lastToastMessageIdRef = useRef<string | null>(null);
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
+
+  // Memoized toast close handler
+  const handleToastClose = useCallback(() => {
+    setToastMessage(null);
+  }, []);
+
+  // Fetch usernames for all chat participants
+  useEffect(() => {
+    const fetchUsernames = async () => {
+      if (!chats || chats.length === 0) return;
+
+      const userIds = new Set<string>();
+      chats.forEach(chat => {
+        chat.participants.forEach(id => {
+          if (id !== user?.uid) {
+            userIds.add(id);
+          }
+        });
+      });
+
+      const usernameMap: Record<string, string> = {};
+      await Promise.all(
+        Array.from(userIds).map(async (userId) => {
+          try {
+            const response = await usersApi.getById(userId);
+            usernameMap[userId] = response.data.username || `User ${userId.substring(0, 8)}`;
+          } catch (error) {
+            console.error(`Failed to fetch username for ${userId}:`, error);
+            usernameMap[userId] = `User ${userId.substring(0, 8)}`;
+          }
+        })
+      );
+
+      setUsernames(usernameMap);
+    };
+
+    fetchUsernames();
+  }, [chats, user?.uid]);
 
   // Auto-select first chat when chats load
   useEffect(() => {
@@ -18,6 +61,30 @@ export function ChatPage() {
       setSelectedChatId(chats[0].id);
     }
   }, [chats, chatsLoading, selectedChatId]);
+
+  // Reset message count when changing chats
+  useEffect(() => {
+    lastToastMessageIdRef.current = null;
+    setToastMessage(null);
+  }, [selectedChatId]);
+
+  // Detect new messages and show toast
+  useEffect(() => {
+    if (messages.length > 0) {
+      const newMessage = messages[messages.length - 1];
+      if (
+        newMessage?.senderId &&
+        newMessage.senderId !== user?.uid &&
+        newMessage.id !== lastToastMessageIdRef.current
+      ) {
+        lastToastMessageIdRef.current = newMessage.id;
+        setToastMessage({
+          text: newMessage.text,
+          username: usernames[newMessage.senderId] || `User ${newMessage.senderId.substring(0, 8)}`,
+        });
+      }
+    }
+  }, [messages, user?.uid, usernames]);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -130,6 +197,9 @@ export function ChatPage() {
           ) : (
             chats.map(chat => {
               const otherParticipantId = chat.participants.find(id => id !== user?.uid);
+              const displayUsername = otherParticipantId
+                ? (usernames[otherParticipantId] || `User ${otherParticipantId.substring(0, 8)}`)
+                : 'Unknown User';
               return (
                 <button
                   key={chat.id}
@@ -142,12 +212,12 @@ export function ChatPage() {
                     {/* Avatar placeholder */}
                     <div className="w-12 h-12 rounded-full bg-tradey-black/10 flex-shrink-0 flex items-center justify-center">
                       <span className="font-sans text-tradey-black text-sm font-medium">
-                        {otherParticipantId?.charAt(0).toUpperCase()}
+                        {displayUsername.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-sans font-medium text-tradey-black text-sm truncate">
-                        User {otherParticipantId?.substring(0, 8)}
+                        {displayUsername}
                       </p>
                       <p className="font-sans text-xs text-tradey-black/50 truncate">
                         {chat.lastMessage || 'No messages yet'}
@@ -254,6 +324,15 @@ export function ChatPage() {
           )}
         </div>
       </div>
+
+      {/* Toast notification for new messages */}
+      {toastMessage && (
+        <Toast
+          message={toastMessage.text}
+          username={toastMessage.username}
+          onClose={handleToastClose}
+        />
+      )}
     </div>
   );
 } 

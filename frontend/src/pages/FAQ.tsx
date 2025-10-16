@@ -92,50 +92,45 @@ export const FAQPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-tradey-black text-tradey-white">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-tradey-white">
+      <div className="max-w-[1400px] mx-auto px-6 py-12">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-tradey-red mb-6">
-            Frequently Asked Questions
+        <div className="mb-12">
+          <h1 className="font-fayte text-7xl md:text-9xl text-tradey-black mb-2 tracking-tight uppercase">
+            FAQ
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="font-sans text-tradey-black/60 text-sm max-w-2xl">
             Find answers to common questions about using TRADEY for sustainable fashion swaps.
           </p>
         </div>
 
         {/* Search Bar */}
-        <div className="mb-12">
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search FAQs..."
-                className="w-full px-4 py-3 pl-12 border border-gray-600 rounded-lg focus:ring-2 focus:ring-tradey-red focus:border-transparent bg-gray-800 text-white"
-              />
-              <div className="absolute left-4 top-3.5 text-gray-400">
-                🔍
-              </div>
-            </div>
+        <div className="mb-16">
+          <div className="max-w-md">
+            <input
+              type="text"
+              placeholder="Search FAQs..."
+              className="w-full px-4 py-3 border border-tradey-black/20 focus:outline-none focus:border-tradey-red bg-white text-tradey-black font-sans text-sm"
+            />
           </div>
         </div>
 
         {/* FAQ Items */}
-        <div className="space-y-4 mb-16">
+        <div className="space-y-4 mb-20">
           {faqData.map((item) => (
-            <div key={item.id} className="bg-gray-800 rounded-lg">
+            <div key={item.id} className="border-b border-tradey-black/10">
               <button
                 onClick={() => toggleItem(item.id)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors"
+                className="w-full py-6 text-left flex items-center justify-between hover:bg-tradey-black/5 transition-colors"
               >
-                <h3 className="text-lg font-semibold pr-4">{item.question}</h3>
-                <span className={`text-2xl transition-transform ${openItems.has(item.id) ? 'rotate-45' : ''}`}>
+                <h3 className="font-fayte text-lg text-tradey-black uppercase pr-4">{item.question}</h3>
+                <span className={`text-2xl text-tradey-red transition-transform ${openItems.has(item.id) ? 'rotate-45' : ''}`}>
                   +
                 </span>
               </button>
               {openItems.has(item.id) && (
-                <div className="px-6 pb-4">
-                  <p className="text-gray-300 leading-relaxed">{item.answer}</p>
+                <div className="pb-6">
+                  <p className="font-sans text-tradey-black/70 text-sm leading-relaxed">{item.answer}</p>
                 </div>
               )}
             </div>
@@ -143,49 +138,40 @@ export const FAQPage: React.FC = () => {
         </div>
 
         {/* Still Need Help */}
-        <div className="bg-tradey-red text-white p-8 rounded-lg text-center">
-          <h2 className="text-2xl font-bold mb-4">Still Need Help?</h2>
-          <p className="mb-6 opacity-90">
+        <div className="bg-tradey-red text-white p-8 mb-20">
+          <h2 className="font-fayte text-3xl mb-4 uppercase">Still Need Help?</h2>
+          <p className="font-sans text-sm mb-6 opacity-90">
             Can't find the answer you're looking for? Our support team is here to help.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-tradey-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button className="bg-white text-tradey-red px-6 py-3 font-sans text-sm font-medium hover:bg-gray-100 transition-colors">
               Contact Support
             </button>
-            <button className="bg-tradey-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+            <button className="bg-white text-tradey-red px-6 py-3 font-sans text-sm font-medium hover:bg-gray-100 transition-colors">
               Browse Community Forum
             </button>
           </div>
         </div>
 
         {/* Quick Tips */}
-        <div className="mt-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Quick Tips for Successful Swaps</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+        <div>
+          <h2 className="font-fayte text-4xl text-tradey-black mb-12 uppercase text-center">Quick Tips for Successful Swaps</h2>
+          <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="w-16 h-16 bg-tradey-red text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
-                📸
-              </div>
-              <h3 className="text-xl font-bold mb-3">Great Photos</h3>
-              <p className="text-gray-600">
+              <h3 className="font-fayte text-xl text-tradey-black mb-3 uppercase">Great Photos</h3>
+              <p className="font-sans text-tradey-black/60 text-sm">
                 Clear, well-lit photos from multiple angles help others see exactly what you're offering.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-tradey-red text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
-                💬
-              </div>
-              <h3 className="text-xl font-bold mb-3">Clear Communication</h3>
-              <p className="text-gray-600">
+              <h3 className="font-fayte text-xl text-tradey-black mb-3 uppercase">Clear Communication</h3>
+              <p className="font-sans text-tradey-black/60 text-sm">
                 Be responsive and clear about item details, swap preferences, and meeting arrangements.
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-tradey-red text-white rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
-                ⭐
-              </div>
-              <h3 className="text-xl font-bold mb-3">Honest Reviews</h3>
-              <p className="text-gray-600">
+              <h3 className="font-fayte text-xl text-tradey-black mb-3 uppercase">Honest Reviews</h3>
+              <p className="font-sans text-tradey-black/60 text-sm">
                 Leave fair reviews after swaps to help build trust and improve the community.
               </p>
             </div>

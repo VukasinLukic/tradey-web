@@ -31,6 +31,8 @@ export interface Post {
   brand: string;
   condition: ClothingCondition;
   size: string;
+  type: string; // Clothing type (e.g., T-Shirt, Jeans, Jacket)
+  style: string; // Clothing style (e.g., Streetwear, Vintage, Casual)
   images: string[]; // Array of URLs to images in Firebase Storage
   tradePreferences: string; // "za sta je ne bi menjao"
 

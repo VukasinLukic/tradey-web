@@ -1,6 +1,5 @@
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import { AppRoutes } from './routes/AppRoutes';
-import { Toast } from './components/ui/Toast';
 import { BurgerMenu } from './components/navigation/BurgerMenu';
 
 function AppLayout() {
@@ -13,7 +12,6 @@ function AppLayout() {
     return (
       <>
         <AppRoutes />
-        <Toast />
       </>
     );
   }
@@ -24,7 +22,6 @@ function AppLayout() {
       <div className="min-h-screen bg-tradey-black">
         <BurgerMenu />
         <AppRoutes />
-        <Toast />
       </div>
     );
   }
@@ -34,7 +31,6 @@ function AppLayout() {
     <div className="min-h-screen bg-tradey-white">
       <BurgerMenu />
       <AppRoutes />
-      <Toast />
     </div>
   );
 }

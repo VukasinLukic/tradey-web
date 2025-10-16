@@ -9,7 +9,7 @@ const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 2 * 1024 * 1024, // 2MB for avatars
+    fileSize: 5 * 1024 * 1024, // 5MB for avatars
   },
   fileFilter: (req, file, cb) => {
     // Accept only image files

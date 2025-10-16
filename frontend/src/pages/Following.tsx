@@ -15,7 +15,7 @@ export function FollowingPage() {
   );
 
   const { following, loading: followingLoading, refetch: refetchFollowing } = useFollowing(user?.uid);
-  const { followers, loading: followersLoading, refetch: refetchFollowers } = useFollowers(user?.uid);
+  const { followers, loading: followersLoading } = useFollowers(user?.uid);
   const { toggleFollow, loading: followLoading } = useFollowUser();
 
   const handleTabChange = (tab: 'following' | 'followers') => {

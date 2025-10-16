@@ -56,7 +56,14 @@ export class PostController {
       );
     }
 
-    res.json(filteredPosts);
+    // Add default values for backward compatibility with old posts
+    const postsWithDefaults = filteredPosts.map(post => ({
+      ...post,
+      type: post.type || 'T-Shirt',
+      style: post.style || 'Casual',
+    }));
+
+    res.json(postsWithDefaults);
   });
 
   /**
@@ -73,7 +80,14 @@ export class PostController {
       return;
     }
 
-    res.json(post);
+    // Add default values for backward compatibility with old posts
+    const postWithDefaults = {
+      ...post,
+      type: post.type || 'T-Shirt',
+      style: post.style || 'Casual',
+    };
+
+    res.json(postWithDefaults);
   });
 
   /**
@@ -149,6 +163,10 @@ export class PostController {
     const { id } = req.params;
     const userId = req.user!.uid;
 
+    console.log('--- UPDATE POST ---');
+    console.log('Received body:', JSON.stringify(req.body, null, 2));
+    console.log('Received files:', req.files);
+
     // Check if post exists
     const post = await firestoreService.getDocument<Post>(COLLECTIONS.POSTS, id);
     if (!post) {
@@ -162,8 +180,23 @@ export class PostController {
       return;
     }
 
-    // Validate request body
-    const validation = updatePostSchema.safeParse(req.body);
+    // Parse existing images from body (sent as JSON string)
+    let existingImages: string[] = [];
+    if (req.body.images) {
+      try {
+        existingImages = JSON.parse(req.body.images);
+        if (!Array.isArray(existingImages)) {
+          existingImages = [];
+        }
+      } catch (error) {
+        console.error('Error parsing existing images:', error);
+        existingImages = [];
+      }
+    }
+
+    // Images are handled separately, so omit from validation
+    const bodySchema = updatePostSchema.omit({ images: true });
+    const validation = bodySchema.safeParse(req.body);
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
@@ -172,27 +205,49 @@ export class PostController {
       return;
     }
 
-    // Handle image updates if new files provided
-    let imageUrls = validation.data.images;
+    // Handle image updates
+    let finalImageUrls = [...existingImages];
+
+    // Upload new images if provided
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       try {
-        // Delete old images
-        if (post.images && post.images.length > 0) {
-          await storageService.deleteImages(post.images);
-        }
-        // Upload new images
-        imageUrls = await storageService.uploadImages(req.files as Express.Multer.File[], userId);
+        const newImageUrls = await storageService.uploadImages(req.files as Express.Multer.File[], userId);
+        finalImageUrls = [...finalImageUrls, ...newImageUrls];
       } catch (error) {
-        console.error('Error updating images:', error);
-        // Continue with update even if image update fails
+        console.error('Error uploading new images:', error);
+        res.status(500).json({ error: 'Failed to upload new images' });
+        return;
+      }
+    }
+
+    // Check if we have at least one image
+    if (finalImageUrls.length === 0) {
+      res.status(400).json({ error: 'At least one image is required' });
+      return;
+    }
+
+    // Check max 5 images
+    if (finalImageUrls.length > 5) {
+      res.status(400).json({ error: 'Maximum 5 images allowed' });
+      return;
+    }
+
+    // Delete removed images from storage
+    const removedImages = post.images.filter(img => !finalImageUrls.includes(img));
+    if (removedImages.length > 0) {
+      try {
+        await storageService.deleteImages(removedImages);
+      } catch (error) {
+        console.error('Error deleting removed images:', error);
+        // Continue with update even if deletion fails
       }
     }
 
     // Update post
-    const updateData: any = { ...validation.data };
-    if (imageUrls) {
-      updateData.images = imageUrls;
-    }
+    const updateData: any = {
+      ...validation.data,
+      images: finalImageUrls
+    };
 
     await firestoreService.updateDocument(COLLECTIONS.POSTS, id, updateData);
 

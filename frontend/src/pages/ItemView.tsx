@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { usePost } from '../hooks/usePost';
 import { useAuth } from '../hooks/useAuth';
@@ -8,16 +8,20 @@ import { useMarketplace } from '../hooks/useMarketplace';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
+import { postsApi } from '../services/api';
 
 export function ItemViewPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { post, loading } = usePost(id);
   const { createChat, loading: chatLoading } = useCreateChat();
   const { toggleLike } = useLikePost();
   const { allPosts } = useMarketplace();
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Fetch current user's profile to check liked posts
   const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
@@ -61,6 +65,25 @@ export function ItemViewPage() {
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(window.location.href);
     setShowShareModal(false);
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleteLoading(true);
+    try {
+      await postsApi.delete(id);
+      navigate('/profile');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleEdit = () => {
+    navigate(`/edit-post/${id}`);
   };
 
   if (loading) {
@@ -192,6 +215,25 @@ export function ItemViewPage() {
 
           {/* Actions */}
           <div className="space-y-3">
+            {/* Owner Actions - Edit & Delete */}
+            {isOwnPost && (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleEdit}
+                  className="flex-1 px-6 py-4 bg-tradey-black text-white font-sans text-base font-semibold hover:opacity-90 transition-opacity"
+                >
+                  Edit Post
+                </button>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="flex-1 px-6 py-4 border-2 border-tradey-red text-tradey-red font-sans text-base font-semibold hover:bg-tradey-red hover:text-white transition-colors"
+                >
+                  Delete Post
+                </button>
+              </div>
+            )}
+
+            {/* Contact Seller (for non-owners) */}
             {!isOwnPost && post.isAvailable && user && (
               <button
                 onClick={handleContactSeller}
@@ -263,7 +305,7 @@ export function ItemViewPage() {
       {/* Related Products */}
       {relatedProducts.length > 0 && (
         <div className="mt-20">
-          <h2 className="font-avarabold text-3xl text-tradey-white mb-8">More like this</h2>
+          <h2 className="font-fayte text-3xl text-tradey-black mb-8 uppercase">More like this</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {relatedProducts.map((relatedPost) => (
               <Link key={relatedPost.id} to={`/item/${relatedPost.id}`} className="group">
@@ -284,6 +326,40 @@ export function ItemViewPage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 bg-tradey-black/80 flex items-center justify-center z-50 px-4"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div
+            className="bg-white border-2 border-tradey-red p-8 max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-fayte text-2xl text-tradey-black mb-4 uppercase">Delete Post?</h3>
+            <p className="font-sans text-tradey-black/70 mb-6">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteLoading}
+                className="flex-1 px-6 py-3 border-2 border-tradey-black/20 text-tradey-black font-sans font-semibold hover:bg-tradey-black/5 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                className="flex-1 px-6 py-3 bg-tradey-red text-white font-sans font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {deleteLoading ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

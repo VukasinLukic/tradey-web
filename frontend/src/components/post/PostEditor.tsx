@@ -51,6 +51,8 @@ export function PostEditor() {
         brand,
         condition,
         size,
+        type: 'T-Shirt', // Default type
+        style: 'Casual', // Default style
         images: imageUrls,
         tradePreferences,
         authorId: auth.currentUser.uid,

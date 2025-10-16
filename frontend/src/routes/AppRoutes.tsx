@@ -13,6 +13,7 @@ import { LikedPage } from '../pages/Liked';
 import { FollowingPage } from '../pages/Following';
 import { UserProfilePage } from '../pages/UserProfile';
 import { NewPostPage } from '../pages/NewPost';
+import { EditPostPage } from '../pages/EditPost';
 import { HowItWorksPage } from '../pages/HowItWorks';
 import { CommunityGuidelinesPage } from '../pages/CommunityGuidelines';
 import { SupportPage } from '../pages/Support';
@@ -45,6 +46,7 @@ export function AppRoutes() {
       <Route element={<AuthWrapper />}>
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/post/new" element={<NewPostPage />} />
+        <Route path="/edit-post/:id" element={<EditPostPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/liked" element={<LikedPage />} />
         <Route path="/following" element={<FollowingPage />} />
