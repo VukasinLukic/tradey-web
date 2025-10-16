@@ -6,36 +6,43 @@ const TOTAL_IMAGES = GRID_COLS * GRID_ROWS;
 
 // Array of image paths - you can replace these with different images
 const IMAGE_PATHS = [
-  "/photos/slika za landing 1.jpg",
   "/photos/home_page_photos/mjauuuuu.jpeg",  
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/home_page_photos/mjauuuuu.jpeg",
-  "/photos/slika za landing 1.jpg",
-  "/photos/slika za landing 1.jpg",
-  "/photos/slika za landing 1.jpg",
-  "/photos/slika za landing 1.jpg",
-  "/photos/slika za landing 1.jpg",
-  "/photos/slika za landing 1.jpg",
+  "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/download (14).jpeg",
+  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/download (13).jpeg",
+  "/photos/home_page_photos/download (13).jpeg",
+  "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/home_3.jpeg",  
+  "/photos/home_page_photos/download (14).jpeg",
+  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/download (13).jpeg",
+  "/photos/home_page_photos/mjauuuuu.jpeg",  
+  "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/download (14).jpeg",
+  "/photos/home_page_photos/home_2.jpeg",
 ];
 
 export function HeroSection() {
   const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [showLogo, setShowLogo] = useState(false);
 
   useEffect(() => {
+    // Wait 2 seconds, then show logo
+    setTimeout(() => {
+      setShowLogo(true);
+    }, 2000);
+
     // Create random loading order
     const indices = Array.from({ length: TOTAL_IMAGES }, (_, i) => i);
     const shuffled = indices.sort(() => Math.random() - 0.5);
 
-    // Load images with random delays (slower animation)
+    // Wait 3 seconds total (2s empty + 1s logo alone), then load images
     shuffled.forEach((index, i) => {
       setTimeout(() => {
         setLoadedImages(prev => new Set([...prev, index]));
-      }, i * 150); // 150ms delay between each image (slower than before)
+      }, 3000 + i * 150); // Start after 3s, then 150ms delay between each image
     });
   }, []);
 
@@ -64,7 +71,9 @@ export function HeroSection() {
         <img
           src="/photos/tradey tekst logo.svg"
           alt="TRADEY"
-          className="w-[60%] md:w-[40%] max-w-2xl h-auto"
+          className={`w-[60%] md:w-[40%] max-w-2xl h-auto transition-opacity duration-1000 ${
+            showLogo ? 'opacity-100' : 'opacity-0'
+          }`}
         />
       </div>
     </section>
