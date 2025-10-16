@@ -61,11 +61,6 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Email Input */}
       <div>
-<<<<<<< HEAD
-        <Button type="submit" disabled={loading} tone="tradey-red">
-          {loading ? 'Logging in...' : 'Log In'}
-        </Button>
-=======
         <label htmlFor="email" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
           Email
         </label>
@@ -79,7 +74,6 @@ export function LoginForm() {
           className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="name@example.com"
         />
->>>>>>> e16aac6fc3a333f4b9f2f052dc42fb49c30ad2bc
       </div>
 
       {/* Password Input */}
