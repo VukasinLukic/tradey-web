@@ -42,9 +42,9 @@ export function useCreatePost() {
 
       const response = await postsApi.create(formData);
       return response.data;
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error creating post:', err);
-      setError(err);
+      setError(err as Error);
       return null;
     } finally {
       setLoading(false);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/Button';
 import { Heart, MessageCircle } from 'lucide-react';

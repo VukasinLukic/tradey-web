@@ -16,10 +16,11 @@ export interface UserProfile {
   email: string;
   phone: string;
   location: string; // e.g., 'Stari Grad'
+  avatarUrl?: string;
+  bio?: string;
+  following?: string[];
+  likedPosts?: string[];
   createdAt: Timestamp | Date;
-  // futher properties
-  // following: string[];
-  // likes: string[];
 }
 
 export interface Post {
@@ -31,7 +32,7 @@ export interface Post {
   size: string;
   images: string[]; // Array of URLs to images in Firebase Storage
   tradePreferences: string; // "za sta je ne bi menjao"
-  
+
   // Author Info
   authorId: string;
   authorUsername: string;
@@ -39,4 +40,21 @@ export interface Post {
 
   createdAt: Timestamp | Date | FieldValue;
   isAvailable: boolean;
+}
+
+export interface Chat {
+  id: string;
+  participants: string[];
+  lastMessage: string;
+  lastMessageAt: Date;
+  updatedAt: Date;
+}
+
+export interface Message {
+  id: string;
+  chatId: string;
+  senderId: string;
+  text: string;
+  createdAt: Date;
+  readBy: string[];
 } 

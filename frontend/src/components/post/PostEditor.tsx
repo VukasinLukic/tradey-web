@@ -24,13 +24,11 @@ export function PostEditor() {
   const [condition, setCondition] = useState<ClothingCondition>('GOOD');
   const [description, setDescription] = useState('');
   const [tradePreferences, setTradePreferences] = useState('');
-  
-  const [error, setError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (!auth.currentUser || !userProfile) {
       return showToast("You must be logged in to post.", 'error');

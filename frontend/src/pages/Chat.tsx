@@ -1,7 +1,237 @@
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { useChats } from '../hooks/useChats';
+import { useChatMessages } from '../hooks/useChatMessages';
+import { Spinner } from '../components/ui/Spinner';
+
 export function ChatPage() {
+  const { user } = useAuth();
+  const { chats, loading: chatsLoading, error: chatsError } = useChats();
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+  const { messages, loading: messagesLoading, sendMessage, markAllAsRead } = useChatMessages(selectedChatId);
+  const [messageText, setMessageText] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Mark messages as read when chat is selected
+  useEffect(() => {
+    if (selectedChatId) {
+      markAllAsRead();
+    }
+  }, [selectedChatId, markAllAsRead]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!messageText.trim()) return;
+
+    const success = await sendMessage(messageText.trim());
+    if (success) {
+      setMessageText('');
+    }
+  };
+
+  const formatTimestamp = (date: Date) => {
+    const messageDate = new Date(date);
+    const now = new Date();
+    const diffMs = now.getTime() - messageDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return messageDate.toLocaleDateString();
+  };
+
+  if (chatsLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (chatsError) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-tradey-red font-garamond text-lg">
+          Error loading chats. Please try again.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <h1>Chat Page</h1>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="font-fayte text-5xl md:text-7xl text-tradey-white mb-4">
+          Messages
+        </h1>
+        <p className="font-garamond text-tradey-blue text-lg">
+          Connect with other traders
+        </p>
+      </div>
+
+      {/* Chat Layout */}
+      <div className="bg-tradey-black border-2 border-tradey-red/30 rounded-lg overflow-hidden flex flex-col md:flex-row h-[600px]">
+        {/* Chats List - Left Sidebar */}
+        <div className="w-full md:w-1/3 border-b-2 md:border-b-0 md:border-r-2 border-tradey-red/30 overflow-y-auto">
+          {chats.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+              <svg
+                className="w-16 h-16 text-tradey-red/50 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              <p className="font-garamond text-tradey-blue">
+                No conversations yet. Start trading to connect!
+              </p>
+            </div>
+          ) : (
+            chats.map(chat => {
+              const otherParticipantId = chat.participants.find(id => id !== user?.uid);
+              return (
+                <button
+                  key={chat.id}
+                  onClick={() => setSelectedChatId(chat.id)}
+                  className={`w-full p-4 border-b border-tradey-red/20 hover:bg-tradey-red/10 transition-colors text-left ${
+                    selectedChatId === chat.id ? 'bg-tradey-red/20' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Avatar placeholder */}
+                    <div className="w-12 h-12 rounded-full bg-tradey-red/30 flex-shrink-0 flex items-center justify-center">
+                      <span className="font-fayte text-tradey-white text-lg">
+                        {otherParticipantId?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-garamond font-bold text-tradey-white truncate">
+                        User {otherParticipantId?.substring(0, 8)}
+                      </p>
+                      <p className="font-garamond text-sm text-tradey-blue truncate">
+                        {chat.lastMessage || 'No messages yet'}
+                      </p>
+                    </div>
+                    <div className="text-xs text-tradey-blue">
+                      {formatTimestamp(chat.lastMessageAt)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        {/* Messages Area - Right Side */}
+        <div className="flex-1 flex flex-col">
+          {!selectedChatId ? (
+            <div className="flex-1 flex items-center justify-center p-8 text-center">
+              <div>
+                <svg
+                  className="w-20 h-20 text-tradey-red/30 mb-4 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+                  />
+                </svg>
+                <p className="font-garamond text-tradey-blue text-lg">
+                  Select a conversation to start messaging
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Messages List */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messagesLoading ? (
+                  <div className="flex justify-center items-center h-full">
+                    <Spinner />
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="font-garamond text-tradey-blue">
+                      No messages yet. Start the conversation!
+                    </p>
+                  </div>
+                ) : (
+                  messages.map(message => {
+                    const isOwn = message.senderId === user?.uid;
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                            isOwn
+                              ? 'bg-tradey-red text-tradey-white'
+                              : 'bg-tradey-red/20 text-tradey-white'
+                          }`}
+                        >
+                          <p className="font-garamond">{message.text}</p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              isOwn ? 'text-tradey-white/70' : 'text-tradey-blue'
+                            }`}
+                          >
+                            {formatTimestamp(message.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Message Input */}
+              <form
+                onSubmit={handleSendMessage}
+                className="border-t-2 border-tradey-red/30 p-4 flex gap-2"
+              >
+                <input
+                  type="text"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1 px-4 py-3 bg-tradey-black border-2 border-tradey-red/30 rounded-lg text-tradey-white font-garamond placeholder:text-tradey-blue/50 focus:outline-none focus:border-tradey-red"
+                />
+                <button
+                  type="submit"
+                  disabled={!messageText.trim()}
+                  className="px-6 py-3 bg-tradey-red text-tradey-white font-garamond font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 } 

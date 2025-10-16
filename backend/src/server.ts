@@ -14,7 +14,15 @@ import './config/firebaseAdmin';
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// Port fallback logic - try multiple ports
+const PORTS = [
+  parseInt(process.env.PORT || '5000'),
+  5000,
+  5001,
+  5002,
+  5003
+];
 
 /**
  * Middleware Setup
@@ -64,18 +72,44 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 /**
- * Start Server
+ * Start Server with Port Fallback
  */
 
-app.listen(PORT, () => {
-  console.log('='.repeat(50));
-  console.log(`🚀 TRADEY Backend API is running`);
-  console.log(`📍 Server: http://localhost:${PORT}`);
-  console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`⚡ CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
-  console.log('='.repeat(50));
-});
+const tryPort = (portIndex: number = 0): void => {
+  if (portIndex >= PORTS.length) {
+    console.error('❌ All ports are in use! Please free up a port or kill existing processes.');
+    process.exit(1);
+    return;
+  }
+
+  const PORT = PORTS[portIndex];
+
+  const server = app.listen(PORT)
+    .on('listening', () => {
+      console.log('='.repeat(50));
+      console.log(`🚀 TRADEY Backend API is running`);
+      console.log(`📍 Server: http://localhost:${PORT}`);
+      console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`⚡ CORS Origin: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+      if (portIndex > 0) {
+        console.log(`⚠️  Using fallback port ${PORT} (default port was in use)`);
+      }
+      console.log('='.repeat(50));
+    })
+    .on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        console.log(`⚠️  Port ${PORT} is in use, trying next port...`);
+        server.close();
+        tryPort(portIndex + 1);
+      } else {
+        console.error('❌ Server error:', err);
+        process.exit(1);
+      }
+    });
+};
+
+tryPort();
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err: Error) => {

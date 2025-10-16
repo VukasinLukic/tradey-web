@@ -19,12 +19,13 @@ export function usePost(postId: string | undefined) {
       try {
         const response = await postsApi.getById(postId);
         setPost(response.data);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching post:", err);
-        setError(err);
+        setError(err as Error);
 
         // Handle 404 - post not found
-        if (err.response?.status === 404) {
+        const axiosError = err as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
           console.log("Post not found");
         }
       } finally {

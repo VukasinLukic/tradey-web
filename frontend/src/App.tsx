@@ -8,7 +8,19 @@ import { BurgerMenu } from './components/navigation/BurgerMenu';
 function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
+  // Auth pages (login/signup) - fullscreen without any chrome
+  if (isAuthPage) {
+    return (
+      <>
+        <AppRoutes />
+        <Toast />
+      </>
+    );
+  }
+
+  // Landing page - burger menu only
   if (isLandingPage) {
     return (
       <>
@@ -19,6 +31,7 @@ function AppLayout() {
     );
   }
 
+  // Other pages - full layout with header and footer
   return (
     <div className="flex flex-col min-h-screen bg-tradey-black text-tradey-white">
       <BurgerMenu />

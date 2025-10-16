@@ -19,9 +19,9 @@ export function useUserPosts(userId: string | undefined) {
       try {
         const response = await usersApi.getUserPosts(userId);
         setPosts(response.data);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error fetching user posts:", err);
-        setError(err);
+        setError(err as Error);
       } finally {
         setLoading(false);
       }

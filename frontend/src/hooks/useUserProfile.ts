@@ -19,12 +19,13 @@ export function useUserProfile(uid: string | undefined) {
       try {
         const response = await usersApi.getById(uid);
         setUserProfile(response.data);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error fetching user profile:', err);
-        setError(err);
+        setError(err as Error);
 
         // Handle 404 - user not found
-        if (err.response?.status === 404) {
+        const axiosError = err as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
           console.log('User profile not found');
         }
       } finally {
