@@ -11,30 +11,7 @@
   font-display: swap;
 }
 
-/* Avara-Black font definition */
-@font-face {
-  font-family: 'Avara-Black';
-  src: url('/src/assets/Avara-Black.woff') format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Avara-Bold';
-  src: url('C:/Users/Tea/Downloads/tradey-web/frontend/src/assets/Avara-Bold.woff') format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Avara-Bold-Relative';
-  src: url('./assets/Avara-Bold.woff') format('woff');
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
+/* Avara-Bold font definition - loaded in index.html for consistency */
 
 @theme {
   /* Tradey Brand Colors - Design Guidelines */
