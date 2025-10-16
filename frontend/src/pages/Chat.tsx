@@ -5,6 +5,7 @@ import { useChatMessages } from '../hooks/useChatMessages';
 import { Spinner } from '../components/ui/Spinner';
 import { Toast } from '../components/ui/Toast';
 import { usersApi } from '../services/api';
+import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
 
 export function ChatPage() {
   const { user } = useAuth();
@@ -161,9 +162,10 @@ export function ChatPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      {/* Header */}
-      <div className="mb-12">
+    <>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="mb-12">
         <h1 className="font-fayte text-5xl md:text-7xl text-tradey-black mb-2 tracking-tight uppercase">
           Messages
         </h1>
@@ -323,8 +325,8 @@ export function ChatPage() {
             </>
           )}
         </div>
-      </div>
-
+        </div>
+  
       {/* Toast notification for new messages */}
       {toastMessage && (
         <Toast
@@ -334,5 +336,6 @@ export function ChatPage() {
         />
       )}
     </div>
+    </>
   );
 } 

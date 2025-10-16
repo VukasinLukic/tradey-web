@@ -7,6 +7,7 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
 import type { ClothingCondition } from '../../../shared/types/post.types';
+import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
 
 export function MarketplacePage() {
   const {
@@ -39,9 +40,10 @@ export function MarketplacePage() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6 py-12">
-      {/* Header - Minimal clean */}
-      <div className="mb-12">
+    <>
+      <div className="max-w-[1400px] mx-auto px-6 py-12">
+        {/* Header - Minimal clean */}
+        <div className="mb-12">
         <h1 className="font-fayte text-7xl md:text-9xl text-tradey-black mb-2 tracking-tight uppercase">
           SHOP
         </h1>
@@ -161,8 +163,13 @@ export function MarketplacePage() {
             </div>
           )}
         </>
-      )}
-    </div>
+        )}
+      </div>
+
+      <StickyFooter heightValue="80dvh">
+        <FooterContent />
+      </StickyFooter>
+    </>
   );
 }
 
