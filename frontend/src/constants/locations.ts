@@ -1,10 +1,10 @@
 export const BELGRADE_MUNICIPALITIES = [
   'Čukarica',
-  'Novi Beograd',
+  'Novi Beograd (New Belgrade)',
   'Palilula',
   'Rakovica',
   'Savski venac',
-  'Stari grad',
+  'Stari grad (Old Town)',
   'Voždovac',
   'Vračar',
   'Zemun',

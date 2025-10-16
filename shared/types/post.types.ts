@@ -1,10 +1,10 @@
 // Enum-like object for clothing conditions
 export const ClothingConditions = {
-  NEW: 'Novo (sa etiketom)',
-  MINT: 'Kao novo (bez etikete)',
-  VERY_GOOD: 'Vrlo dobro očuvano',
-  GOOD: 'Dobro očuvano (vidljivi znaci korišćenja)',
-  FAIR: 'Korišćeno (sa manama)',
+  NEW: 'New (with tags)',
+  MINT: 'Like new (without tags)',
+  VERY_GOOD: 'Very good condition',
+  GOOD: 'Good condition (visible signs of use)',
+  FAIR: 'Used (with flaws)',
 };
 
 export type ClothingCondition = keyof typeof ClothingConditions;

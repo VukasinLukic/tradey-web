@@ -18,35 +18,35 @@ export function Header() {
   };
 
   return (
-    <header className="bg-black/80 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
+    <header className="bg-tradey-black/80 backdrop-blur-sm border-b border-tradey-black sticky top-0 z-50">
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold text-white font-fayte tracking-wider">
+        <Link to="/" className="text-2xl font-bold text-tradey-white font-fayte tracking-wider">
           TRADEY
         </Link>
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Link to="/profile" className="text-gray-300 hover:text-white transition-colors">
+              <Link to="/profile" className="text-tradey-blue hover:text-tradey-white transition-colors font-garamond">
                 Profile
               </Link>
-              <Link to="/chat" className="text-gray-300 hover:text-white transition-colors">
+              <Link to="/chat" className="text-tradey-blue hover:text-tradey-white transition-colors font-garamond">
                 Messages
               </Link>
-              <Link to="/liked" className="text-gray-300 hover:text-white transition-colors">
+              <Link to="/liked" className="text-tradey-blue hover:text-tradey-white transition-colors font-garamond">
                 Liked
               </Link>
               <div className="w-24">
-                <Button onClick={handleLogout} variant="secondary">
+                <Button onClick={handleLogout} variant="secondary" className="font-garamond">
                   Log Out
                 </Button>
               </div>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-gray-300 hover:text-white transition-colors">
+              <Link to="/login" className="text-tradey-blue hover:text-tradey-white transition-colors font-garamond">
                 Log In
               </Link>
-              <Link to="/signup" className="bg-[#a61f1e] text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+              <Link to="/signup" className="bg-tradey-red text-tradey-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity font-garamond">
                 Sign Up
               </Link>
             </>

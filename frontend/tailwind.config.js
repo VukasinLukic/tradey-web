@@ -10,15 +10,24 @@ export default {
       colors: {
         'tradey-red': 'var(--color-tradey-red)',
         'tradey-blue': 'var(--color-tradey-blue)',
+        'tradey-white': 'var(--color-tradey-white)',
         'tradey-black': 'var(--color-tradey-black)',
+      },
+      translate: {
+        '101': '101%',
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',
+        'marquee': 'marquee 15s linear infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: 0, transform: 'translateY(10px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        marquee: {
+          'from': { transform: 'translateX(0%)' },
+          'to': { transform: 'translateX(-50%)' }
         },
       },
     },
