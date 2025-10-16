@@ -1,53 +1,64 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import FlowingMenu from './FlowingMenu';
-  
+
 const menuItems = [
-  { 
-    link: '/', 
-    text: 'Home', 
-    image: '/photos/slika%20za%20landing%201.jpg' 
+  {
+    link: '/',
+    text: 'Home',
+    image: '/photos/slika%20za%20landing%201.jpg'
   },
-  { 
-    link: '/profile', 
-    text: 'Profile', 
-    image: '/photos/real.jpg' 
+  {
+    link: '/marketplace',
+    text: 'Marketplace',
+    image: '/photos/real.jpg'
   },
-  { 
-    link: '/chat', 
-    text: 'Messages', 
-    image: '/photos/real2.jpg' 
+  {
+    link: '/profile',
+    text: 'Profile',
+    image: '/photos/real2.jpg'
   },
-  { 
-    link: '/liked', 
-    text: 'Liked', 
-    image: '/photos/tradey-real3.jpg' 
+  {
+    link: '/chat',
+    text: 'Messages',
+    image: '/photos/tradey-real3.jpg'
+  },
+  {
+    link: '/liked',
+    text: 'Liked',
+    image: '/photos/real.jpg'
   },
 ];
 
 export function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // Determine if we're on a dark background (landing page)
+  const isDarkBg = location.pathname === '/';
 
   return (
     <>
-      {/* Burger Button - Sticky */}
+      {/* Burger Button - Minimal, adapts to background */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-6 right-6 z-40 w-14 h-14 bg-tradey-white rounded-lg flex flex-col items-center justify-center gap-1.5 hover:opacity-90 transition-opacity shadow-lg"
+        className={`fixed top-6 right-6 z-40 w-12 h-12 rounded-full flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-all ${
+          isDarkBg ? 'bg-tradey-white' : 'bg-tradey-black'
+        }`}
         aria-label="Open menu"
       >
-        <span className="w-8 h-0.5 bg-tradey-red rounded-full" />
-        <span className="w-8 h-0.5 bg-tradey-red rounded-full" />
-        <span className="w-8 h-0.5 bg-tradey-red rounded-full" />
+        <span className={`w-6 h-0.5 rounded-full ${isDarkBg ? 'bg-tradey-black' : 'bg-tradey-white'}`} />
+        <span className={`w-6 h-0.5 rounded-full ${isDarkBg ? 'bg-tradey-black' : 'bg-tradey-white'}`} />
+        <span className={`w-6 h-0.5 rounded-full ${isDarkBg ? 'bg-tradey-black' : 'bg-tradey-white'}`} />
       </button>
 
       {/* Flowing Menu */}
       {isOpen && (
-        <FlowingMenu 
-          items={menuItems} 
-          onClose={() => setIsOpen(false)} 
+        <FlowingMenu
+          items={menuItems}
+          onClose={() => setIsOpen(false)}
         />
       )}
     </>
   );
 }
-
