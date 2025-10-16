@@ -37,58 +37,58 @@ export function FooterContent() {
     <div className="py-8 px-6 md:px-12 h-full w-full flex flex-col justify-between bg-tradey-black">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 shrink-0 gap-8 md:gap-12">
         <div className="flex flex-col gap-2">
-          <h3 className="mb-2 uppercase text-tradey-blue font-garamond text-sm font-bold">
+          <h3 className="mb-4 uppercase text-tradey-blue font-garamond text-4xl font-bold">
             About
           </h3>
-          <Link to="/" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Home
           </Link>
-          <Link to="/profile" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/profile" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Profile
           </Link>
-          <Link to="/chat" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/chat" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Messages
           </Link>
-          <Link to="/contact" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/contact" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Contact Us
           </Link>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="mb-2 uppercase text-tradey-blue font-garamond text-sm font-bold">
+          <h3 className="mb-4 uppercase text-tradey-blue font-garamond text-4xl font-bold">
             Community
           </h3>
-          <Link to="/how-it-works" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/how-it-works" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             How it works
           </Link>
-          <Link to="/community-guidelines" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/community-guidelines" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Guidelines
           </Link>
-          <Link to="/support" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/support" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Support
           </Link>
-          <Link to="/faq" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/faq" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             FAQ
           </Link>
-          <Link to="/privacy" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/privacy" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Privacy
           </Link>
-          <Link to="/terms" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <Link to="/terms" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Terms of use
           </Link>
         </div>
 
         <div className="flex flex-col gap-2">
-          <h3 className="mb-2 uppercase text-tradey-blue font-garamond text-sm font-bold">
+          <h3 className="mb-4 uppercase text-tradey-blue font-garamond text-4xl font-bold">
             Social Media
           </h3>
-          <a href="#" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <a href="#" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Facebook
           </a>
-          <a href="#" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <a href="#" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Instagram
           </a>
-          <a href="#" className="text-tradey-blue font-garamond hover:opacity-70 transition-opacity">
+          <a href="#" className="text-tradey-blue font-sans text-lg hover:opacity-70 transition-opacity">
             Twitter
           </a>
         </div>
@@ -99,9 +99,9 @@ export function FooterContent() {
         <img 
           src="/photos/svg logo.svg" 
           alt="TRADEY" 
-          className="w-64 md:w-80 lg:w-96 h-auto"
+          className="w-[48rem] md:w-[60rem] lg:w-[72rem] h-auto"
         />
-        <p className="text-tradey-blue font-garamond text-sm md:text-base text-center md:text-right md:pb-4">
+        <p className="text-tradey-blue font-sans text-sm md:text-base text-center md:text-right md:pb-4">
           ©2024 TRADEY. All rights reserved.
         </p>
       </div>

@@ -23,11 +23,6 @@ const menuItems = [
     text: 'Messages',
     image: '/photos/tradey-real3.jpg'
   },
-  {
-    link: '/liked',
-    text: 'Liked',
-    image: '/photos/real.jpg'
-  },
 ];
 
 export function BurgerMenu() {

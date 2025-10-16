@@ -45,108 +45,180 @@ export function ProfilePage() {
   const followersCount = 0;
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 py-12">
-      {/* Profile Header - Clean, centered */}
-      <div className="max-w-2xl mx-auto mb-16 text-center">
-        {/* Avatar */}
-        <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gray-100 overflow-hidden">
-          {userProfile.avatarUrl ? (
-            <img
-              src={userProfile.avatarUrl}
-              alt={userProfile.username}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-tradey-red/10">
-              <span className="font-fayte text-5xl text-tradey-red">
-                {userProfile.username.charAt(0).toUpperCase()}
-              </span>
+    <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12">
+      {/* Profile Header - Modern Grid Layout */}
+      <div className="mb-16">
+        {/* Top Row - Avatar + Name + Bio */}
+        <div className="flex flex-col md:flex-row gap-8 mb-10">
+          {/* Avatar */}
+          <div className="flex-shrink-0">
+            <div className="w-40 h-40 rounded-full bg-gradient-to-br from-tradey-red/20 to-tradey-red/5 overflow-hidden shadow-lg">
+              {userProfile.avatarUrl ? (
+                <img
+                  src={userProfile.avatarUrl}
+                  alt={userProfile.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-tradey-red/30 to-tradey-red/10">
+                  <span className="font-fayte text-6xl text-tradey-red">
+                    {userProfile.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Username */}
-        <h1 className="font-fayte text-5xl md:text-6xl text-tradey-black mb-4 tracking-tight uppercase">
-          {userProfile.username}
-        </h1>
-
-        {/* Bio */}
-        {userProfile.bio && (
-          <p className="font-sans text-tradey-black/70 text-base leading-relaxed mb-6 max-w-xl mx-auto">
-            {userProfile.bio}
-          </p>
-        )}
-
-        {/* Location */}
-        {userProfile.location && (
-          <p className="font-sans text-tradey-black/50 text-sm flex items-center justify-center gap-2 mb-8">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {userProfile.location}
-          </p>
-        )}
-
-        {/* Stats - Horizontal minimal */}
-        <div className="flex items-center justify-center gap-8 mb-8 pb-8 border-b border-tradey-black/10">
-          <div className="text-center">
-            <p className="font-sans text-2xl text-tradey-black font-medium">{posts.length}</p>
-            <p className="font-sans text-xs text-tradey-black/50 uppercase tracking-wide">Posts</p>
           </div>
-          <div className="text-center">
-            <p className="font-sans text-2xl text-tradey-black font-medium">
-              {userProfile.following?.length || 0}
-            </p>
-            <p className="font-sans text-xs text-tradey-black/50 uppercase tracking-wide">Following</p>
-          </div>
-          <div className="text-center">
-            <p className="font-sans text-2xl text-tradey-black font-medium">{followersCount}</p>
-            <p className="font-sans text-xs text-tradey-black/50 uppercase tracking-wide">Followers</p>
+
+          {/* Name & Bio */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <h1 className="font-fayte text-5xl md:text-6xl lg:text-7xl text-tradey-black mb-2 tracking-tight uppercase break-words">
+              {userProfile.username}
+            </h1>
+
+            {userProfile.location && (
+              <div className="flex items-center gap-2 text-tradey-black/50 mb-4">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-sans text-base">{userProfile.location}</span>
+              </div>
+            )}
+            
+            {userProfile.bio && (
+              <p className="font-sans text-tradey-black/70 text-lg md:text-xl leading-relaxed max-w-2xl">
+                {userProfile.bio}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Action Buttons - Minimal */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        {/* Dashboard Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Stats Card */}
+          <div className="bg-gradient-to-br from-tradey-blue to-tradey-blue/90 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all relative overflow-hidden">
+            {/* Decorative background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
+            </div>
+            
+            <div className="relative z-10">
+              <div className="flex flex-col items-center justify-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="font-sans text-base text-white uppercase tracking-wide font-semibold">Stats</h3>
+              </div>
+              <p className="font-sans text-xs text-white/80 text-center mb-5 leading-relaxed font-medium">
+              </p>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm">
+                  <span className="font-sans text-sm text-white/90 font-medium">Posts</span>
+                  <span className="font-sans text-2xl font-bold text-white">{posts.length}</span>
+                </div>
+                <div className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm">
+                  <span className="font-sans text-sm text-white/90 font-medium">Following</span>
+                  <span className="font-sans text-2xl font-bold text-white">{userProfile.following?.length || 0}</span>
+                </div>
+                <div className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm">
+                  <span className="font-sans text-sm text-white/90 font-medium">Followers</span>
+                  <span className="font-sans text-2xl font-bold text-white">{followersCount}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Edit Profile Card */}
           <button
             onClick={() => setShowEditModal(true)}
-            className="px-6 py-2 border border-tradey-black text-tradey-black font-sans text-sm hover:bg-tradey-black hover:text-white transition-all"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-tradey-black/5 hover:shadow-lg hover:border-tradey-black/20 transition-all group"
           >
-            Edit Profile
+            <div className="flex flex-col items-center justify-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-full bg-tradey-black/5 flex items-center justify-center group-hover:bg-tradey-black group-hover:text-white transition-all">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <h3 className="font-sans text-lg text-tradey-black uppercase tracking-wide font-semibold">Edit Profile</h3>
+            </div>
+            <p className="font-sans text-sm text-tradey-black/50 leading-relaxed text-center">
+              Update your profile information and photo
+            </p>
           </button>
-          <Link
-            to="/post/new"
-            className="px-6 py-2 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
-          >
-            New Post
-          </Link>
+
+          {/* Messages Card */}
           <Link
             to="/chat"
-            className="px-6 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm hover:border-tradey-black transition-colors"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-tradey-black/5 hover:shadow-lg hover:border-tradey-black/20 transition-all group"
           >
-            Messages
+            <div className="flex flex-col items-center justify-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-full bg-tradey-black/5 flex items-center justify-center group-hover:bg-tradey-black group-hover:text-white transition-all">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="font-sans text-lg text-tradey-black uppercase tracking-wide font-semibold">Messages</h3>
+            </div>
+            <p className="font-sans text-sm text-tradey-black/50 leading-relaxed text-center">
+              Chat with other users
+            </p>
           </Link>
+        </div>
+
+        {/* Secondary Actions Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {/* Liked Items Card */}
           <Link
             to="/liked"
-            className="px-6 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm hover:border-tradey-black transition-colors"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 shadow-md border border-tradey-black/5 hover:shadow-lg hover:border-tradey-red/30 transition-all group flex items-center gap-4"
           >
-            Liked
+            <div className="w-14 h-14 rounded-full bg-tradey-red/10 flex items-center justify-center group-hover:bg-tradey-red/20 transition-all flex-shrink-0">
+              <svg className="w-7 h-7 text-tradey-red" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-sans text-base text-tradey-black font-semibold mb-0.5">Liked Items</h3>
+              <p className="font-sans text-xs text-tradey-black/50">View your favorites</p>
+            </div>
           </Link>
+
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="px-6 py-2 text-tradey-black/50 font-sans text-sm hover:text-tradey-red transition-colors"
+            className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 shadow-md border border-tradey-black/5 hover:shadow-lg hover:border-tradey-red/30 hover:bg-tradey-red/5 transition-all group flex items-center gap-4"
           >
-            Logout
+            <div className="w-14 h-14 rounded-full bg-tradey-black/5 flex items-center justify-center group-hover:bg-tradey-red/10 transition-all flex-shrink-0">
+              <svg className="w-7 h-7 text-tradey-black/40 group-hover:text-tradey-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <h3 className="font-sans text-base text-tradey-black/60 group-hover:text-tradey-red font-semibold mb-0.5 transition-colors">Logout</h3>
+              <p className="font-sans text-xs text-tradey-black/40">Sign out of account</p>
+            </div>
           </button>
         </div>
       </div>
 
       {/* My Items Section */}
       <div>
-        <div className="mb-8 pb-4 border-b border-tradey-black/10">
-          <h2 className="font-fayte text-3xl text-tradey-black uppercase tracking-tight">
+        <div className="flex items-center gap-6 mb-10">
+          <h2 className="font-fayte text-6xl md:text-7xl text-tradey-black uppercase tracking-tight">
             My Items
           </h2>
+          <Link
+            to="/post/new"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-tradey-red to-tradey-red/80 text-white rounded-full hover:shadow-lg transition-all group"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="hidden md:inline font-sans text-sm font-semibold">New Post</span>
+          </Link>
         </div>
 
         {postsLoading ? (
@@ -162,7 +234,7 @@ export function ProfilePage() {
         ) : (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <svg
-              className="w-16 h-16 text-tradey-black/20 mb-6"
+              className="w-24 h-24 text-tradey-black/20 mb-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -174,13 +246,16 @@ export function ProfilePage() {
                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
               />
             </svg>
-            <p className="font-sans text-tradey-black/40 text-lg mb-8">
+            <p className="font-sans text-tradey-black/40 text-xl mb-10">
               You haven't posted anything yet
             </p>
             <Link
               to="/post/new"
-              className="px-8 py-3 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
+              className="flex items-center gap-3 px-10 py-4 bg-gradient-to-br from-tradey-red to-tradey-red/80 text-white font-sans text-lg font-semibold rounded-full hover:shadow-xl transition-all"
             >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
               Post your first item
             </Link>
           </div>

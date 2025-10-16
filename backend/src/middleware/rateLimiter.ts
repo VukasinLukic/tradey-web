@@ -2,11 +2,12 @@ import rateLimit from 'express-rate-limit';
 
 /**
  * General API rate limiter
- * Allows 100 requests per 15 minutes per IP
+ * Development: 1000 requests per 15 minutes
+ * Production: 100 requests per 15 minutes per IP
  */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit for development
   message: {
     error: 'Too many requests from this IP, please try again later.',
   },
@@ -16,11 +17,12 @@ export const apiLimiter = rateLimit({
 
 /**
  * Stricter rate limiter for authentication endpoints
- * Allows 5 requests per 15 minutes per IP
+ * Development: 100 requests per 15 minutes
+ * Production: 5 requests per 15 minutes per IP
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 login/signup requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 5 : 100, // Higher limit for development
   message: {
     error: 'Too many authentication attempts, please try again later.',
   },
@@ -31,11 +33,12 @@ export const authLimiter = rateLimit({
 
 /**
  * Rate limiter for chat/messaging endpoints
- * Allows 50 messages per 15 minutes per IP
+ * Development: 500 messages per 15 minutes
+ * Production: 50 messages per 15 minutes per IP
  */
 export const chatLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit to 50 messages per windowMs
+  max: process.env.NODE_ENV === 'production' ? 50 : 500, // Higher limit for development
   message: {
     error: 'Too many messages sent, please slow down.',
   },
@@ -45,11 +48,12 @@ export const chatLimiter = rateLimit({
 
 /**
  * Rate limiter for post creation
- * Allows 10 posts per hour per IP
+ * Development: 100 posts per hour
+ * Production: 10 posts per hour per IP
  */
 export const postCreationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // Limit to 10 posts per hour
+  max: process.env.NODE_ENV === 'production' ? 10 : 100, // Higher limit for development
   message: {
     error: 'Too many posts created, please try again later.',
   },
