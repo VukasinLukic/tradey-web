@@ -14,10 +14,10 @@ export function useCreateChat() {
 
       // Create or get existing chat
       const response = await api.post('/chats', {
-        recipientId,
+        participantId: recipientId,
       });
 
-      const chatId = response.data.chatId;
+      const chatId = response.data.id;
 
       // Send initial message if provided
       if (initialMessage) {

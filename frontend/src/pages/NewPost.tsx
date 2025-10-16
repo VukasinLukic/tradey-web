@@ -4,7 +4,8 @@ import { useAuth } from '../hooks/useAuth';
 import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
 import type { ClothingCondition } from '../../../shared/types/post.types';
-import api from '../services/api';
+import { postsApi } from '../services/api';
+import { CLOTHING_SIZES, CLOTHING_TYPES, CLOTHING_STYLES } from '../constants/clothing';
 
 export function NewPostPage() {
   const { user } = useAuth();
@@ -13,7 +14,9 @@ export function NewPostPage() {
   // Form state
   const [title, setTitle] = useState('');
   const [brand, setBrand] = useState('');
-  const [size, setSize] = useState('');
+  const [size, setSize] = useState(CLOTHING_SIZES[0]);
+  const [type, setType] = useState(CLOTHING_TYPES[0]);
+  const [style, setStyle] = useState(CLOTHING_STYLES[0]);
   const [condition, setCondition] = useState<ClothingCondition>('GOOD');
   const [description, setDescription] = useState('');
   const [tradePreferences, setTradePreferences] = useState('');
@@ -87,6 +90,14 @@ export function NewPostPage() {
       setError('Size is required');
       return;
     }
+    if (!type.trim()) {
+      setError('Type is required');
+      return;
+    }
+    if (!style.trim()) {
+      setError('Style is required');
+      return;
+    }
     if (!description.trim()) {
       setError('Description is required');
       return;
@@ -104,32 +115,60 @@ export function NewPostPage() {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('brand', brand.trim());
-      formData.append('size', size.trim());
+      formData.append('size', size);
+      formData.append('type', type);
+      formData.append('style', style);
       formData.append('condition', condition);
       formData.append('description', description.trim());
-      formData.append('tradePreferences', tradePreferences.trim());
-
-      // Append placeholder for images validation (backend will replace with real URLs after upload)
-      const placeholders = images.map((_, i) => `placeholder-${i}`);
-      formData.append('images', JSON.stringify(placeholders));
+      if (tradePreferences.trim()) {
+        formData.append('tradePreferences', tradePreferences.trim());
+      }
 
       // Append actual image files
       images.forEach((image) => {
         formData.append('images', image);
       });
 
+      // Debug: Log FormData contents
+      console.log('=== FRONTEND DEBUG ===');
+      console.log('Title:', title);
+      console.log('Brand:', brand);
+      console.log('Size:', size);
+      console.log('Type:', type);
+      console.log('Style:', style);
+      console.log('Condition:', condition);
+      console.log('Description:', description);
+      console.log('Description length:', description.length);
+      console.log('Trade Preferences:', tradePreferences);
+      console.log('Images count:', images.length);
+      console.log('FormData entries:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ':', pair[1]);
+      }
+
       // Send to backend API
-      await api.post('/posts', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await postsApi.create(formData);
 
       // Success - navigate to profile
       navigate('/profile');
     } catch (err: any) {
-      console.error('Error creating post:', err);
-      setError(err.response?.data?.message || 'Failed to create post. Please try again.');
+      console.error('=== ERROR ===');
+      console.error('Full error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error response data:', err.response?.data);
+      const errorData = err.response?.data;
+      if (errorData && errorData.errors) {
+        // This is a validation error from our backend
+        console.error('Validation errors:', JSON.stringify(errorData.errors, null, 2));
+        const messages = errorData.errors.map((e: { message: string }) => e.message).join('\n');
+        setError(`Please fix the following errors:\n${messages}`);
+      } else if (errorData && errorData.error) {
+        // Generic error from our backend
+        setError(errorData.error);
+      } else {
+        // Other errors (network, etc.)
+        setError('Failed to create post. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -260,13 +299,47 @@ export function NewPostPage() {
             <label className="block font-sans text-tradey-black/80 text-sm font-medium mb-2">
               Size *
             </label>
-            <input
-              type="text"
+            <select
               value={size}
               onChange={(e) => setSize(e.target.value)}
-              placeholder="e.g., M, 32, L"
-              className="w-full px-4 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors"
-            />
+              className="w-full px-4 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors cursor-pointer bg-white"
+            >
+              {CLOTHING_SIZES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Type */}
+          <div>
+            <label className="block font-sans text-tradey-black/80 text-sm font-medium mb-2">
+              Type *
+            </label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="w-full px-4 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors cursor-pointer bg-white"
+            >
+              {CLOTHING_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Style */}
+          <div>
+            <label className="block font-sans text-tradey-black/80 text-sm font-medium mb-2">
+              Style *
+            </label>
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              className="w-full px-4 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors cursor-pointer bg-white"
+            >
+              {CLOTHING_STYLES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
           </div>
 
           {/* Condition */}

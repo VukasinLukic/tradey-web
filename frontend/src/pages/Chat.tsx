@@ -12,6 +12,13 @@ export function ChatPage() {
   const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Auto-select first chat when chats load
+  useEffect(() => {
+    if (!chatsLoading && chats.length > 0 && !selectedChatId) {
+      setSelectedChatId(chats[0].id);
+    }
+  }, [chats, chatsLoading, selectedChatId]);
+
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,8 +41,27 @@ export function ChatPage() {
     }
   };
 
-  const formatTimestamp = (date: Date) => {
-    const messageDate = new Date(date);
+  const formatTimestamp = (date: any) => {
+    if (!date) return 'Just now';
+    
+    // Handle Firebase Timestamp object
+    let messageDate: Date;
+    if (date?._seconds) {
+      // Firebase Timestamp format
+      messageDate = new Date(date._seconds * 1000);
+    } else if (date?.seconds) {
+      // Alternative Firebase Timestamp format
+      messageDate = new Date(date.seconds * 1000);
+    } else {
+      // Regular Date or string
+      messageDate = new Date(date);
+    }
+    
+    // Check if date is valid
+    if (isNaN(messageDate.getTime())) {
+      return 'Just now';
+    }
+    
     const now = new Date();
     const diffMs = now.getTime() - messageDate.getTime();
     const diffMins = Math.floor(diffMs / 60000);

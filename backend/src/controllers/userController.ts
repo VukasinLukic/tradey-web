@@ -282,6 +282,39 @@ export class UserController {
   });
 
   /**
+   * GET /api/users/:id/followers
+   * Get list of users that follow this user
+   */
+  getFollowers = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+
+    // Check if target user exists
+    const targetUser = await firestoreService.getDocument<UserProfile>(COLLECTIONS.USERS, id);
+    if (!targetUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Query all users where following array contains this user's ID
+    const allUsers = await firestoreService.queryDocuments<UserProfile>(
+      COLLECTIONS.USERS,
+      {
+        filters: [['following', 'array-contains', id]],
+      }
+    );
+
+    // Return simplified user data
+    const followers = allUsers.map(user => ({
+      uid: user.uid,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      location: user.location,
+    }));
+
+    res.json(followers);
+  });
+
+  /**
    * GET /api/users/:id/liked
    * Get list of posts that a user has liked
    * Protected route - owner only

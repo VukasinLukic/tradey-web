@@ -1,18 +1,73 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { Spinner } from '../components/ui/Spinner';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { usersApi } from '../services/api';
+import { useUiStore } from '../store/uiStore';
 
 export function ProfilePage() {
   const { user } = useAuth();
-  const { userProfile, loading: profileLoading } = useUserProfile(user?.uid);
+  const { userProfile, loading: profileLoading, refetch } = useUserProfile(user?.uid);
   const { posts, loading: postsLoading } = useUserPosts(user?.uid);
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
+
+  // State for the edit form
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [location, setLocation] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const showToast = useUiStore((state) => state.showToast);
+
+  useEffect(() => {
+    if (userProfile) {
+      setUsername(userProfile.username || '');
+      setBio(userProfile.bio || '');
+      setLocation(userProfile.location || '');
+      setAvatarPreview(userProfile.avatarUrl || null);
+    }
+  }, [userProfile]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setIsUpdating(true);
+    try {
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('bio', bio);
+      formData.append('location', location);
+      if (avatarFile) {
+        formData.append('avatar', avatarFile);
+      }
+
+      await usersApi.update(user.uid, formData);
+      
+      showToast('Profile updated successfully!', 'success');
+      setShowEditModal(false);
+      refetch(); // Refetch profile data
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showToast('Failed to update profile.', 'error');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -119,14 +174,20 @@ export function ProfilePage() {
                   <span className="font-sans text-sm text-white/90 font-medium">Posts</span>
                   <span className="font-sans text-2xl font-bold text-white">{posts.length}</span>
                 </div>
-                <div className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm">
+                <Link 
+                  to="/following?tab=following"
+                  className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer"
+                >
                   <span className="font-sans text-sm text-white/90 font-medium">Following</span>
                   <span className="font-sans text-2xl font-bold text-white">{userProfile.following?.length || 0}</span>
-                </div>
-                <div className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm">
+                </Link>
+                <Link 
+                  to="/following?tab=followers"
+                  className="flex justify-between items-center bg-white/10 rounded-lg px-3 py-2 backdrop-blur-sm hover:bg-white/20 transition-colors cursor-pointer"
+                >
                   <span className="font-sans text-sm text-white/90 font-medium">Followers</span>
                   <span className="font-sans text-2xl font-bold text-white">{followersCount}</span>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -284,27 +345,27 @@ export function ProfilePage() {
               </button>
             </div>
 
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={handleProfileUpdate}>
               {/* Avatar Upload */}
               <div className="flex flex-col items-center mb-6">
                 <div className="w-24 h-24 rounded-full bg-gray-100 overflow-hidden mb-4">
-                  {userProfile.avatarUrl ? (
+                  {avatarPreview ? (
                     <img
-                      src={userProfile.avatarUrl}
-                      alt={userProfile.username}
+                      src={avatarPreview}
+                      alt="Avatar preview"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-tradey-red/10">
                       <span className="font-fayte text-4xl text-tradey-red">
-                        {userProfile.username.charAt(0).toUpperCase()}
+                        {username.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
                 </div>
                 <label className="px-4 py-2 border border-tradey-black text-tradey-black font-sans text-xs hover:bg-tradey-black hover:text-white transition-all cursor-pointer">
                   Change Photo
-                  <input type="file" accept="image/*" className="hidden" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange}/>
                 </label>
               </div>
 
@@ -315,7 +376,8 @@ export function ProfilePage() {
                 </label>
                 <input
                   type="text"
-                  defaultValue={userProfile.username}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors"
                 />
               </div>
@@ -326,7 +388,8 @@ export function ProfilePage() {
                   Bio
                 </label>
                 <textarea
-                  defaultValue={userProfile.bio}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
                   placeholder="Tell us about yourself..."
                   rows={3}
                   className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors resize-none"
@@ -340,7 +403,8 @@ export function ProfilePage() {
                 </label>
                 <input
                   type="text"
-                  defaultValue={userProfile.location}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   placeholder="City, Country"
                   className="w-full px-4 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/30 focus:outline-none focus:border-tradey-red transition-colors"
                 />
@@ -370,9 +434,10 @@ export function ProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-2 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
+                  disabled={isUpdating}
+                  className="flex-1 px-6 py-2 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  Save Changes
+                  {isUpdating ? <Spinner size="sm" /> : 'Save Changes'}
                 </button>
               </div>
             </form>

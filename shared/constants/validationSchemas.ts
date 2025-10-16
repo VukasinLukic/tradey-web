@@ -7,6 +7,8 @@ export const createPostSchema = z.object({
   brand: z.string().min(1, 'Brand is required'),
   condition: z.enum(['NEW', 'MINT', 'VERY_GOOD', 'GOOD', 'FAIR']),
   size: z.string().min(1, 'Size is required'),
+  type: z.string().min(1, 'Type is required'),
+  style: z.string().min(1, 'Style is required'),
   tradePreferences: z.string().optional(),
   images: z.array(z.string().url()).min(1, 'At least one image is required').max(5, 'Maximum 5 images allowed')
 });

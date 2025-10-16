@@ -36,5 +36,28 @@ export function useUserProfile(uid: string | undefined) {
     fetchUserProfile();
   }, [uid]);
 
-  return { userProfile, loading, error };
+  const refetch = () => {
+    if (uid) {
+      const fetchUserProfile = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await usersApi.getById(uid);
+          setUserProfile(response.data);
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
+          setError(err as Error);
+          const axiosError = err as { response?: { status?: number } };
+          if (axiosError.response?.status === 404) {
+            console.log('User profile not found');
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUserProfile();
+    }
+  };
+
+  return { userProfile, loading, error, refetch };
 } 

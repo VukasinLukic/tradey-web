@@ -16,6 +16,8 @@ export interface Post {
   brand: string;
   condition: ClothingCondition;
   size: string;
+  type: string; // Add type
+  style: string; // Add style
   images: string[];
   tradePreferences: string;
   

@@ -11,7 +11,8 @@ export function FeaturedItemsSection() {
     async function fetchLatestPosts() {
       try {
         const response = await postsApi.getAll({ limit: 4 });
-        setPosts(response.data.posts || []);
+        // Backend returns array directly, not { posts: [...] }
+        setPosts(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Error fetching latest posts:', error);
       } finally {

@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCreateChat } from '../hooks/useCreateChat';
 import { useLikePost } from '../hooks/useLikePost';
 import { useMarketplace } from '../hooks/useMarketplace';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
 
@@ -18,9 +19,12 @@ export function ItemViewPage() {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Calculate likes from post data (if backend provides it)
-  const likesCount = 0; // TODO: Get from post data when backend implements it
-  const isLiked = false; // TODO: Get from post data when backend implements it
+  // Fetch current user's profile to check liked posts
+  const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
+
+  // Calculate if post is liked by current user
+  const isLiked = currentUserProfile?.likedPosts?.includes(id || '') || false;
+  const likesCount = 0; // TODO: Implement likes count on backend
 
   // Related products (same author or similar size/condition)
   const relatedProducts = useMemo(() => {
@@ -85,18 +89,18 @@ export function ItemViewPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
-      <nav className="mb-8 flex items-center gap-2 text-sm font-sans text-tradey-blue">
+      <nav className="mb-8 flex items-center gap-2 text-sm font-sans text-tradey-black">
         <Link to="/marketplace" className="hover:text-tradey-red transition-colors">
           Marketplace
         </Link>
         <span>/</span>
-        <span className="text-tradey-white">{post.title}</span>
+        <span className="text-tradey-black/60">{post.title}</span>
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image Gallery */}
         <div>
-          <div className="aspect-[3/4] bg-tradey-white rounded-lg mb-4 overflow-hidden relative">
+          <div className="aspect-[3/4] bg-gray-100 mb-4 overflow-hidden relative">
             <img
               src={currentMainImage}
               alt={post.title}
@@ -104,7 +108,7 @@ export function ItemViewPage() {
             />
             {!post.isAvailable && (
               <div className="absolute inset-0 bg-tradey-black/70 flex items-center justify-center">
-                <span className="font-avarabold text-tradey-white text-2xl px-6 py-3 bg-tradey-red rounded-lg">
+                <span className="font-fayte text-tradey-white text-2xl px-6 py-3 bg-tradey-red">
                   TRADED
                 </span>
               </div>
@@ -115,10 +119,10 @@ export function ItemViewPage() {
               <button
                 key={index}
                 onClick={() => setMainImage(img)}
-                className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all ${
+                className={`flex-shrink-0 w-20 h-20 overflow-hidden border-2 transition-all ${
                   img === currentMainImage
                     ? 'border-tradey-red'
-                    : 'border-tradey-red/30 hover:border-tradey-red/60'
+                    : 'border-tradey-black/20 hover:border-tradey-red/60'
                 }`}
               >
                 <img src={img} alt={`${post.title} ${index + 1}`} className="w-full h-full object-cover" />
@@ -128,63 +132,63 @@ export function ItemViewPage() {
         </div>
 
         {/* Post Details */}
-        <div>
+        <div className="bg-white p-8 shadow-sm border border-tradey-black/10">
           {/* Title & Brand */}
           <div className="mb-6">
-            <h1 className="font-avarabold text-4xl md:text-5xl text-tradey-white mb-2">
+            <h1 className="font-fayte text-4xl md:text-5xl text-tradey-black mb-2 uppercase">
               {post.title}
             </h1>
-            <p className="font-avarabold text-2xl text-tradey-blue">{post.brand}</p>
+            <p className="font-sans text-2xl text-tradey-black/60">{post.brand}</p>
           </div>
 
-          <hr className="border-tradey-red/30 my-6" />
+          <hr className="border-tradey-black/10 my-6" />
 
           {/* Details Grid */}
           <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-center">
-              <span className="font-avarabold text-tradey-blue">Condition:</span>
-              <span className="font-sans text-tradey-white">
+            <div className="flex justify-between items-center py-2 border-b border-tradey-black/5">
+              <span className="font-sans text-tradey-black/60 font-medium">Condition:</span>
+              <span className="font-sans text-tradey-black font-semibold">
                 {ClothingConditions[post.condition as keyof typeof ClothingConditions]}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="font-avarabold text-tradey-blue">Size:</span>
-              <span className="font-sans text-tradey-white">{post.size}</span>
+            <div className="flex justify-between items-center py-2 border-b border-tradey-black/5">
+              <span className="font-sans text-tradey-black/60 font-medium">Size:</span>
+              <span className="font-sans text-tradey-black font-semibold">{post.size}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="font-avarabold text-tradey-blue">Location:</span>
-              <span className="font-sans text-tradey-white">{post.authorLocation}</span>
+            <div className="flex justify-between items-center py-2 border-b border-tradey-black/5">
+              <span className="font-sans text-tradey-black/60 font-medium">Location:</span>
+              <span className="font-sans text-tradey-black font-semibold">{post.authorLocation}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="font-avarabold text-tradey-blue">Seller:</span>
+            <div className="flex justify-between items-center py-2 border-b border-tradey-black/5">
+              <span className="font-sans text-tradey-black/60 font-medium">Seller:</span>
               <Link
                 to={`/user/${post.authorId}`}
-                className="font-sans text-tradey-white hover:text-tradey-red transition-colors"
+                className="font-sans text-tradey-red font-semibold hover:underline transition-colors"
               >
                 @{post.authorUsername}
               </Link>
             </div>
           </div>
 
-          <hr className="border-tradey-red/30 my-6" />
+          <hr className="border-tradey-black/10 my-6" />
 
           {/* Description */}
           <div className="mb-6">
-            <h3 className="font-avarabold text-tradey-blue text-lg mb-2">Description</h3>
-            <p className="font-sans text-tradey-white whitespace-pre-wrap leading-relaxed">
+            <h3 className="font-sans text-tradey-black font-semibold text-lg mb-3">Description</h3>
+            <p className="font-sans text-tradey-black/70 whitespace-pre-wrap leading-relaxed">
               {post.description}
             </p>
           </div>
 
           {/* Trade Preferences */}
           {post.tradePreferences && (
-            <div className="mb-6">
-              <h3 className="font-avarabold text-tradey-blue text-lg mb-2">Would NOT trade for</h3>
-              <p className="font-sans text-tradey-white">{post.tradePreferences}</p>
+            <div className="mb-6 bg-tradey-red/5 p-4 border border-tradey-red/20">
+              <h3 className="font-sans text-tradey-red font-semibold text-sm mb-2">Would NOT trade for:</h3>
+              <p className="font-sans text-tradey-black/70">{post.tradePreferences}</p>
             </div>
           )}
 
-          <hr className="border-tradey-red/30 my-6" />
+          <hr className="border-tradey-black/10 my-6" />
 
           {/* Actions */}
           <div className="space-y-3">
@@ -192,7 +196,7 @@ export function ItemViewPage() {
               <button
                 onClick={handleContactSeller}
                 disabled={chatLoading}
-                className="w-full px-6 py-4 bg-tradey-red text-tradey-white font-avarabold text-lg rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="w-full px-6 py-4 bg-tradey-red text-white font-sans text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
               >
                 {chatLoading ? 'Starting conversation...' : 'Contact Seller'}
               </button>
@@ -201,21 +205,26 @@ export function ItemViewPage() {
             {!user && (
               <Link
                 to="/login"
-                className="block w-full px-6 py-4 bg-tradey-red text-tradey-white font-avarabold text-lg rounded-lg hover:opacity-90 transition-opacity text-center"
+                className="block w-full px-6 py-4 bg-tradey-red text-white font-sans text-base font-semibold hover:opacity-90 transition-opacity text-center"
               >
                 Login to Contact Seller
               </Link>
             )}
 
             <div className="flex gap-3">
-              {user && id && (
+              {user && id && !isOwnPost && (
                 <button
-                  onClick={() => toggleLike(id)}
+                  onClick={async () => {
+                    const success = await toggleLike(id);
+                    if (success) {
+                      refetchCurrentUser();
+                    }
+                  }}
                   className={`flex-1 px-6 py-3 border-2 ${
                     isLiked
                       ? 'border-tradey-red bg-tradey-red/10 text-tradey-red'
-                      : 'border-tradey-red/30 text-tradey-white'
-                  } font-avarabold rounded-lg hover:bg-tradey-red/10 transition-colors flex items-center justify-center gap-2`}
+                      : 'border-tradey-black/20 text-tradey-black hover:border-tradey-red hover:text-tradey-red'
+                  } font-sans font-semibold hover:bg-tradey-red/5 transition-colors flex items-center justify-center gap-2`}
                 >
                   <svg
                     className={`w-5 h-5 ${isLiked ? 'fill-tradey-red' : 'fill-none'}`}
@@ -235,7 +244,7 @@ export function ItemViewPage() {
 
               <button
                 onClick={handleShare}
-                className="px-6 py-3 border-2 border-tradey-red/30 text-tradey-white font-avarabold rounded-lg hover:bg-tradey-red/10 transition-colors flex items-center justify-center gap-2"
+                className="px-6 py-3 border-2 border-tradey-black/20 text-tradey-black hover:border-tradey-black font-sans font-semibold hover:bg-tradey-black/5 transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path

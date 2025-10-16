@@ -122,30 +122,32 @@ export class ChatController {
    * Get messages from a chat (paginated)
    * Protected route - requires authentication and participation
    */
-  getMessages = asyncHandler(async (req: AuthRequest, res: Response) => {
+  getMessages = async (req: AuthRequest, res: Response) => {
     const { chatId } = req.params;
     const userId = req.user!.uid;
     const { limit = 50, cursor } = req.query;
 
-    // Check if chat exists and user is a participant
-    const chat = await firestoreService.getDocument<Chat>(COLLECTIONS.CHATS, chatId);
-    if (!chat) {
-      res.status(404).json({ error: 'Chat not found' });
-      return;
-    }
+    try {
+      // Check if chat exists and user is a participant
+      const chat = await firestoreService.getDocument<Chat>(COLLECTIONS.CHATS, chatId);
+      
+      if (!chat) {
+        res.status(404).json({ error: 'Chat not found' });
+        return;
+      }
 
-    if (!chat.participants.includes(userId)) {
-      res.status(403).json({ error: 'Forbidden: You are not a participant in this chat' });
-      return;
-    }
+      if (!chat.participants.includes(userId)) {
+        res.status(403).json({ error: 'Forbidden: You are not a participant in this chat' });
+        return;
+      }
 
-    // Query messages
-    let query = db
-      .collection(COLLECTIONS.CHATS)
-      .doc(chatId)
-      .collection(COLLECTIONS.MESSAGES)
-      .orderBy('createdAt', 'desc')
-      .limit(Number(limit));
+      // Query messages
+      let query = db
+        .collection(COLLECTIONS.CHATS)
+        .doc(chatId)
+        .collection(COLLECTIONS.MESSAGES)
+        .orderBy('createdAt', 'desc')
+        .limit(Number(limit));
 
     // Apply cursor for pagination
     if (cursor) {
@@ -161,21 +163,61 @@ export class ChatController {
       }
     }
 
-    const snapshot = await query.get();
-    const messages = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Message[];
+      const snapshot = await query.get();
+      
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Message[];
 
-    // Get next cursor (last message ID)
-    const nextCursor = messages.length > 0 ? messages[messages.length - 1].id : null;
+      // Get next cursor (last message ID)
+      const nextCursor = messages.length > 0 ? messages[messages.length - 1].id : null;
 
-    res.json({
-      messages,
-      nextCursor,
-      hasMore: messages.length === Number(limit),
-    });
-  });
+      res.json({
+        messages,
+        nextCursor,
+        hasMore: messages.length === Number(limit),
+      });
+    } catch (error: any) {
+      console.error('❌ ERROR in getMessages:');
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Full error:', error);
+      
+      // Check if it's a Firestore index error
+      if (error.code === 9 || error.message?.includes('index') || error.message?.includes('Index')) {
+        console.error('\n⚠️⚠️⚠️  FIRESTORE INDEX REQUIRED  ⚠️⚠️⚠️\n');
+        console.error('📝 CREATE INDEX BY CLICKING THIS LINK:');
+        
+        if (error.message) {
+          const indexUrlMatch = error.message.match(/(https:\/\/console\.firebase\.google\.com\/[^\s]+)/);
+          if (indexUrlMatch) {
+            console.error(`\n✅ ${indexUrlMatch[1]}\n`);
+          }
+        }
+        
+        console.error('OR manually:');
+        console.error('1. Go to: https://console.firebase.google.com/project/vibe-hakaton/firestore/indexes');
+        console.error('2. Click "Create Index"');
+        console.error('3. Collection ID: messages');
+        console.error('4. ✅ CHECK "Collection group"');
+        console.error('5. Field: createdAt, Order: Descending');
+        console.error('6. Click "Create"\n');
+        
+        res.status(500).json({ 
+          error: 'Firestore index required. Check server console for instructions.',
+          details: error.message 
+        });
+        return;
+      }
+      
+      // Generic error
+      res.status(500).json({ 
+        error: 'Failed to fetch messages',
+        details: error.message 
+      });
+    }
+  };
 
   /**
    * POST /api/chats/:chatId/messages
