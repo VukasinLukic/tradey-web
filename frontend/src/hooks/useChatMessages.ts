@@ -14,7 +14,8 @@ export function useChatMessages(chatId: string | null) {
     setError(null);
     try {
       const response = await chatApi.getMessages(chatId);
-      setMessages(response.data);
+      // Backend returns { messages: [...], nextCursor, hasMore }
+      setMessages(response.data.messages || []);
     } catch (err) {
       console.error('Error fetching messages:', err);
       setError(err as Error);

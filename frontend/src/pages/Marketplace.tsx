@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMarketplace } from '../hooks/useMarketplace';
 import { useLikePost } from '../hooks/useLikePost';
 import { useAuth } from '../hooks/useAuth';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
 import type { ClothingCondition } from '../../../shared/types/post.types';
@@ -178,16 +179,22 @@ function ProductCard({ post }: { post: any }) {
   const { toggleLike, loading } = useLikePost();
   const [isHovered, setIsHovered] = useState(false);
 
+  // Fetch current user's profile to check liked posts
+  const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
+
   const handleLikeClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (user) {
-      await toggleLike(post.id);
+      const success = await toggleLike(post.id);
+      if (success) {
+        refetchCurrentUser();
+      }
     }
   };
 
-  // Placeholder for likes
-  const isLiked = false;
+  // Calculate if post is liked by current user
+  const isLiked = currentUserProfile?.likedPosts?.includes(post.id) || false;
 
   return (
     <Link

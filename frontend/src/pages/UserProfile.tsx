@@ -9,19 +9,26 @@ import { useState } from 'react';
 export function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { userProfile, loading: profileLoading } = useUserProfile(id);
+  const { userProfile, loading: profileLoading, refetch } = useUserProfile(id);
   const { posts, loading: postsLoading } = useUserPosts(id);
   const { toggleFollow, loading: followLoading } = useFollowUser();
   const [showReportModal, setShowReportModal] = useState(false);
 
+  // Fetch current user's profile to check if following
+  const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
+
   const isOwnProfile = user?.uid === id;
 
-  // Calculate isFollowing from userProfile data (if backend provides it)
-  const isFollowing = false; // TODO: Get from userProfile data when backend implements it
+  // Calculate isFollowing from current user's following array
+  const isFollowing = currentUserProfile?.following?.includes(id || '') || false;
 
-  const handleFollow = () => {
+  const handleFollow = async () => {
     if (id) {
-      toggleFollow(id);
+      const success = await toggleFollow(id);
+      if (success) {
+        // Refetch current user's profile to update following state
+        refetchCurrentUser();
+      }
     }
   };
 

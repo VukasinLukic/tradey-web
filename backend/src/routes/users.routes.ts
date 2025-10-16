@@ -41,6 +41,9 @@ router.get('/:id/posts', optionalAuthenticate, userController.getUserPosts);
 // GET /api/users/:id/following - Get users that this user follows
 router.get('/:id/following', optionalAuthenticate, userController.getFollowing);
 
+// GET /api/users/:id/followers - Get users that follow this user
+router.get('/:id/followers', optionalAuthenticate, userController.getFollowers);
+
 /**
  * Protected Routes (require authentication)
  */

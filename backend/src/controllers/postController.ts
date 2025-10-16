@@ -84,8 +84,14 @@ export class PostController {
   createPost = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.uid;
 
-    // Validate request body
-    const validation = createPostSchema.safeParse(req.body);
+    console.log('--- CREATE POST ---');
+    console.log('Received body:', JSON.stringify(req.body, null, 2));
+    console.log('Received files:', req.files);
+
+    // Images are handled by multer, so we can omit them from body validation
+    const bodySchema = createPostSchema.omit({ images: true });
+    const validation = bodySchema.safeParse(req.body);
+
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
@@ -102,14 +108,21 @@ export class PostController {
     }
 
     // Upload images if provided as files
-    let imageUrls = validation.data.images;
+    let imageUrls: string[] = [];
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      if (req.files.length > 5) {
+        res.status(400).json({ error: 'Maximum 5 images allowed' });
+        return;
+      }
       try {
         imageUrls = await storageService.uploadImages(req.files as Express.Multer.File[], userId);
       } catch (error) {
         res.status(500).json({ error: 'Failed to upload images' });
         return;
       }
+    } else {
+      res.status(400).json({ error: 'At least one image is required' });
+      return;
     }
 
     // Create post document

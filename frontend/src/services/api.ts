@@ -11,9 +11,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
  */
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   timeout: 30000, // 30 seconds
 });
 
@@ -28,6 +25,12 @@ apiClient.interceptors.request.use(
         // Get fresh token
         const token = await user.getIdToken();
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Set Content-Type only for non-FormData requests
+      // FormData will automatically set correct Content-Type with boundary
+      if (!(config.data instanceof FormData)) {
+        config.headers['Content-Type'] = 'application/json';
       }
     } catch (error) {
       console.error('Error getting auth token:', error);
@@ -99,22 +102,14 @@ export const postsApi = {
    * Create new post with images
    * @param data - FormData with post data and images
    */
-  create: (data: FormData) => apiClient.post('/posts', data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  create: (data: FormData) => apiClient.post('/posts', data),
 
   /**
    * Update post (owner only)
    * @param id - Post ID
    * @param data - FormData with updated data
    */
-  update: (id: string, data: FormData) => apiClient.put(`/posts/${id}`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  update: (id: string, data: FormData) => apiClient.put(`/posts/${id}`, data),
 
   /**
    * Delete post (owner only)
@@ -165,15 +160,16 @@ export const usersApi = {
   getFollowing: (id: string) => apiClient.get(`/users/${id}/following`),
 
   /**
+   * Get user's followers list
+   */
+  getFollowers: (id: string) => apiClient.get(`/users/${id}/followers`),
+
+  /**
    * Update user profile (owner only)
    * @param id - User ID
    * @param data - FormData with updated profile data (can include avatar file)
    */
-  update: (id: string, data: FormData) => apiClient.put(`/users/${id}`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  }),
+  update: (id: string, data: FormData) => apiClient.put(`/users/${id}`, data),
 
   /**
    * Follow/unfollow user

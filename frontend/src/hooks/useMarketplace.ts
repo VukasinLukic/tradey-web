@@ -29,7 +29,8 @@ export function useMarketplace() {
       try {
         setLoading(true);
         const response = await api.get('/posts');
-        setPosts(response.data.posts || []);
+        // Backend returns array directly, not { posts: [...] }
+        setPosts(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err: any) {
         console.error('Error fetching posts:', err);
