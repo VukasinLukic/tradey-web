@@ -135,12 +135,7 @@ Backend: http://localhost:5000
 - [Implementation Plan](docs/implementationplan.md)
 - [Project Structure](docs/struktura_projekta.md)
 
-## 🔐 Bezbednost
 
-- **NIKADA** ne commit-ujte `.env` fajlove
-- **NIKADA** ne commit-ujte `firebase-service-account.json`
-- Firebase API ključevi u frontendu su samo za Auth (security rules su na backendu)
-- Sve Firestore/Storage operacije idu preko backend API-ja
 
 ## 🧪 Testiranje
 
@@ -172,16 +167,5 @@ docker-compose down
 2. Commit-ujte izmene: `git commit -m "feat: opis izmene"`
 3. Push na GitHub: `git push origin feature/nova-funkcija`
 4. Kreirajte Pull Request
-
-## 👥 Tim
-
-- **Vukašin** - Backend development, Firebase integration, Docker
-- **Teodora** - Frontend development, UI/UX design
-
-## 📄 Licenca
-
-MIT License
-
----
 
 **Made with ❤️ for sustainable fashion**

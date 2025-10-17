@@ -6,7 +6,7 @@ const menuItems = [
   {
     link: '/',
     text: 'Home',
-    image: '/photos/slika%20za%20landing%201.jpg'
+    image: '/photos/real3.jpg'
   },
   {
     link: '/marketplace',

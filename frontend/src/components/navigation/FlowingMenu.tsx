@@ -66,7 +66,7 @@ const MenuItem: React.FC<MenuItemInternalProps> = ({ link, text, image, onClose 
   const repeatedMarqueeContent = React.useMemo(() => {
     return Array.from({ length: 4 }).map((_, idx) => (
       <React.Fragment key={idx}>
-        <span className="text-[#060010] uppercase font-normal text-[4vh] leading-[1.2] p-[1vh_1vw_0]">{text}</span>
+        <span className="text-white uppercase font-normal text-[4vh] leading-[1.2] p-[1vh_1vw_0]">{text}</span>
         <div
           className="w-[200px] h-[7vh] my-[2em] mx-[2vw] p-[1em_0] rounded-[50px] bg-cover bg-center"
           style={{ backgroundImage: `url(${image})` }}
@@ -78,7 +78,7 @@ const MenuItem: React.FC<MenuItemInternalProps> = ({ link, text, image, onClose 
   return (
     <div className="flex-1 relative overflow-hidden text-center border-b border-tradey-black/20" ref={itemRef}>
       <Link
-        className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-fayte font-bold text-tradey-black text-[4vh] hover:text-[#060010] transition-colors"
+        className="flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-fayte font-bold text-tradey-black text-[6vh] hover:text-tradey-red transition-colors"
         to={link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -87,7 +87,7 @@ const MenuItem: React.FC<MenuItemInternalProps> = ({ link, text, image, onClose 
         {text}
       </Link>
       <div
-        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-white translate-y-[101%]"
+        className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-tradey-red translate-y-[101%]"
         ref={marqueeRef}
       >
         <div className="h-full w-[200%] flex" ref={marqueeInnerRef}>

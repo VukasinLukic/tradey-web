@@ -13,7 +13,11 @@
       "Bash(npm run lint)",
       "Bash(taskkill:*)",
       "Bash(cat:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(awk:*)",
+      "Bash(for comp in Button card Input Modal)",
+      "Bash(do echo \"=== $comp ===\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

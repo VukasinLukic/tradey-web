@@ -21,6 +21,7 @@ import { ContactPage } from '../pages/Contact';
 import { FAQPage } from '../pages/FAQ';
 import { PrivacyPage } from '../pages/Privacy';
 import { TermsOfUsePage } from '../pages/TermsOfUse';
+import { NotFoundPage } from '../pages/NotFound';
 
 export function AppRoutes() {
   return (
@@ -51,6 +52,9 @@ export function AppRoutes() {
         <Route path="/liked" element={<LikedPage />} />
         <Route path="/following" element={<FollowingPage />} />
       </Route>
+
+      {/* 404 - Catch all */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 } 

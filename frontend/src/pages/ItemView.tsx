@@ -26,6 +26,9 @@ export function ItemViewPage() {
   // Fetch current user's profile to check liked posts
   const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
 
+  // Fetch seller's profile to display avatar
+  const { userProfile: sellerProfile } = useUserProfile(post?.authorId);
+
   // Calculate if post is liked by current user
   const isLiked = currentUserProfile?.likedPosts?.includes(id || '') || false;
   const likesCount = 0; // TODO: Implement likes count on backend
@@ -186,8 +189,24 @@ export function ItemViewPage() {
               <span className="font-sans text-tradey-black/60 font-medium">Seller:</span>
               <Link
                 to={`/user/${post.authorId}`}
-                className="font-sans text-tradey-red font-semibold hover:underline transition-colors"
+                className="flex items-center gap-2 font-sans text-tradey-red font-semibold hover:underline transition-colors"
               >
+                {/* Seller Avatar */}
+                <div className="w-8 h-8 rounded-full bg-tradey-black/10 flex-shrink-0 overflow-hidden">
+                  {sellerProfile?.avatarUrl ? (
+                    <img
+                      src={sellerProfile.avatarUrl}
+                      alt={post.authorUsername}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-tradey-red/10">
+                      <span className="font-fayte text-xs text-tradey-red">
+                        {post.authorUsername.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 @{post.authorUsername}
               </Link>
             </div>

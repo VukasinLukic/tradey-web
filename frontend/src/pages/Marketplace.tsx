@@ -8,6 +8,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { ClothingConditions } from '../../../shared/types/post.types';
 import type { ClothingCondition } from '../../../shared/types/post.types';
 import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
+import { CLOTHING_STYLES } from '../constants/clothing';
 
 export function MarketplacePage() {
   const {
@@ -90,18 +91,22 @@ export function MarketplacePage() {
             ))}
           </select>
 
-          {/* Sort */}
+          {/* Style Filter */}
           <select
-            value={filters.sortBy || 'recent'}
-            onChange={(e) => updateFilters({ sortBy: e.target.value as 'recent' | 'popular' })}
+            value={filters.style || ''}
+            onChange={(e) => updateFilters({ style: e.target.value || undefined })}
             className="px-4 py-2 border border-tradey-black/20 rounded-none text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors bg-white cursor-pointer"
           >
-            <option value="recent">Newest</option>
-            <option value="popular">Popular</option>
+            <option value="">All Styles</option>
+            {CLOTHING_STYLES.map((style) => (
+              <option key={style} value={style}>
+                {style}
+              </option>
+            ))}
           </select>
 
           {/* Clear Filters */}
-          {(filters.search || filters.size || filters.condition) && (
+          {(filters.search || filters.size || filters.condition || filters.style) && (
             <button
               onClick={resetFilters}
               className="text-tradey-red font-sans text-sm hover:underline"
@@ -112,7 +117,7 @@ export function MarketplacePage() {
         </div>
 
         {/* Results count */}
-        {(filters.search || filters.size || filters.condition) && (
+        {(filters.search || filters.size || filters.condition || filters.style) && (
           <p className="text-tradey-black/60 font-sans text-sm mt-4">
             {totalResults} {totalResults === 1 ? 'item' : 'items'}
           </p>
@@ -123,7 +128,7 @@ export function MarketplacePage() {
       {posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <p className="font-sans text-tradey-black/40 text-lg mb-4">No items found</p>
-          {(filters.search || filters.size || filters.condition) && (
+          {(filters.search || filters.size || filters.condition || filters.style) && (
             <button
               onClick={resetFilters}
               className="px-6 py-2 border border-tradey-black text-tradey-black font-sans text-sm hover:bg-tradey-black hover:text-white transition-all"
@@ -225,7 +230,7 @@ function ProductCard({ post }: { post: any }) {
           <button
             onClick={handleLikeClick}
             disabled={loading}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all"
+            className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white transition-all transform hover:scale-125 active:scale-110 hover:rotate-12"
           >
             <svg
               className={`w-4 h-4 ${isLiked ? 'fill-tradey-red stroke-tradey-red' : 'fill-none stroke-tradey-black'}`}

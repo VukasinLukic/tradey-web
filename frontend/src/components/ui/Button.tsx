@@ -11,7 +11,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
   ...props
 }) => {
-  const baseClasses = "inline-flex items-center justify-center px-6 py-3 border-2 rounded-3xl font-garamond font-bold uppercase tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent";
+  const baseClasses = "inline-flex items-center justify-center px-6 py-3 border-2 rounded-3xl font-garamond font-bold uppercase tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent transform hover:scale-105 active:scale-95";
 
   const toneClasses: Record<NonNullable<ButtonProps['tone']>, string> = {
     'tradey-white': 'border-tradey-white text-tradey-white hover:bg-tradey-white/10 focus:ring-tradey-white',

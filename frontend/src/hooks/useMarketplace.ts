@@ -64,6 +64,11 @@ export function useMarketplace() {
       result = result.filter((post) => post.size === filters.size);
     }
 
+    // Filter by style
+    if (filters.style) {
+      result = result.filter((post) => post.style === filters.style);
+    }
+
     // Filter by condition
     if (filters.condition) {
       result = result.filter((post) => post.condition === filters.condition);
