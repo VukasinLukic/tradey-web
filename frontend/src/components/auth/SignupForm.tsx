@@ -89,10 +89,10 @@ export function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-5">
       {/* Username Input */}
       <div>
-        <label htmlFor="username" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
+        <label htmlFor="username" className="block font-sans text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 md:mb-1.5 text-tradey-black">
           Username
         </label>
         <input
@@ -102,14 +102,14 @@ export function SignupForm() {
           onChange={(e) => setUsername(e.target.value)}
           required
           autoComplete="username"
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          className="w-full px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-xs sm:text-sm md:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="your_username"
         />
       </div>
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
+        <label htmlFor="email" className="block font-sans text-xs sm:text-sm font-medium mb-0.5 sm:mb-1 md:mb-1.5 text-tradey-black">
           Email
         </label>
         <input
@@ -119,7 +119,7 @@ export function SignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          className="w-full px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-xs sm:text-sm md:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="name@example.com"
         />
       </div>
@@ -192,18 +192,18 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3.5 bg-tradey-red hover:bg-tradey-red/80 text-tradey-white font-sans text-base font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-6"
+        className="w-full py-2.5 sm:py-3 md:py-3.5 bg-tradey-red hover:bg-tradey-red/80 text-tradey-white font-sans text-sm sm:text-base font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-3 sm:mt-4 md:mt-6"
       >
         {loading ? 'Creating account...' : 'Create account'}
       </button>
 
       {/* Divider */}
-      <div className="relative py-4">
+      <div className="relative py-2 sm:py-3 md:py-4">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-tradey-black/10"></div>
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-tradey-white text-tradey-black/60 font-sans">
+        <div className="relative flex justify-center text-xs sm:text-sm">
+          <span className="px-3 sm:px-4 bg-tradey-white text-tradey-black/60 font-sans">
             Already have an account?
           </span>
         </div>
@@ -212,7 +212,7 @@ export function SignupForm() {
       {/* Log In Link */}
       <a
         href="/login"
-        className="block w-full py-3.5 text-center bg-tradey-white hover:bg-tradey-black/5 border border-tradey-black/20 text-tradey-black font-sans text-base font-semibold rounded-full transition-colors"
+        className="block w-full py-2.5 sm:py-3 md:py-3.5 text-center bg-tradey-white hover:bg-tradey-black/5 border border-tradey-black/20 text-tradey-black font-sans text-sm sm:text-base font-semibold rounded-full transition-colors"
       >
         Log in
       </a>
