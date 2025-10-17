@@ -37,7 +37,10 @@ COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
-COPY --chown=nodejs:nodejs firebase-service-account.json ./
+# Note: firebase-service-account.json is NOT copied for production
+# Instead, use FIREBASE_SERVICE_ACCOUNT environment variable
+# For local Docker, uncomment the line below and ensure file exists:
+# COPY --chown=nodejs:nodejs firebase-service-account.json ./
 
 RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app/logs
 
