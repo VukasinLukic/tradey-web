@@ -1,35 +1,57 @@
 FROM node:18-alpine AS builder
 
+LABEL maintainer="TRADEY Team"
+LABEL version="1.0"
+LABEL description="TRADEY Backend - Express API sa Firebase Admin SDK"
+
 WORKDIR /app
 
-# Kopiranje package fajlova
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
 COPY package*.json ./
 
-# Instaliranje zavisnosti
-RUN npm ci
+RUN npm install && \
+    npm cache clean --force
 
-# Kopiranje source koda
 COPY . .
 
-# Build TypeScript-a
 RUN npm run build
 
-# Production faza
 FROM node:18-alpine
+
+LABEL maintainer="TRADEY Team"
+LABEL version="1.0"
+LABEL description="TRADEY Backend Production"
+
+RUN apk add --no-cache dumb-init
+
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
 
 WORKDIR /app
 
-# Kopiranje buildovanih fajlova i zavisnosti
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+RUN chown -R nodejs:nodejs /app
 
-# Kopiranje Firebase service account (mora biti prisutan tokom build-a)
-COPY firebase-service-account.json ./
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
-# Otvaranje porta
+COPY --chown=nodejs:nodejs firebase-service-account.json ./
+
+RUN mkdir -p /app/logs && chown -R nodejs:nodejs /app/logs
+
+USER nodejs
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
 EXPOSE 5000
 
-# Pokretanje servera
-CMD ["npm", "start"]
+ENV NODE_ENV=production
+ENV PORT=5000
+
+ENTRYPOINT ["dumb-init", "--"]
+
+CMD ["node", "dist/server.js"]
 
