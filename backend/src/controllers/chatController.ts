@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import firestoreService from '../services/firestore.service';
-import { COLLECTIONS } from 'shared/constants/firebasePaths';
-import { sendMessageSchema, createChatSchema } from 'shared/constants/validationSchemas';
-import { Chat, Message } from 'shared/types';
+import { COLLECTIONS } from '../shared/constants/firebasePaths';
+import { sendMessageSchema, createChatSchema } from '../shared/constants/validationSchemas';
+import { Chat, Message } from '../shared/types';
 import { asyncHandler } from '../middleware/errorHandler';
 import { db } from '../config/firebaseAdmin';
 import admin from 'firebase-admin';

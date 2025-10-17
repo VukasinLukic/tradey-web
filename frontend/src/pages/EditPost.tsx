@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { usePost } from '../hooks/usePost';
 import { Spinner } from '../components/ui/Spinner';
-import { ClothingConditions } from '../../../shared/types/post.types';
-import type { ClothingCondition } from '../../../shared/types/post.types';
+import { ClothingConditions } from '../shared/types/post.types';
+import type { ClothingCondition } from '../shared/types/post.types';
 import { postsApi } from '../services/api';
 import { CLOTHING_SIZES, CLOTHING_TYPES, CLOTHING_STYLES } from '../constants/clothing';
 

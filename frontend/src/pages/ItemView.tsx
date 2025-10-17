@@ -7,7 +7,7 @@ import { useLikePost } from '../hooks/useLikePost';
 import { useMarketplace } from '../hooks/useMarketplace';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
-import { ClothingConditions } from '../../../shared/types/post.types';
+import { ClothingConditions } from '../shared/types/post.types';
 import { postsApi } from '../services/api';
 
 export function ItemViewPage() {

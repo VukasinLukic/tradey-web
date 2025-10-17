@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Post, ClothingCondition } from '../../../shared/types/post.types';
+import type { Post, ClothingCondition } from '../shared/types/post.types';
 import api from '../services/api';
 
 export interface MarketplaceFilters {

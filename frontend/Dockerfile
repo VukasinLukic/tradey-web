@@ -2,32 +2,32 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Kopiranje package fajlova
 COPY package*.json ./
 
-# Install dependencies
+# Instaliranje zavisnosti
 RUN npm ci
 
-# Copy source
+# Kopiranje source koda
 COPY . .
 
-# Build for production
+# Build za production
 RUN npm run build
 
-# Production stage
+# Production faza
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Install serve to serve static files
+# Instaliranje serve za serviranje static fajlova
 RUN npm install -g serve
 
-# Copy built files
+# Kopiranje buildovanih fajlova
 COPY --from=builder /app/dist ./dist
 
-# Expose port
+# Otvaranje porta
 EXPOSE 3000
 
-# Serve the app
+# Serviranje aplikacije
 CMD ["serve", "-s", "dist", "-l", "3000"]
 

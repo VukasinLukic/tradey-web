@@ -2,9 +2,9 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import firestoreService from '../services/firestore.service';
 import storageService from '../services/storage.service';
-import { COLLECTIONS } from 'shared/constants/firebasePaths';
-import { createUserProfileSchema, updateUserProfileSchema } from 'shared/constants/validationSchemas';
-import { UserProfile } from 'shared/types';
+import { COLLECTIONS } from '../shared/constants/firebasePaths';
+import { createUserProfileSchema, updateUserProfileSchema } from '../shared/constants/validationSchemas';
+import { UserProfile } from '../shared/types';
 import { asyncHandler } from '../middleware/errorHandler';
 
 export class UserController {

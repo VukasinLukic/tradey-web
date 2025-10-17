@@ -2,34 +2,34 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Kopiranje package fajlova
 COPY package*.json ./
 
-# Install dependencies
+# Instaliranje zavisnosti
 RUN npm ci
 
-# Copy source
+# Kopiranje source koda
 COPY . .
 
-# Build TypeScript
+# Build TypeScript-a
 RUN npm run build
 
-# Production stage
+# Production faza
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built files and dependencies
+# Kopiranje buildovanih fajlova i zavisnosti
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 
-# Copy Firebase service account (must be present during build)
+# Kopiranje Firebase service account (mora biti prisutan tokom build-a)
 COPY firebase-service-account.json ./
 
-# Expose port
+# Otvaranje porta
 EXPOSE 5000
 
-# Start server
+# Pokretanje servera
 CMD ["npm", "start"]
 

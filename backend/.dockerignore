@@ -6,4 +6,7 @@ dist
 *.md
 .gitignore
 .dockerignore
-
+coverage
+logs
+Dockerfile
+docker-compose.yml

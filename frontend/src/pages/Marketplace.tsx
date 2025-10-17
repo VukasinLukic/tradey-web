@@ -5,8 +5,8 @@ import { useLikePost } from '../hooks/useLikePost';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
-import { ClothingConditions } from '../../../shared/types/post.types';
-import type { ClothingCondition } from '../../../shared/types/post.types';
+import { ClothingConditions } from '../shared/types/post.types';
+import type { ClothingCondition } from '../shared/types/post.types';
 import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
 import { CLOTHING_STYLES } from '../constants/clothing';
 

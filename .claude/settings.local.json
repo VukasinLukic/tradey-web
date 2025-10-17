@@ -17,7 +17,9 @@
       "Bash(awk:*)",
       "Bash(for comp in Button card Input Modal)",
       "Bash(do echo \"=== $comp ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(if exist \"backend\\src\\shared\"\" rmdir /s /q \"backendsrcshared\" && xcopy \"shared\" \"backendsrcshared\"\" /E /I /Y)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
