@@ -127,6 +127,44 @@ Backend: http://localhost:5000
 - [Implementation Plan](docs/implementationplan.md)
 - [Project Structure](docs/struktura_projekta.md)
 
+### Deployment Dokumentacija
+
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Kompletan vodič za deployment na Vercel i Railway
+- **[ENV_VARIABLES.md](./ENV_VARIABLES.md)** - Referenca za sve environment variables
+- **[DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)** - Korak-po-korak checklist za deployment
+
+## 🚀 Production Deployment
+
+TRADEY koristi sledeću infrastrukturu:
+
+- **Frontend**: Vercel (automatic deployments from GitHub)
+- **Backend**: Railway (Docker-based deployment)
+- **Database**: Firebase Firestore (hosted on Google Cloud)
+- **Storage**: Firebase Storage (hosted on Google Cloud)
+
+### Production URLs
+
+| Service | URL | Status |
+|---------|-----|--------|
+| **Frontend** | TBD | 🔄 Pending deployment |
+| **Backend API** | TBD | 🔄 Pending deployment |
+| **Health Check** | TBD | 🔄 Pending deployment |
+
+### Quick Deployment
+
+Za brz deployment, pogledajte:
+
+1. **[Deployment Guide](./DEPLOYMENT.md)** - Detaljne instrukcije
+2. **[Environment Variables](./ENV_VARIABLES.md)** - Lista svih potrebnih env variables
+3. **[Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)** - Checklist za praćenje progresa
+
+**Ključne izmene za production:**
+- ✅ Backend podržava Firebase credentials kroz environment variable
+- ✅ CORS konfiguracija podržava multiple domains
+- ✅ Vercel.json kreiran za SPA routing
+- ✅ Health check endpoint za monitoring
+- ✅ Multi-stage Docker builds za optimizaciju
+
 
 
 ## 🧪 Testiranje

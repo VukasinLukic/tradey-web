@@ -5,10 +5,23 @@ import path from 'path';
 dotenv.config();
 
 // Initialize Firebase Admin SDK
-const serviceAccountPath = path.resolve(process.cwd(), process.env.FIREBASE_ADMIN_KEY_PATH || './firebase-service-account.json');
+let serviceAccount: admin.ServiceAccount;
 
 try {
-  const serviceAccount = require(serviceAccountPath);
+  // Option 1: Try to load from environment variable (recommended for Railway/Vercel)
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    console.log('📦 Loading Firebase credentials from environment variable...');
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  }
+  // Option 2: Fallback to file (for local development)
+  else {
+    console.log('📂 Loading Firebase credentials from file...');
+    const serviceAccountPath = path.resolve(
+      process.cwd(),
+      process.env.FIREBASE_ADMIN_KEY_PATH || './firebase-service-account.json'
+    );
+    serviceAccount = require(serviceAccountPath);
+  }
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -18,6 +31,7 @@ try {
   console.log('✅ Firebase Admin SDK initialized successfully');
 } catch (error) {
   console.error('❌ Failed to initialize Firebase Admin SDK:', error);
+  console.error('💡 Make sure FIREBASE_SERVICE_ACCOUNT env variable is set or firebase-service-account.json file exists');
   process.exit(1);
 }
 
