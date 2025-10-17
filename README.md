@@ -61,15 +61,7 @@ tradey-web/
    # Dodajte Firebase Admin SDK key path
    ```
 
-4. **Preuzmite Firebase Service Account Key:**
-   - Idite na [Firebase Console](https://console.firebase.google.com) → Project Settings → Service Accounts
-   - Kliknite "Generate new private key"
-   - Sačuvajte kao `backend/firebase-service-account.json`
-   - **NEVER commit this file!** It's already in .gitignore
 
-5. **Environment files are already created** with your Firebase configuration:
-   - `frontend/.env` (Firebase client SDK)
-   - `backend/.env` (Server configuration)
 
 ### Pokretanje (Development)
 
