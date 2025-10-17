@@ -6,20 +6,21 @@ const TOTAL_IMAGES = GRID_COLS * GRID_ROWS;
 
 // Array of image paths - you can replace these with different images
 const IMAGE_PATHS = [
-  "/photos/home_page_photos/mjauuuuu.jpeg",  
+  "/photos/home_page_photos/kofer.jpg",  
   "/photos/home_page_photos/dont bela.jpg",
-  "/photos/home_page_photos/download (14).jpeg",
-  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/trava.jpg",
+  "/photos/home_page_photos/zena sa kesom.jpg",
   "/photos/home_page_photos/download (13).jpeg",
-  "/photos/home_page_photos/download (13).jpeg",
-  "/photos/home_page_photos/download (2).jpeg",
-  "/photos/home_page_photos/home_3.jpeg",  
-  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/zena u cipki.jpg",
+  "/photos/home_page_photos/iscepano bez.jpg",
+  "/photos/home_page_photos/crna tekstura 2.jpg",  
+  "/photos/home_page_photos/cipka crna 2.jpg",
   "/photos/home_page_photos/throw it.jpg", 
-  "/photos/home_page_photos/download (2).jpeg",
+  "/photos/home_page_photos/leather.jpg",
   "/photos/home_page_photos/tradey it.jpg",  
-  "/photos/home_page_photos/download (14).jpeg",
-  "/photos/home_page_photos/home_2.jpeg",
+  "/photos/home_page_photos/decko i dev.jpg",
+  "/photos/home_page_photos/maca.jpg",
+  "/photos/home_page_photos/majca 2 plavo.jpg",
 ];
 
 export function HeroSection() {
@@ -84,11 +85,14 @@ export function HeroSection() {
       {/* Logo Overlay */}
       <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
         <img
-          src="/photos/tradey tekst logo.svg"
+          src="/photos/svg logo.svg"
           alt="TRADEY"
-          className={`w-[60%] md:w-[40%] max-w-2xl h-auto transition-opacity duration-1000 ${
+          className={`w-[80%] md:w-[60%] max-w-2xl h-auto transition-opacity duration-1000 ${
             showLogo ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{
+            filter: 'brightness(0) saturate(100%) invert(17%) sepia(94%) saturate(7500%) hue-rotate(0deg) brightness(95%) contrast(118%)'
+          }}
         />
       </div>
     </section>
