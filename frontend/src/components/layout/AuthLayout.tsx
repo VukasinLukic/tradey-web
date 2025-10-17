@@ -39,17 +39,17 @@ export function AuthLayout({ children, title, imagePath = '/photos/login_form.jp
           </div>
 
           {/* Right Side - Form */}
-          <div className={`w-full md:w-1/2 flex items-center bg-tradey-white overflow-y-auto min-h-screen md:min-h-0 ${
+          <div className={`w-full md:w-1/2 flex items-start md:items-center bg-tradey-white overflow-y-auto min-h-screen md:min-h-0 ${
             contentAlign === 'center'
-              ? 'justify-center p-6 sm:p-8'
-              : 'justify-center md:justify-start p-6 sm:p-8 md:pl-12 lg:pl-16 md:pr-8'
+              ? 'justify-center p-4 sm:p-6 md:p-8'
+              : 'justify-center md:justify-start p-4 sm:p-6 md:pl-8 lg:pl-12 xl:pl-16 md:pr-6 lg:pr-8'
           }`}>
-            <div className="w-full max-w-md py-8 md:py-0">
+            <div className="w-full max-w-md py-4 sm:py-6 md:py-4 lg:py-6 xl:py-0">
               {/* Title */}
               <h1 className={`font-garamond text-tradey-black font-black leading-none ${
                 contentAlign === 'center'
-                  ? 'text-6xl md:text-7xl lg:text-8xl mb-8 md:mb-10'
-                  : 'text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 md:mb-10'
+                  ? 'text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl mb-4 sm:mb-5 md:mb-6 lg:mb-7 xl:mb-8 2xl:mb-10'
+                  : 'text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl mb-4 sm:mb-5 md:mb-6 lg:mb-7 xl:mb-8 2xl:mb-10'
               }`}>
                 {title}
               </h1>

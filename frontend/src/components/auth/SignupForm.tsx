@@ -89,10 +89,10 @@ export function SignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
       {/* Username Input */}
       <div>
-        <label htmlFor="username" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+        <label htmlFor="username" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
           Username
         </label>
         <input
@@ -102,14 +102,14 @@ export function SignupForm() {
           onChange={(e) => setUsername(e.target.value)}
           required
           autoComplete="username"
-          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="your_username"
         />
       </div>
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+        <label htmlFor="email" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
           Email
         </label>
         <input
@@ -119,16 +119,16 @@ export function SignupForm() {
           onChange={(e) => setEmail(e.target.value)}
           required
           autoComplete="email"
-          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="name@example.com"
         />
       </div>
 
       {/* Phone and Location Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* Phone Input */}
         <div>
-          <label htmlFor="phone" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          <label htmlFor="phone" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
             Phone Number
           </label>
           <input
@@ -138,21 +138,21 @@ export function SignupForm() {
             onChange={(e) => setPhone(e.target.value)}
             required
             autoComplete="tel"
-            className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
             placeholder="060 123 4567"
           />
         </div>
 
         {/* Location Select */}
         <div>
-          <label htmlFor="location" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+          <label htmlFor="location" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
             Location (Belgrade)
           </label>
           <select
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           >
             {BELGRADE_MUNICIPALITIES.map((loc) => (
               <option key={loc} value={loc} className="bg-tradey-white text-tradey-black">
@@ -165,7 +165,7 @@ export function SignupForm() {
 
       {/* Password Input */}
       <div>
-        <label htmlFor="password" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+        <label htmlFor="password" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
           Password
         </label>
         <input
@@ -175,7 +175,7 @@ export function SignupForm() {
           onChange={(e) => setPassword(e.target.value)}
           required
           autoComplete="new-password"
-          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
           placeholder="••••••••"
         />
         <p className="text-tradey-black/60 text-xs font-sans mt-1">Must be at least 6 characters</p>
