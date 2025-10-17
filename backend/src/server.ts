@@ -6,6 +6,13 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
 import { corsOptions } from './config/cors';
 
+
+// DOCKER BIND MOUNT TEST (komentar za dokumentaciju)
+console.log("✅ DOCKER BIND MOUNT TEST - Server reloaded via bind mount!");
+console.log("🔥 Bind mount LIVE proof - second change!");
+
+
+
 // Load environment variables
 dotenv.config();
 
