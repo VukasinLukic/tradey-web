@@ -124,40 +124,43 @@ export function SignupForm() {
         />
       </div>
 
-      {/* Phone Input */}
-      <div>
-        <label htmlFor="phone" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
-          Phone Number
-        </label>
-        <input
-          id="phone"
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-          autoComplete="tel"
-          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
-          placeholder="060 123 4567"
-        />
-      </div>
+      {/* Phone and Location Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Phone Input */}
+        <div>
+          <label htmlFor="phone" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+            Phone Number
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            autoComplete="tel"
+            className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans placeholder-tradey-black/40 focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+            placeholder="060 123 4567"
+          />
+        </div>
 
-      {/* Location Select */}
-      <div>
-        <label htmlFor="location" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
-          Location (Belgrade)
-        </label>
-        <select
-          id="location"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
-        >
-          {BELGRADE_MUNICIPALITIES.map((loc) => (
-            <option key={loc} value={loc} className="bg-tradey-white text-tradey-black">
-              {loc}
-            </option>
-          ))}
-        </select>
+        {/* Location Select */}
+        <div>
+          <label htmlFor="location" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
+            Location (Belgrade)
+          </label>
+          <select
+            id="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full px-4 py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
+          >
+            {BELGRADE_MUNICIPALITIES.map((loc) => (
+              <option key={loc} value={loc} className="bg-tradey-white text-tradey-black">
+                {loc}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Password Input */}

@@ -5,6 +5,9 @@ export function SignupPage() {
   return (
     <AuthLayout
       title="Create account"
+      imagePath="/photos/signup_1.jpg"
+      imageMode="contain"
+      contentAlign="left"
     >
       <div className="mb-6">
         <p className="text-sm text-tradey-black/70 font-sans">

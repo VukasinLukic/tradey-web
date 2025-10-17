@@ -14,6 +14,7 @@ import { FollowingPage } from '../pages/Following';
 import { UserProfilePage } from '../pages/UserProfile';
 import { NewPostPage } from '../pages/NewPost';
 import { EditPostPage } from '../pages/EditPost';
+import { AboutUsPage } from '../pages/AboutUs';
 import { HowItWorksPage } from '../pages/HowItWorks';
 import { CommunityGuidelinesPage } from '../pages/CommunityGuidelines';
 import { SupportPage } from '../pages/Support';
@@ -35,6 +36,7 @@ export function AppRoutes() {
       <Route path="/user/:id" element={<UserProfilePage />} />
 
       {/* Static Pages */}
+      <Route path="/about" element={<AboutUsPage />} />
       <Route path="/how-it-works" element={<HowItWorksPage />} />
       <Route path="/community-guidelines" element={<CommunityGuidelinesPage />} />
       <Route path="/support" element={<SupportPage />} />

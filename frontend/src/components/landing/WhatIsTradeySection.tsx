@@ -16,13 +16,13 @@ export function WhatIsTradeySection() {
           <h2 className="font-fayte text-5xl sm:text-6xl text-tradey-white leading-tight">
             What is TRADEY?
           </h2>
-          
+
           <p className="font-garamond text-lg text-tradey-white leading-relaxed">
-            TRADEY is a platform for direct clothing exchange without money. 
-            Our goal is to create a community that supports sustainable fashion 
+            TRADEY is a platform for direct clothing exchange without money.
+            Our goal is to create a community that supports sustainable fashion
             and reduces waste through creative exchange.
           </p>
-          
+
           <Link to="/signup" className="inline-block">
             <Button tone="tradey-white">
               Join Us
@@ -42,11 +42,11 @@ export function WhatIsTradeySection() {
           {/* Right Side - Text and Button */}
           <div className="space-y-8">
             <p className="font-garamond text-xl lg:text-2xl text-tradey-white leading-relaxed">
-              TRADEY is a platform for direct clothing exchange without money. 
-              Our goal is to create a community that supports sustainable fashion 
+              TRADEY is a platform for direct clothing exchange without money.
+              Our goal is to create a community that supports sustainable fashion
               and reduces waste through creative exchange.
             </p>
-            
+
             <Link to="/signup" className="inline-block">
               <Button tone="tradey-white">
                 Join Us

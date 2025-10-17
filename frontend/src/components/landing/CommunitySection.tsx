@@ -14,18 +14,18 @@ export function CommunitySection() {
         {/* Mobile Layout - Stacked */}
         <div className="flex flex-col md:hidden space-y-8">
           <h2 className="font-fayte text-5xl sm:text-6xl text-tradey-white leading-tight">
-            Join the Movement
+            About Us
           </h2>
-          
+
           <p className="font-garamond text-lg text-tradey-white leading-relaxed">
-            Be part of a community that believes fashion is freedom, 
-            and your wardrobe is a means of expression. 
+            Be part of a community that believes fashion is freedom,
+            and your wardrobe is a means of expression.
             Don't throw it, tradey it.
           </p>
-          
-          <Link to="/signup" className="inline-block">
+
+          <Link to="/about" className="inline-block">
             <Button tone="tradey-white">
-              Join Us
+              Learn More
             </Button>
           </Link>
         </div>
@@ -35,14 +35,14 @@ export function CommunitySection() {
           {/* Left Side - Text and Button */}
           <div className="space-y-8">
             <p className="font-garamond text-xl lg:text-2xl text-tradey-white leading-relaxed">
-              Be part of a community that believes fashion is freedom, 
-              and your wardrobe is a means of expression. 
+              Be part of a community that believes fashion is freedom,
+              and your wardrobe is a means of expression.
               Don't throw it, tradey it.
             </p>
-            
-            <Link to="/signup" className="inline-block">
+
+            <Link to="/about" className="inline-block">
               <Button tone="tradey-white">
-                Join Us
+                Learn More
               </Button>
             </Link>
           </div>
@@ -50,7 +50,7 @@ export function CommunitySection() {
           {/* Right Side - Title */}
           <div className="flex items-center justify-end">
             <h2 className="font-fayte text-6xl lg:text-7xl xl:text-8xl text-tradey-white leading-tight text-right">
-              Join the Movement
+              About Us
             </h2>
           </div>
         </div>
