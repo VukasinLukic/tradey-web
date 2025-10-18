@@ -7,6 +7,7 @@ export interface UserProfile {
   avatarUrl?: string;
   bio?: string;
   following?: string[];
+  followers?: string[];
   likedPosts?: string[];
   createdAt: Date;
   role?: 'user' | 'admin';

@@ -62,6 +62,7 @@ export class UserController {
       location: validation.data.location,
       createdAt: new Date(),
       following: [],
+      followers: [],
       likedPosts: [],
     };
 
@@ -93,6 +94,8 @@ export class UserController {
         location: user.location,
         avatarUrl: user.avatarUrl,
         bio: user.bio,
+        following: user.following,
+        followers: user.followers,
         createdAt: user.createdAt,
       };
       res.json(publicUser);
@@ -247,10 +250,12 @@ export class UserController {
     if (following.includes(id)) {
       // Unfollow
       await firestoreService.arrayRemove(COLLECTIONS.USERS, userId, 'following', id);
+      await firestoreService.arrayRemove(COLLECTIONS.USERS, id, 'followers', userId);
       res.json({ following: false });
     } else {
       // Follow
       await firestoreService.arrayUnion(COLLECTIONS.USERS, userId, 'following', id);
+      await firestoreService.arrayUnion(COLLECTIONS.USERS, id, 'followers', userId);
       res.json({ following: true });
     }
   });

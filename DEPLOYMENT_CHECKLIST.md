@@ -8,31 +8,31 @@ Use this checklist to ensure a smooth deployment to production.
 
 ### Code Preparation
 
-- [ ] All code changes are committed to Git
-- [ ] Code is pushed to GitHub repository
-- [ ] No sensitive files in Git (check `.gitignore`)
-  - [ ] `firebase-service-account.json` is NOT committed
-  - [ ] `.env` files are NOT committed
-  - [ ] `node_modules/` is NOT committed
-- [ ] All tests pass locally
-  - [ ] Frontend: `cd frontend && npm run lint`
-  - [ ] Backend: `cd backend && npm run lint`
-- [ ] Local build succeeds
-  - [ ] Frontend: `cd frontend && npm run build`
-  - [ ] Backend: `cd backend && npm run build`
+- [ x] All code changes are committed to Git
+- [ x] Code is pushed to GitHub repository
+- [x ] No sensitive files in Git (check `.gitignore`)
+  - [x ] `firebase-service-account.json` is NOT committed
+  - [ x] `.env` files are NOT committed
+  - [ x] `node_modules/` is NOT committed
+- [x ] All tests pass locally
+  - [x ] Frontend: `cd frontend && npm run lint`
+  - [x ] Backend: `cd backend && npm run lint`
+- [x ] Local build succeeds
+  - [ x] Frontend: `cd frontend && npm run build`
+  - [ x] Backend: `cd backend && npm run build`
 
 ### Environment Variables Prepared
 
-- [ ] `firebase-service-account.json` file is accessible
-- [ ] All Firebase API keys are documented
-- [ ] `.env` files are up to date
+- [x ] `firebase-service-account.json` file is accessible
+- [x ] All Firebase API keys are documented
+- [x ] `.env` files are up to date
 
 ### Accounts & Services
 
-- [ ] GitHub account with repository access
-- [ ] Vercel account created and logged in
-- [ ] Railway account created and logged in
-- [ ] Firebase project exists (vibe-hakaton)
+- [x ] GitHub account with repository access
+- [ x] Vercel account created and logged in
+- [x ] Railway account created and logged in
+- [ x] Firebase project exists (vibe-hakaton)
 
 ---
 
@@ -40,30 +40,34 @@ Use this checklist to ensure a smooth deployment to production.
 
 ### Initial Setup
 
-- [ ] Railway project created
-- [ ] GitHub repository connected to Railway
-- [ ] Root directory set to `backend`
-- [ ] Railway detects Dockerfile
+- [ x] Railway project created
+- [x ] GitHub repository connected to Railway
+- [x ] Root directory set to `backend`
+- [x ] Railway detects Dockerfile
 
 ### Environment Variables
 
 Add all these variables in Railway dashboard:
 
-- [ ] `NODE_ENV` = `production`
-- [ ] `PORT` = `5000`
-- [ ] `FIREBASE_PROJECT_ID` = `vibe-hakaton`
-- [ ] `FIREBASE_SERVICE_ACCOUNT` = (paste entire JSON from `firebase-service-account.json`)
-- [ ] `CORS_ORIGIN` = `http://localhost:5173` (temporary, will update later)
+- [ x] `NODE_ENV` = `production`
+- [ x] `PORT` = `5000`
+- [ ]x `FIREBASE_PROJECT_ID` = `vibe-hakaton`
+- [ x] `FIREBASE_SERVICE_ACCOUNT` = (paste entire JSON from `firebase-service-account.json`)
+- [ x] `CORS_ORIGIN` = `http://localhost:5173` (temporary, will update later)
 
 ### Deployment
 
-- [ ] Railway deployment started
-- [ ] Build logs show no errors
-- [ ] Deployment completes successfully
+- [ x] Railway deployment started
+- [ x] Build logs show no errors
+- [ x] Deployment completes successfully
 - [ ] Railway URL generated (e.g., `https://tradey-backend-production.up.railway.app`)
 - [ ] **Railway URL saved** (you'll need it for frontend)
 
+
+tradey-web-production.up.railway.app
 ### Backend Testing
+
+
 
 - [ ] Health check works:
   - Open: `https://your-railway-url.up.railway.app/api/health`

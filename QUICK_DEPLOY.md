@@ -21,7 +21,8 @@ FIREBASE_SERVICE_ACCOUNT=<paste entire firebase-service-account.json content>
 CORS_ORIGIN=http://localhost:5173
 ```
 
-5. Wait for deployment → Copy Railway URL: `https://______.up.railway.app`
+5. Wait for deployment → Copy Railway URL: tradey-web-production.up.railway.app
+
 
 ---
 

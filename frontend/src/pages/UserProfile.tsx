@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { useFollowUser } from '../hooks/useFollowUser';
+import { useFollowers } from '../hooks/useFollowers';
 import { Spinner } from '../components/ui/Spinner';
 import { useState } from 'react';
 
@@ -12,6 +13,7 @@ export function UserProfilePage() {
   const { userProfile, loading: profileLoading } = useUserProfile(id);
   const { posts, loading: postsLoading } = useUserPosts(id);
   const { toggleFollow, loading: followLoading } = useFollowUser();
+  const { followers, refetch: refetchFollowers } = useFollowers(id);
   const [showReportModal, setShowReportModal] = useState(false);
 
   // Fetch current user's profile to check if following
@@ -28,6 +30,8 @@ export function UserProfilePage() {
       if (success) {
         // Refetch current user's profile to update following state
         refetchCurrentUser();
+        // Refetch followers count to update display
+        refetchFollowers();
       }
     }
   };
@@ -53,8 +57,8 @@ export function UserProfilePage() {
     );
   }
 
-  // Calculate followers count (users who follow this profile)
-  const followersCount = 0; // TODO: Implement followers tracking on backend
+  // Calculate followers count from actual followers data
+  const followersCount = followers.length;
 
   return (
     <div className="min-h-screen bg-tradey-white">
@@ -91,13 +95,13 @@ export function UserProfilePage() {
 
               {/* Following / Followers Count */}
               <div className="flex gap-6 justify-center md:justify-start mb-4">
-                <Link to={`/user/${id}/following?tab=following`} className="text-center hover:opacity-70 transition-opacity">
+                <Link to={`/following/${id}?tab=following`} className="text-center hover:opacity-70 transition-opacity">
                   <p className="font-sans text-xl text-tradey-black font-medium">
                     {userProfile.following?.length || 0}
                   </p>
                   <p className="font-sans text-tradey-black/60 text-xs uppercase tracking-wide">Following</p>
                 </Link>
-                <Link to={`/user/${id}/following?tab=followers`} className="text-center hover:opacity-70 transition-opacity">
+                <Link to={`/following/${id}?tab=followers`} className="text-center hover:opacity-70 transition-opacity">
                   <p className="font-sans text-xl text-tradey-black font-medium">{followersCount}</p>
                   <p className="font-sans text-tradey-black/60 text-xs uppercase tracking-wide">Followers</p>
                 </Link>

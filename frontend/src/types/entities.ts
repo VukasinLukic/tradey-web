@@ -18,7 +18,8 @@ export interface UserProfile {
   location: string; // e.g., 'Stari Grad'
   avatarUrl?: string;
   bio?: string;
-  following?: string[];
+  following?: string[]; // UIDs of users this user follows
+  followers?: string[]; // UIDs of users who follow this user
   likedPosts?: string[];
   createdAt: Timestamp | Date;
   role?: 'user' | 'admin' | 'moderator';

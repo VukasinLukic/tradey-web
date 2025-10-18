@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
+import { useFollowers } from '../hooks/useFollowers';
 import { Spinner } from '../components/ui/Spinner';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
@@ -20,6 +21,7 @@ export function ProfilePage() {
   const { user } = useAuth();
   const { userProfile, loading: profileLoading, refetch } = useUserProfile(user?.uid);
   const { posts, loading: postsLoading } = useUserPosts(user?.uid);
+  const { followers } = useFollowers(user?.uid);
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -108,8 +110,8 @@ export function ProfilePage() {
     );
   }
 
-  // Calculate followers count (placeholder)
-  const followersCount = 0;
+  // Calculate followers count from actual followers data
+  const followersCount = followers.length;
 
   return (
     <>

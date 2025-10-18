@@ -3,11 +3,11 @@ import rateLimit from 'express-rate-limit';
 /**
  * General API rate limiter
  * Development: 1000 requests per 15 minutes
- * Production: 100 requests per 15 minutes per IP
+ * Production: 500 requests per 15 minutes per IP (increased for active users)
  */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // Higher limit for development
+  max: process.env.NODE_ENV === 'production' ? 500 : 1000, // Increased for production
   message: {
     error: 'Too many requests from this IP, please try again later.',
   },
@@ -34,11 +34,11 @@ export const authLimiter = rateLimit({
 /**
  * Rate limiter for chat/messaging endpoints
  * Development: 500 messages per 15 minutes
- * Production: 50 messages per 15 minutes per IP
+ * Production: 300 messages per 15 minutes per IP (increased for active chat users)
  */
 export const chatLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 50 : 500, // Higher limit for development
+  max: process.env.NODE_ENV === 'production' ? 300 : 500, // Increased for production
   message: {
     error: 'Too many messages sent, please slow down.',
   },

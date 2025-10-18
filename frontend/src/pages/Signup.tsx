@@ -1,7 +1,20 @@
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { SignupForm } from '../components/auth/SignupForm';
+import { useAuth } from '../hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 
 export function SignupPage() {
+  const { user, loading } = useAuth();
+
+  // Redirect to profile if already logged in
+  if (loading) {
+    return null; // Or a loading spinner
+  }
+
+  if (user) {
+    return <Navigate to="/profile" replace />;
+  }
+
   return (
     <AuthLayout
       title="Create account"

@@ -46,7 +46,7 @@ export function SignupForm() {
         uid: user.uid,
         username,
         email: user.email!,
-        phone,
+        phone: phone.replace(/\s+/g, ''), // Remove spaces from phone number
         location,
       });
 

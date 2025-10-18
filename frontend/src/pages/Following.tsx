@@ -1,21 +1,28 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useFollowing } from '../hooks/useFollowing';
 import { useFollowers } from '../hooks/useFollowers';
 import { useFollowUser } from '../hooks/useFollowUser';
+import { useUserProfile } from '../hooks/useUserProfile';
 import { Spinner } from '../components/ui/Spinner';
 
 export function FollowingPage() {
   const { user } = useAuth();
+  const { id } = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'following';
   const [activeTab, setActiveTab] = useState<'following' | 'followers'>(
     initialTab as 'following' | 'followers'
   );
 
-  const { following, loading: followingLoading, refetch: refetchFollowing } = useFollowing(user?.uid);
-  const { followers, loading: followersLoading } = useFollowers(user?.uid);
+  // Use ID from URL parameter if provided, otherwise use current user's ID
+  const userId = id || user?.uid;
+  const isOwnProfile = !id || id === user?.uid;
+
+  const { userProfile } = useUserProfile(userId);
+  const { following, loading: followingLoading, refetch: refetchFollowing } = useFollowing(userId);
+  const { followers, loading: followersLoading } = useFollowers(userId);
   const { toggleFollow, loading: followLoading } = useFollowUser();
 
   const handleTabChange = (tab: 'following' | 'followers') => {
@@ -38,10 +45,10 @@ export function FollowingPage() {
       {/* Header */}
       <div className="mb-12">
         <h1 className="font-fayte text-5xl md:text-7xl text-tradey-black mb-2 tracking-tight uppercase">
-          Connections
+          {isOwnProfile ? 'Connections' : `@${userProfile?.username || 'User'}'s Connections`}
         </h1>
         <p className="font-sans text-tradey-black/60 text-sm">
-          Your trading community
+          {isOwnProfile ? 'Your trading community' : 'Trading community'}
         </p>
       </div>
 
@@ -158,8 +165,8 @@ export function FollowingPage() {
                 )}
               </div>
 
-              {/* Action Button - Only show unfollow for Following tab */}
-              {activeTab === 'following' && (
+              {/* Action Button - Only show unfollow for Following tab and own profile */}
+              {activeTab === 'following' && isOwnProfile && (
                 <button
                   onClick={() => handleUnfollow(userItem.uid)}
                   disabled={followLoading}

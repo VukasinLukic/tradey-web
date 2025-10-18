@@ -53,6 +53,7 @@ export function AppRoutes() {
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/liked" element={<LikedPage />} />
         <Route path="/following" element={<FollowingPage />} />
+        <Route path="/following/:id" element={<FollowingPage />} />
       </Route>
 
       {/* 404 - Catch all */}
