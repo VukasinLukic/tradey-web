@@ -6,7 +6,7 @@ import { useCreateChat } from '../hooks/useCreateChat';
 import { useLikePost } from '../hooks/useLikePost';
 import { useMarketplace } from '../hooks/useMarketplace';
 import { useUserProfile } from '../hooks/useUserProfile';
-import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
 import { ClothingConditions } from '../shared/types/post.types';
 import { postsApi } from '../services/api';
 
@@ -90,11 +90,7 @@ export function ItemViewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center mt-16">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!post) {

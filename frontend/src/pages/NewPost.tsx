@@ -6,6 +6,7 @@ import { ClothingConditions } from '../shared/types/post.types';
 import type { ClothingCondition } from '../shared/types/post.types';
 import { postsApi } from '../services/api';
 import { CLOTHING_SIZES, CLOTHING_TYPES, CLOTHING_STYLES } from '../constants/clothing';
+import { compressImages, isValidImageFile, formatFileSize } from '../utils/imageCompression';
 
 export function NewPostPage() {
   const { user } = useAuth();
@@ -27,39 +28,68 @@ export function NewPostPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle image selection
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle image selection with compression
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
 
     if (files.length === 0) return;
 
     // Limit to 5 images
     if (files.length > 5) {
-      setError('Maximum 5 images allowed');
+      setError('Maksimalno 5 slika dozvoljeno');
       return;
     }
 
     // Validate file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const invalidFiles = files.filter(f => !validTypes.includes(f.type));
+    const invalidFiles = files.filter(f => !isValidImageFile(f));
     if (invalidFiles.length > 0) {
-      setError('Only JPEG, PNG, and WebP images are allowed');
+      setError('Samo JPEG, PNG, i WebP slike su dozvoljene');
       return;
     }
 
-    // Validate file sizes (max 5MB each)
+    // Validate file sizes (max 5MB each before compression)
     const oversizedFiles = files.filter(f => f.size > 5 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      setError('Each image must be less than 5MB');
+      setError('Svaka slika mora biti manja od 5MB');
       return;
     }
 
-    setImages(files);
-    setError(null);
+    try {
+      // Show loading state
+      setLoading(true);
+      setError(null);
 
-    // Create previews
-    const previews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
+      console.log(`Kompresovanje ${files.length} slika...`);
+
+      // Compress all images
+      const compressedFiles = await compressImages(files, {
+        maxSizeMB: 0.8, // Max 800KB per image for posts
+        maxWidthOrHeight: 1920, // Full HD resolution
+        quality: 0.85,
+      });
+
+      const totalOriginalSize = files.reduce((sum, f) => sum + f.size, 0);
+      const totalCompressedSize = compressedFiles.reduce((sum, f) => sum + f.size, 0);
+      console.log(
+        `Kompresovano: ${formatFileSize(totalOriginalSize)} → ${formatFileSize(totalCompressedSize)} ` +
+        `(${((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100).toFixed(1)}% ušteda)`
+      );
+
+      setImages(compressedFiles);
+      setLoading(false);
+
+      // Create previews
+      const previews = compressedFiles.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    } catch (error) {
+      console.error('Compression error:', error);
+      // Fallback to original files if compression fails
+      setImages(files);
+      setLoading(false);
+
+      const previews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    }
   };
 
   // Remove image
@@ -142,7 +172,7 @@ export function NewPostPage() {
       console.log('Trade Preferences:', tradePreferences);
       console.log('Images count:', images.length);
       console.log('FormData entries:');
-      for (let pair of formData.entries()) {
+      for (const pair of formData.entries()) {
         console.log(pair[0] + ':', pair[1]);
       }
 
@@ -151,12 +181,13 @@ export function NewPostPage() {
 
       // Success - navigate to profile
       navigate('/profile');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('=== ERROR ===');
       console.error('Full error:', err);
-      console.error('Error response:', err.response);
-      console.error('Error response data:', err.response?.data);
-      const errorData = err.response?.data;
+      const error = err as { response?: { data?: { error?: string; errors?: Array<{ message: string }> } } };
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      const errorData = error.response?.data;
       if (errorData && errorData.errors) {
         // This is a validation error from our backend
         console.error('Validation errors:', JSON.stringify(errorData.errors, null, 2));

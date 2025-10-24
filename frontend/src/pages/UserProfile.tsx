@@ -4,7 +4,7 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { useFollowUser } from '../hooks/useFollowUser';
 import { useFollowers } from '../hooks/useFollowers';
-import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
 import { useState } from 'react';
 
 export function UserProfilePage() {
@@ -37,11 +37,7 @@ export function UserProfilePage() {
   };
 
   if (profileLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (!userProfile) {
@@ -191,9 +187,7 @@ export function UserProfilePage() {
           </h2>
 
           {postsLoading ? (
-            <div className="flex justify-center py-12">
-              <Spinner />
-            </div>
+            <LoadingState />
           ) : posts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {posts.map((post) => (

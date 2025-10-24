@@ -31,13 +31,15 @@ export function BurgerMenu() {
 
   // Determine if we're on a dark background (landing page)
   const isDarkBg = location.pathname === '/';
+  // Chat page needs burger menu positioned higher to avoid overlap
+  const isChatPage = location.pathname === '/chat';
 
   return (
     <>
       {/* Burger Button - Minimal, adapts to background */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed top-6 right-6 z-40 w-12 h-12 rounded-full flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-all ${
+        className={`fixed ${isChatPage ? 'top-3' : 'top-6'} right-6 z-40 w-12 h-12 rounded-full flex flex-col items-center justify-center gap-1 hover:opacity-70 transition-all ${
           isDarkBg ? 'bg-tradey-white' : 'bg-tradey-black'
         }`}
         aria-label="Open menu"

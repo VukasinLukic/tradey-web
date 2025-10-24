@@ -32,9 +32,10 @@ export function useMarketplace() {
         // Backend returns array directly, not { posts: [...] }
         setPosts(Array.isArray(response.data) ? response.data : []);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching posts:', err);
-        setError(err.response?.data?.message || 'Failed to load posts');
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Failed to load posts');
       } finally {
         setLoading(false);
       }

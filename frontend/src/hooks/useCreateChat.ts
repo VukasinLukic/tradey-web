@@ -30,9 +30,10 @@ export function useCreateChat() {
       navigate('/chat');
 
       return chatId;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating chat:', err);
-      setError(err.response?.data?.message || 'Failed to start conversation');
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to start conversation');
       return null;
     } finally {
       setLoading(false);

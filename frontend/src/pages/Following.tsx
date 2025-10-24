@@ -5,7 +5,8 @@ import { useFollowing } from '../hooks/useFollowing';
 import { useFollowers } from '../hooks/useFollowers';
 import { useFollowUser } from '../hooks/useFollowUser';
 import { useUserProfile } from '../hooks/useUserProfile';
-import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
+import { EmptyState, EmptyIcons } from '../components/ui/EmptyState';
 
 export function FollowingPage() {
   const { user } = useAuth();
@@ -78,40 +79,21 @@ export function FollowingPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Spinner size="lg" />
-        </div>
+        <LoadingState message={activeTab === 'following' ? 'Učitavanje pratilaca...' : 'Učitavanje followera...'} size="md" />
       ) : users.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-tradey-black/20">
-          <svg
-            className="w-16 h-16 stroke-tradey-black/30 mb-6"
-            fill="none"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-            />
-          </svg>
-          <h2 className="font-sans text-xl text-tradey-black font-medium mb-2">
-            {activeTab === 'following' ? 'Not following anyone yet' : 'No followers yet'}
-          </h2>
-          <p className="font-sans text-tradey-black/50 text-sm mb-6">
-            {activeTab === 'following'
-              ? 'Start exploring and follow other traders!'
-              : 'Share your items to get more followers.'}
-          </p>
-          {activeTab === 'following' && (
-            <Link
-              to="/marketplace"
-              className="px-6 py-3 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
-            >
-              Browse Marketplace
-            </Link>
-          )}
-        </div>
+        <EmptyState
+          icon={<EmptyIcons.NoPeople />}
+          title={activeTab === 'following' ? 'Još ne pratite nikoga' : 'Još nemate followera'}
+          description={
+            activeTab === 'following'
+              ? 'Istražujte marketplace i zapratite druge tradere!'
+              : isOwnProfile
+                ? 'Podelite svoje artikle da biste dobili više followera.'
+                : 'Ovaj korisnik još nema followera.'
+          }
+          actionLabel={activeTab === 'following' && isOwnProfile ? 'Istražite Marketplace' : undefined}
+          actionLink={activeTab === 'following' && isOwnProfile ? '/marketplace' : undefined}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {users.map((userItem) => (

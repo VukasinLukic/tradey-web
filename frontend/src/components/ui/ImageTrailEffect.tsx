@@ -218,8 +218,12 @@ export function ImageTrailEffect({ images, className, config, children }: TrailW
       state.current.isPointerIn = isInsideContainer(e.clientX, e.clientY);
       if (state.current.isPointerIn) {
         state.current.isMoving = true;
-        window.clearTimeout((onPointerMove as any)._idle);
-        (onPointerMove as any)._idle = window.setTimeout(() => (state.current.isMoving = false), 100);
+        type TimerFunction = (() => void) & { _idle?: number };
+        const timedFunction = onPointerMove as TimerFunction;
+        if (timedFunction._idle) {
+          window.clearTimeout(timedFunction._idle);
+        }
+        timedFunction._idle = window.setTimeout(() => (state.current.isMoving = false), 100);
       }
     };
 
@@ -262,14 +266,15 @@ export function ImageTrailEffect({ images, className, config, children }: TrailW
 
     node.addEventListener("touchmove", onTouchMove, { passive: true });
 
-    state.current.raf = requestAnimationFrame(tick);
+    const currentRaf = requestAnimationFrame(tick);
+    state.current.raf = currentRaf;
 
     return () => {
-      cancelAnimationFrame(state.current.raf);
-      node.removeEventListener("pointermove", onPointerMove as any);
-      node.removeEventListener("pointerenter", onPointerEnter as any);
-      node.removeEventListener("pointerleave", onPointerLeave as any);
-      node.removeEventListener("touchmove", onTouchMove as any);
+      cancelAnimationFrame(currentRaf);
+      node.removeEventListener("pointermove", onPointerMove);
+      node.removeEventListener("pointerenter", onPointerEnter);
+      node.removeEventListener("pointerleave", onPointerLeave);
+      node.removeEventListener("touchmove", onTouchMove);
 
       trail.current.forEach(({ el }) => {
         gsap.killTweensOf(el);
@@ -277,6 +282,7 @@ export function ImageTrailEffect({ images, className, config, children }: TrailW
       });
       trail.current = [];
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cfg]);
 
   const wrapperClass = `relative overflow-hidden ${className ?? ""}`.trim();

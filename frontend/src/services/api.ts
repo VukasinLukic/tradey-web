@@ -43,36 +43,74 @@ apiClient.interceptors.request.use(
 );
 
 /**
- * Response interceptor - Handle common errors
+ * Response interceptor - Handle common errors with user-friendly messages
  */
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
+  (error: AxiosError<{ error?: string; message?: string }>) => {
+    // Create a user-friendly error message
+    let userMessage = 'Nešto je pošlo po zlu. Molimo pokušajte ponovo.';
+
     if (error.response) {
-      // Handle 401 Unauthorized - redirect to login
-      if (error.response.status === 401) {
-        console.error('Unauthorized - token invalid or expired, redirecting to login');
-        // Redirect to login page
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
-        }
+      const { status, data } = error.response;
+
+      // Use backend error message if available
+      const backendMessage = data?.error || data?.message;
+
+      switch (status) {
+        case 400:
+          userMessage = backendMessage || 'Neispravni podaci. Proverite unete informacije.';
+          break;
+        case 401:
+          userMessage = 'Niste prijavljeni. Molimo prijavite se ponovo.';
+          console.error('Unauthorized - token invalid or expired');
+          // Redirect to login page
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 2000);
+          }
+          break;
+        case 403:
+          userMessage = 'Nemate dozvolu za ovu akciju.';
+          break;
+        case 404:
+          userMessage = backendMessage || 'Traženi sadržaj ne postoji.';
+          break;
+        case 409:
+          userMessage = backendMessage || 'Konflikt podataka. Molimo proverite i pokušajte ponovo.';
+          break;
+        case 429:
+          userMessage = backendMessage || 'Previše zahteva. Molimo sačekajte nekoliko minuta.';
+          break;
+        case 500:
+        case 502:
+        case 503:
+          userMessage = 'Problem sa serverom. Molimo pokušajte ponovo za nekoliko trenutaka.';
+          break;
+        default:
+          userMessage = backendMessage || `Greška ${status}. Molimo pokušajte ponovo.`;
       }
 
-      // Handle 403 Forbidden
-      if (error.response.status === 403) {
-        console.error('Forbidden - insufficient permissions');
-      }
-
-      // Handle 404 Not Found
-      if (error.response.status === 404) {
-        console.error('Resource not found');
-      }
+      console.error(`API Error ${status}:`, userMessage);
     } else if (error.request) {
-      console.error('No response from server');
+      // Network error - no response received
+      userMessage = 'Nema internet konekcije. Proverite vašu mrežu.';
+      console.error('Network error - no response from server');
     } else {
-      console.error('Error setting up request:', error.message);
+      // Error in request setup
+      userMessage = 'Greška prilikom slanja zahteva. Molimo pokušajte ponovo.';
+      console.error('Request setup error:', error.message);
     }
-    return Promise.reject(error);
+
+    // Attach user-friendly message to error object
+    const enhancedError = {
+      ...error,
+      userMessage,
+      originalMessage: error.message,
+    };
+
+    return Promise.reject(enhancedError);
   }
 );
 

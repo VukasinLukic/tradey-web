@@ -181,9 +181,10 @@ export function EditPostPage() {
 
       // Success - navigate to item view
       navigate(`/item/${id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating post:', err);
-      const errorData = err.response?.data;
+      const error = err as { response?: { data?: { error?: string; errors?: Array<{ message: string }> } } };
+      const errorData = error.response?.data;
       if (errorData && errorData.errors) {
         const messages = errorData.errors.map((e: { message: string }) => e.message).join('\n');
         setError(`Please fix the following errors:\n${messages}`);

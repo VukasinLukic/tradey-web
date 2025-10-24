@@ -4,6 +4,7 @@ import { BurgerMenu } from './components/navigation/BurgerMenu';
 import { BackButton } from './components/navigation/BackButton';
 import { PageTransition } from './components/ui/PageTransition';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { ErrorBoundary } from './components/error/ErrorBoundary';
 
 function AppLayout() {
   const location = useLocation();
@@ -46,9 +47,11 @@ function AppLayout() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppLayout />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppLayout />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

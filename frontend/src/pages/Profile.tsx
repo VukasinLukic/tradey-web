@@ -5,9 +5,11 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { useFollowers } from '../hooks/useFollowers';
 import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { usersApi } from '../services/api';
+import { compressImage, isValidImageFile, formatFileSize } from '../utils/imageCompression';
 // Toast replacement - simple alert
 const showToast = (message: string, type: 'success' | 'error') => {
   console.log(`[${type.toUpperCase()}]:`, message);
@@ -24,6 +26,7 @@ export function ProfilePage() {
   const { followers } = useFollowers(user?.uid);
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
 
   // State for the edit form
   const [username, setUsername] = useState('');
@@ -32,6 +35,14 @@ export function ProfilePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Ensure minimum loading time of 600ms to prevent UI flashing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinimumLoadingPassed(true);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (userProfile) {
@@ -42,16 +53,43 @@ export function ProfilePage() {
     }
   }, [userProfile]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('Image is too large. Maximum size is 5MB.', 'error');
+
+      // Validate image file type
+      if (!isValidImageFile(file)) {
+        showToast('Molimo izaberite sliku (JPG, PNG, or WebP).', 'error');
         return;
       }
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
+
+      // Check file size (max 5MB before compression)
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('Slika je prevelika. Maksimalna veličina je 5MB.', 'error');
+        return;
+      }
+
+      try {
+        // Show compression message
+        console.log(`Kompresovanje slike: ${formatFileSize(file.size)}`);
+
+        // Compress image
+        const compressedFile = await compressImage(file, {
+          maxSizeMB: 0.5, // Max 500KB for avatars
+          maxWidthOrHeight: 800, // 800x800 is enough for avatars
+          quality: 0.9,
+        });
+
+        console.log(`Kompresovano: ${formatFileSize(file.size)} → ${formatFileSize(compressedFile.size)}`);
+
+        setAvatarFile(compressedFile);
+        setAvatarPreview(URL.createObjectURL(compressedFile));
+      } catch (error) {
+        console.error('Compression error:', error);
+        // Fallback to original file if compression fails
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+      }
     }
   };
 
@@ -70,13 +108,14 @@ export function ProfilePage() {
       }
 
       await usersApi.update(user.uid, formData);
-      
+
       showToast('Profile updated successfully!', 'success');
       setShowEditModal(false);
       refetch(); // Refetch profile data
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating profile:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to update profile.';
+      const err = error as { response?: { data?: { error?: string } } };
+      const errorMessage = err.response?.data?.error || 'Failed to update profile.';
       showToast(errorMessage, 'error');
     } finally {
       setIsUpdating(false);
@@ -92,19 +131,16 @@ export function ProfilePage() {
     }
   };
 
-  if (profileLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <Spinner size="lg" />
-      </div>
-    );
+  // Show loading if profile is loading OR minimum time hasn't passed
+  if (profileLoading || !minimumLoadingPassed) {
+    return <LoadingState message="Učitavanje profila..." size="lg" />;
   }
 
   if (!userProfile) {
     return (
       <div className="text-center py-12">
         <p className="text-tradey-red font-sans text-lg">
-          Error loading profile. Please try again.
+          Greška pri učitavanju profila. Molimo pokušajte ponovo.
         </p>
       </div>
     );
@@ -299,9 +335,7 @@ export function ProfilePage() {
         </div>
 
         {postsLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner />
-          </div>
+          <LoadingState message="Učitavanje artikala..." size="md" />
         ) : posts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {posts.map((post) => (
@@ -470,7 +504,16 @@ export function ProfilePage() {
 }
 
 // Product Card - Minimal, same style as marketplace
-function ProductCard({ post }: { post: any }) {
+interface ProductCardPost {
+  id: string;
+  images: string[];
+  title: string;
+  isAvailable: boolean;
+  brand: string;
+  size: string;
+}
+
+function ProductCard({ post }: { post: ProductCardPost }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (

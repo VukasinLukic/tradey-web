@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useMarketplace } from '../hooks/useMarketplace';
 import { useLikePost } from '../hooks/useLikePost';
 import { useAuth } from '../hooks/useAuth';
 import { useUserProfile } from '../hooks/useUserProfile';
-import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
+import { EmptyState, EmptyIcons } from '../components/ui/EmptyState';
 import { ClothingConditions } from '../shared/types/post.types';
-import type { ClothingCondition } from '../shared/types/post.types';
+import type { ClothingCondition, Post } from '../shared/types/post.types';
 import { StickyFooter, FooterContent } from '../components/navigation/StickyFooter';
 import { CLOTHING_STYLES } from '../constants/clothing';
 
@@ -23,13 +24,18 @@ export function MarketplacePage() {
     totalPages,
     totalResults,
   } = useMarketplace();
+  const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[70vh]">
-        <Spinner size="lg" />
-      </div>
-    );
+  // Ensure minimum loading time to prevent UI flashing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinimumLoadingPassed(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || !minimumLoadingPassed) {
+    return <LoadingState message="Učitavanje proizvoda..." />;
   }
 
   if (error) {
@@ -126,17 +132,29 @@ export function MarketplacePage() {
 
       {/* Product Grid - Clean, minimal like the image */}
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 text-center">
-          <p className="font-sans text-tradey-black/40 text-lg mb-4">No items found</p>
-          {(filters.search || filters.size || filters.condition || filters.style) && (
-            <button
-              onClick={resetFilters}
-              className="px-6 py-2 border border-tradey-black text-tradey-black font-sans text-sm hover:bg-tradey-black hover:text-white transition-all"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
+        <EmptyState
+          icon={
+            (filters.search || filters.size || filters.condition || filters.style)
+              ? <EmptyIcons.NoSearch />
+              : <EmptyIcons.NoItems />
+          }
+          title={
+            (filters.search || filters.size || filters.condition || filters.style)
+              ? 'Nema rezultata'
+              : 'Nema artikala'
+          }
+          description={
+            (filters.search || filters.size || filters.condition || filters.style)
+              ? 'Pokušajte sa drugačijim filterima ili pretragom.'
+              : 'Trenutno nema dostupnih artikala. Budite prvi koji će podeliti nešto!'
+          }
+          actionLabel={
+            (filters.search || filters.size || filters.condition || filters.style)
+              ? 'Uklonite filtere'
+              : undefined
+          }
+          onAction={(filters.search || filters.size || filters.condition || filters.style) ? resetFilters : undefined}
+        />
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -179,7 +197,7 @@ export function MarketplacePage() {
 }
 
 // Product Card - Clean, minimal inspired by bizus.cz
-function ProductCard({ post }: { post: any }) {
+function ProductCard({ post }: { post: Post }) {
   const { user } = useAuth();
   const { toggleLike, loading } = useLikePost();
   const [isHovered, setIsHovered] = useState(false);

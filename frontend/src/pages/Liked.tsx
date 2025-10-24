@@ -1,14 +1,24 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLikedPosts } from '../hooks/useLikedPosts';
 import { useLikePost } from '../hooks/useLikePost';
-import { Spinner } from '../components/ui/Spinner';
+import { LoadingState } from '../components/ui/LoadingState';
+import { EmptyState } from '../components/ui/EmptyState';
 import { PostCard } from '../components/post/PostCard';
-import { Link } from 'react-router-dom';
 
 export function LikedPage() {
   const { user } = useAuth();
   const { posts, loading, error, refetch } = useLikedPosts(user?.uid);
   const { toggleLike } = useLikePost();
+  const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
+
+  // Ensure minimum loading time to prevent UI flashing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMinimumLoadingPassed(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleUnlike = async (postId: string) => {
     const success = await toggleLike(postId);
@@ -18,19 +28,15 @@ export function LikedPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <Spinner size="lg" />
-      </div>
-    );
+  if (loading || !minimumLoadingPassed) {
+    return <LoadingState message="Učitavanje sačuvanih artikala..." size="lg" />;
   }
 
   if (error) {
     return (
       <div className="text-center py-12">
         <p className="text-tradey-red font-garamond text-lg">
-          Error loading liked posts. Please try again.
+          Greška pri učitavanju sačuvanih artikala. Molimo pokušajte ponovo.
         </p>
       </div>
     );
@@ -50,32 +56,26 @@ export function LikedPage() {
 
       {/* Content */}
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-tradey-black/20">
-          <svg
-            className="w-16 h-16 stroke-tradey-black/30 mb-6"
-            fill="none"
-            strokeWidth={1.5}
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-          <h2 className="font-sans text-xl text-tradey-black font-medium mb-2">
-            No liked items yet
-          </h2>
-          <p className="font-sans text-tradey-black/50 text-sm mb-6">
-            Start exploring and save items you love!
-          </p>
-          <Link
-            to="/marketplace"
-            className="px-6 py-3 bg-tradey-red text-white font-sans text-sm hover:opacity-90 transition-opacity"
-          >
-            Browse Marketplace
-          </Link>
-        </div>
+        <EmptyState
+          icon={
+            <svg
+              className="w-16 h-16 stroke-tradey-black/30"
+              fill="none"
+              strokeWidth={1.5}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          }
+          title="Još nemate sačuvanih artikala"
+          description="Istražujte marketplace i sačuvajte artikle koji vam se dopadaju!"
+          actionLabel="Istražite Marketplace"
+          actionLink="/marketplace"
+        />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {posts.map(post => (
