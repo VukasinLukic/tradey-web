@@ -52,9 +52,10 @@ export function ChatPage() {
     loadUserData();
   }, [chats, user?.uid]);
 
-  // Auto-select first chat
+  // Auto-select first chat (only on desktop, not mobile)
   useEffect(() => {
-    if (!chatsLoading && chats.length > 0 && !selectedChatId) {
+    const isDesktop = window.innerWidth >= 768; // md breakpoint
+    if (!chatsLoading && chats.length > 0 && !selectedChatId && isDesktop) {
       setSelectedChatId(chats[0].id);
     }
   }, [chats, chatsLoading, selectedChatId]);
@@ -156,7 +157,7 @@ export function ChatPage() {
   const selectedUser = selectedChatData ? getOtherParticipant(selectedChatData.participants) : null;
 
   return (
-    <div className="h-screen flex flex-col bg-tradey-white pt-20 md:pt-0">
+    <div className="h-screen flex flex-col bg-tradey-white">
       {/* Mobile: Full screen chat, Desktop: Split view */}
       <div className="flex-1 flex overflow-hidden">
         {/* Chat List Sidebar */}
@@ -164,8 +165,8 @@ export function ChatPage() {
           selectedChatId ? 'hidden md:flex' : 'flex'
         } w-full md:w-96 flex-col border-r border-tradey-black/10 bg-white`}>
           {/* Header */}
-          <div className="pt-6 pb-4 pl-40 pr-6 border-b border-tradey-black/10">
-            <h1 className="font-fayte text-6xl text-tradey-black uppercase tracking-tight">
+          <div className="pt-16 md:pt-6 pb-4 pl-6 pr-6 md:pl-40 md:pr-6 border-b border-tradey-black/10">
+            <h1 className="font-fayte text-6xl md:text-6xl text-tradey-black uppercase tracking-tight">
               Messages
             </h1>
           </div>
@@ -248,11 +249,11 @@ export function ChatPage() {
           ) : (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-tradey-black/10 bg-white flex items-center gap-3">
+              <div className="px-3 py-3 pt-14 md:pt-4 md:p-4 border-b border-tradey-black/10 bg-white flex items-center gap-3">
                 {/* Back button (mobile only) */}
                 <button
                   onClick={() => setSelectedChatId(null)}
-                  className="md:hidden p-2 hover:bg-tradey-black/5 rounded-full transition-colors flex-shrink-0"
+                  className="md:hidden p-1 hover:bg-tradey-black/5 rounded-full transition-colors flex-shrink-0"
                   title="Nazad na listu chatova"
                 >
                   <svg className="w-5 h-5 text-tradey-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -282,7 +283,7 @@ export function ChatPage() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-tradey-white to-tradey-black/5">
                 {messagesLoading ? (
                   <div className="flex justify-center items-center h-full">
-                    <LoadingState />
+                    <div className="w-8 h-8 border-4 border-tradey-red/20 border-t-tradey-red rounded-full animate-spin" />
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">

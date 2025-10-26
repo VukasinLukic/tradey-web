@@ -6,7 +6,7 @@ export function BackButton() {
   return (
     <button
       onClick={() => navigate(-1)}
-      className="fixed top-6 left-6 z-40 flex items-center gap-2 text-tradey-black hover:text-tradey-red transition-colors group"
+      className="hidden md:flex fixed top-6 left-6 z-40 items-center gap-2 text-tradey-black hover:text-tradey-red transition-colors group"
       aria-label="Go back"
     >
       <svg
