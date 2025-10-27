@@ -10,6 +10,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/config';
 import { usersApi } from '../services/api';
 import { compressImage, isValidImageFile, formatFileSize } from '../utils/imageCompression';
+import { PreferencesModal } from '../components/user/PreferencesModal';
 // Toast replacement - simple alert
 const showToast = (message: string, type: 'success' | 'error') => {
   console.log(`[${type.toUpperCase()}]:`, message);
@@ -27,6 +28,7 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false);
 
   // State for the edit form
   const [username, setUsername] = useState('');
@@ -43,6 +45,17 @@ export function ProfilePage() {
     }, 600);
     return () => clearTimeout(timer);
   }, []);
+
+  // Check if user needs to set preferences (first login)
+  useEffect(() => {
+    if (userProfile && !profileLoading && minimumLoadingPassed) {
+      // Show preferences modal if user has no preferences set
+      const hasPreferences = userProfile.preferredStyles && userProfile.preferredStyles.length > 0;
+      if (!hasPreferences) {
+        setShowPreferencesModal(true);
+      }
+    }
+  }, [userProfile, profileLoading, minimumLoadingPassed]);
 
   useEffect(() => {
     if (userProfile) {
@@ -190,6 +203,35 @@ export function ProfilePage() {
                 <span className="font-sans text-base">{userProfile.location}</span>
               </div>
             )}
+
+            {/* Rating */}
+            {userProfile.rating !== undefined && userProfile.totalReviews !== undefined && userProfile.totalReviews > 0 && (
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`w-5 h-5 ${
+                        star <= Math.round(userProfile.rating || 0)
+                          ? 'fill-yellow-400 stroke-yellow-400'
+                          : 'fill-none stroke-tradey-black/20'
+                      }`}
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                      />
+                    </svg>
+                  ))}
+                </div>
+                <span className="font-sans text-tradey-black/60 text-sm">
+                  {userProfile.rating.toFixed(1)} ({userProfile.totalReviews} {userProfile.totalReviews === 1 ? 'review' : 'reviews'})
+                </span>
+              </div>
+            )}
             
             {userProfile.bio && (
               <p className="font-sans text-tradey-black/70 text-lg md:text-xl leading-relaxed max-w-2xl">
@@ -225,13 +267,23 @@ export function ProfilePage() {
                   </div>
                 </Link>
                 
-                <Link 
+                <Link
                   to="/following?tab=followers"
                   className="block group/stat hover:translate-x-2 transition-transform"
                 >
                   <div className="flex items-baseline justify-between">
                     <span className="font-sans text-lg uppercase tracking-wide text-white/60 group-hover/stat:text-tradey-red transition-colors">Followers</span>
                     <span className="font-fayte text-6xl group-hover/stat:text-tradey-red transition-colors">{followersCount}</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/reviews"
+                  className="block group/stat hover:translate-x-2 transition-transform"
+                >
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-sans text-lg uppercase tracking-wide text-white/60 group-hover/stat:text-tradey-red transition-colors">My Reviews</span>
+                    <span className="font-fayte text-6xl group-hover/stat:text-tradey-red transition-colors">{userProfile.totalReviews || 0}</span>
                   </div>
                 </Link>
               </div>
@@ -473,6 +525,26 @@ export function ProfilePage() {
                   />
                 </div>
 
+                {/* Style Preferences Button */}
+                <div className="pt-4 border-t border-tradey-black/10">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setShowPreferencesModal(true);
+                    }}
+                    className="w-full px-6 py-3 bg-tradey-blue/10 border border-tradey-blue/30 text-tradey-black font-sans text-sm font-medium hover:bg-tradey-blue/20 transition-colors flex items-center justify-between"
+                  >
+                    <span>Edit Style Preferences</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <p className="font-sans text-xs text-tradey-black/50 mt-2 text-center">
+                    Update your preferred styles, size, and gender for better recommendations
+                  </p>
+                </div>
+
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
                   <button
@@ -499,6 +571,22 @@ export function ProfilePage() {
       <StickyFooter heightValue="80dvh">
         <FooterContent />
       </StickyFooter>
+
+      {/* Preferences Modal - Show on first login */}
+      {showPreferencesModal && userProfile && (
+        <PreferencesModal
+          onClose={() => setShowPreferencesModal(false)}
+          onSave={() => {
+            refetch(); // Refetch profile to update preferences
+            setShowPreferencesModal(false);
+          }}
+          currentPreferences={{
+            preferredStyles: userProfile.preferredStyles,
+            size: userProfile.size,
+            gender: userProfile.gender,
+          }}
+        />
+      )}
     </>
   );
 }

@@ -60,4 +60,16 @@ router.get('/:id/liked', authenticate, userController.getLikedPosts);
 // GET /api/users/:id/feed - Get feed from followed users
 router.get('/:id/feed', authenticate, userController.getFeed);
 
+// POST /api/users/:id/preferences - Update user preferences
+router.post('/:id/preferences', authenticate, userController.updatePreferences);
+
+// POST /api/users/:id/review - Add review for user
+router.post('/:id/review', authenticate, userController.addReview);
+
+// PUT /api/users/:id/activity - Track user activity
+router.put('/:id/activity', authenticate, userController.trackActivity);
+
+// GET /api/users/:id/recommendations - Get personalized recommendations
+router.get('/:id/recommendations', authenticate, userController.getRecommendations);
+
 export default router;

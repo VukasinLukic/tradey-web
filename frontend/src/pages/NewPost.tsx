@@ -19,6 +19,7 @@ export function NewPostPage() {
   const [type, setType] = useState(CLOTHING_TYPES[0]);
   const [style, setStyle] = useState(CLOTHING_STYLES[0]);
   const [condition, setCondition] = useState<ClothingCondition>('GOOD');
+  const [gender, setGender] = useState<'male' | 'female' | 'unisex'>('unisex');
   const [description, setDescription] = useState('');
   const [tradePreferences, setTradePreferences] = useState('');
   const [images, setImages] = useState<File[]>([]);
@@ -149,6 +150,7 @@ export function NewPostPage() {
       formData.append('type', type);
       formData.append('style', style);
       formData.append('condition', condition);
+      formData.append('gender', gender);
       formData.append('description', description.trim());
       if (tradePreferences.trim()) {
         formData.append('tradePreferences', tradePreferences.trim());
@@ -374,7 +376,7 @@ export function NewPostPage() {
           </div>
 
           {/* Condition */}
-          <div className="md:col-span-2">
+          <div>
             <label className="block font-sans text-tradey-black/80 text-sm font-medium mb-2">
               Condition *
             </label>
@@ -388,6 +390,22 @@ export function NewPostPage() {
                   {value}
                 </option>
               ))}
+            </select>
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label className="block font-sans text-tradey-black/80 text-sm font-medium mb-2">
+              Gender *
+            </label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value as 'male' | 'female' | 'unisex')}
+              className="w-full px-4 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm focus:outline-none focus:border-tradey-red transition-colors cursor-pointer bg-white"
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="unisex">Unisex</option>
             </select>
           </div>
 

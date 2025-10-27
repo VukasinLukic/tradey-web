@@ -14,7 +14,7 @@ export class PostController {
    * Get list of posts with optional filters
    */
   getPosts = asyncHandler(async (req: AuthRequest, res: Response) => {
-    const { q, tag, creator, limit = 20, condition, size } = req.query;
+    const { q, tag, creator, limit = 20, offset = 0, condition, size, status } = req.query;
 
     const filters: Array<[string, FirebaseFirestore.WhereFilterOp, any]> = [];
 
@@ -33,23 +33,44 @@ export class PostController {
       filters.push(['size', '==', size as string]);
     }
 
-    // Filter by availability
-    filters.push(['isAvailable', '==', true]);
+    // Filter by status (only if explicitly provided)
+    if (status) {
+      filters.push(['status', '==', status as string]);
+    }
 
+    // Fetch with limit + 1 to check if there are more results
+    const fetchLimit = Number(limit) + 1;
     const posts = await firestoreService.queryDocuments<Post>(
       COLLECTIONS.POSTS,
       {
         filters,
         orderBy: { field: 'createdAt', direction: 'desc' },
-        limit: Number(limit),
+        limit: fetchLimit,
       }
     );
 
+    // Filter out unavailable posts (backward compatibility)
+    const availablePosts = posts.filter(post => {
+      // If post has status field, check if it's available
+      if (post.status) {
+        return post.status === 'available';
+      }
+      // For old posts without status, check isAvailable
+      return post.isAvailable !== false;
+    });
+
+    // Client-side offset (Firestore doesn't have native offset)
+    const offsetNum = Number(offset);
+    let paginatedPosts = availablePosts.slice(offsetNum, offsetNum + Number(limit));
+
+    // Check if there are more results
+    const hasMore = availablePosts.length > offsetNum + Number(limit);
+
     // Client-side search filter for query (title, description, brand)
-    let filteredPosts = posts;
+    let filteredPosts = paginatedPosts;
     if (q) {
       const searchQuery = (q as string).toLowerCase();
-      filteredPosts = posts.filter(post =>
+      filteredPosts = paginatedPosts.filter(post =>
         post.title.toLowerCase().includes(searchQuery) ||
         post.description.toLowerCase().includes(searchQuery) ||
         post.brand.toLowerCase().includes(searchQuery)
@@ -61,9 +82,20 @@ export class PostController {
       ...post,
       type: post.type || 'T-Shirt',
       style: post.style || 'Casual',
+      tags: post.tags || [],
+      status: post.status || 'available',
+      savedBy: post.savedBy || [],
+      comments: post.comments || [],
+      authorAvatarUrl: post.authorAvatarUrl || undefined,
     }));
 
-    res.json(postsWithDefaults);
+    res.json({
+      posts: postsWithDefaults,
+      total: posts.length,
+      hasMore,
+      offset: offsetNum,
+      limit: Number(limit),
+    });
   });
 
   /**
@@ -146,7 +178,12 @@ export class PostController {
       authorId: userId,
       authorUsername: userDoc.username,
       authorLocation: userDoc.location,
+      authorAvatarUrl: userDoc.avatarUrl || undefined,
       isAvailable: true,
+      tags: validation.data.tags || [],
+      status: 'available' as const,
+      savedBy: [],
+      comments: [],
     };
 
     const createdPost = await firestoreService.createDocument(COLLECTIONS.POSTS, newPost);
@@ -355,6 +392,113 @@ export class PostController {
     });
 
     res.json({ isAvailable: newAvailability });
+  });
+
+  /**
+   * POST /api/posts/:id/save
+   * Toggle save on a post (bookmark)
+   * Protected route - requires authentication
+   */
+  toggleSave = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+
+    // Check if post exists
+    const post = await firestoreService.getDocument<Post>(COLLECTIONS.POSTS, id);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    const savedBy = (post.savedBy as string[]) || [];
+
+    // Toggle save
+    if (savedBy.includes(userId)) {
+      // Unsave
+      await firestoreService.arrayRemove(COLLECTIONS.POSTS, id, 'savedBy', userId);
+      res.json({ saved: false });
+    } else {
+      // Save
+      await firestoreService.arrayUnion(COLLECTIONS.POSTS, id, 'savedBy', userId);
+      res.json({ saved: true });
+    }
+  });
+
+  /**
+   * POST /api/posts/:id/comments
+   * Add a comment to a post
+   * Protected route - requires authentication
+   */
+  addComment = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+    const { text } = req.body;
+
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      res.status(400).json({ error: 'Comment text is required' });
+      return;
+    }
+
+    // Check if post exists
+    const postExists = await firestoreService.documentExists(COLLECTIONS.POSTS, id);
+    if (!postExists) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    // Get user info
+    const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, userId);
+
+    // Create comment object
+    const comment = {
+      id: admin.firestore().collection('_').doc().id,
+      userId,
+      username: user?.username || 'Unknown',
+      avatarUrl: user?.avatarUrl || undefined,
+      text: text.trim(),
+      createdAt: admin.firestore.Timestamp.now(),
+    };
+
+    // Add comment to post
+    await firestoreService.arrayUnion(COLLECTIONS.POSTS, id, 'comments', comment);
+
+    res.json(comment);
+  });
+
+  /**
+   * PUT /api/posts/:id/status
+   * Update post status (owner only)
+   * Protected route - requires authentication
+   */
+  updateStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+    const { status } = req.body;
+
+    // Validate status
+    const validStatuses = ['available', 'traded', 'reserved'];
+    if (!status || !validStatuses.includes(status)) {
+      res.status(400).json({ error: 'Invalid status. Must be: available, traded, or reserved' });
+      return;
+    }
+
+    // Check if post exists
+    const post = await firestoreService.getDocument<Post>(COLLECTIONS.POSTS, id);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    // Check ownership
+    if (post.authorId !== userId) {
+      res.status(403).json({ error: 'Forbidden: You can only modify your own posts' });
+      return;
+    }
+
+    // Update status
+    await firestoreService.updateDocument(COLLECTIONS.POSTS, id, { status });
+
+    res.json({ status });
   });
 }
 

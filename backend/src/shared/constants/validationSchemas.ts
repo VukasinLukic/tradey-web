@@ -10,7 +10,9 @@ export const createPostSchema = z.object({
   type: z.string().min(1, 'Type is required'),
   style: z.string().min(1, 'Style is required'),
   tradePreferences: z.string().optional(),
-  images: z.array(z.string().url()).min(1, 'At least one image is required').max(5, 'Maximum 5 images allowed')
+  images: z.array(z.string().url()).min(1, 'At least one image is required').max(5, 'Maximum 5 images allowed'),
+  tags: z.array(z.string()).optional().default([]),
+  gender: z.enum(['male', 'female', 'unisex']).optional().default('unisex')
 });
 
 export const updatePostSchema = createPostSchema.partial();

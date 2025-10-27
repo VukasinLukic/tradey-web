@@ -132,6 +132,22 @@ export const postsApi = {
   }) => apiClient.get('/posts', { params }),
 
   /**
+   * Get posts with pagination
+   * @param params - Query parameters including limit, offset, and filters
+   */
+  getPosts: (params?: {
+    q?: string;
+    tag?: string;
+    creator?: string;
+    limit?: number;
+    offset?: number;
+    condition?: string;
+    size?: string;
+    style?: string;
+    status?: string;
+  }) => apiClient.get('/posts', { params }),
+
+  /**
    * Get single post by ID
    */
   getById: (id: string) => apiClient.get(`/posts/${id}`),
@@ -163,6 +179,22 @@ export const postsApi = {
    * Toggle post availability (owner only)
    */
   toggleAvailability: (id: string) => apiClient.post(`/posts/${id}/toggle-availability`),
+
+  /**
+   * Toggle save/bookmark on post
+   */
+  toggleSave: (id: string) => apiClient.post(`/posts/${id}/save`),
+
+  /**
+   * Add comment to post
+   */
+  addComment: (id: string, text: string) => apiClient.post(`/posts/${id}/comments`, { text }),
+
+  /**
+   * Update post status (owner only)
+   */
+  updateStatus: (id: string, status: 'available' | 'traded' | 'reserved') =>
+    apiClient.put(`/posts/${id}/status`, { status }),
 };
 
 /**
@@ -224,6 +256,39 @@ export const usersApi = {
    */
   getFeed: (id: string, params?: { limit?: number }) =>
     apiClient.get(`/users/${id}/feed`, { params }),
+
+  /**
+   * Update user preferences
+   */
+  updatePreferences: (id: string, preferences: {
+    preferredStyles?: string[];
+    size?: string;
+    gender?: 'male' | 'female' | 'unisex';
+  }) => apiClient.post(`/users/${id}/preferences`, preferences),
+
+  /**
+   * Add review for user
+   */
+  addReview: (id: string, review: {
+    rating: number;
+    comment: string;
+    postId?: string;
+  }) => apiClient.post(`/users/${id}/review`, review),
+
+  /**
+   * Track user activity
+   */
+  trackActivity: (id: string, activity: {
+    type: 'view' | 'search';
+    itemId?: string;
+    searchTerm?: string;
+  }) => apiClient.put(`/users/${id}/activity`, activity),
+
+  /**
+   * Get personalized recommendations
+   */
+  getRecommendations: (id: string, params?: { limit?: number }) =>
+    apiClient.get(`/users/${id}/recommendations`, { params }),
 };
 
 /**

@@ -64,6 +64,9 @@ export class UserController {
       following: [],
       followers: [],
       likedPosts: [],
+      rating: 0,
+      totalReviews: 0,
+      reviews: [],
     };
 
     await firestoreService.setDocument(COLLECTIONS.USERS, userId, newUserProfile);
@@ -420,6 +423,245 @@ export class UserController {
     const limitedPosts = allPosts.slice(0, Number(limit));
 
     res.json(limitedPosts);
+  });
+
+  /**
+   * POST /api/users/:id/preferences
+   * Update user preferences
+   * Protected route - owner only
+   */
+  updatePreferences = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+    const { preferredStyles, size, gender } = req.body;
+
+    // Check ownership
+    if (id !== userId) {
+      res.status(403).json({ error: 'Forbidden: You can only update your own preferences' });
+      return;
+    }
+
+    // Validate preferences
+    const updates: any = {};
+    if (preferredStyles && Array.isArray(preferredStyles)) {
+      updates.preferredStyles = preferredStyles;
+    }
+    if (size) updates.size = size;
+    if (gender && ['male', 'female', 'unisex'].includes(gender)) {
+      updates.gender = gender;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: 'No valid preferences provided' });
+      return;
+    }
+
+    await firestoreService.updateDocument(COLLECTIONS.USERS, id, updates);
+
+    res.json({ message: 'Preferences updated successfully', ...updates });
+  });
+
+  /**
+   * POST /api/users/:id/review
+   * Add a review for a user
+   * Protected route - requires authentication
+   */
+  addReview = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params; // target user
+    const userId = req.user!.uid; // reviewer
+    const { rating, comment, postId } = req.body;
+
+    // Validate input
+    if (!rating || rating < 1 || rating > 5) {
+      res.status(400).json({ error: 'Rating must be between 1 and 5' });
+      return;
+    }
+
+    if (!comment || typeof comment !== 'string') {
+      res.status(400).json({ error: 'Comment is required' });
+      return;
+    }
+
+    // Cannot review yourself
+    if (id === userId) {
+      res.status(400).json({ error: 'You cannot review yourself' });
+      return;
+    }
+
+    // Get reviewer info
+    const reviewer = await firestoreService.getDocument<any>(COLLECTIONS.USERS, userId);
+    if (!reviewer) {
+      res.status(404).json({ error: 'Reviewer not found' });
+      return;
+    }
+
+    // Get target user
+    const targetUser = await firestoreService.getDocument<any>(COLLECTIONS.USERS, id);
+    if (!targetUser) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Create review object
+    const review = {
+      id: Date.now().toString(),
+      reviewerId: userId,
+      reviewerUsername: reviewer.username,
+      reviewerAvatarUrl: reviewer.avatarUrl || undefined,
+      rating,
+      comment: comment.trim(),
+      postId: postId || null,
+      createdAt: new Date(),
+    };
+
+    // Add review to user
+    await firestoreService.arrayUnion(COLLECTIONS.USERS, id, 'reviews', review);
+
+    // Update average rating
+    const currentReviews = targetUser.reviews || [];
+    const allReviews = [...currentReviews, review];
+    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+
+    await firestoreService.updateDocument(COLLECTIONS.USERS, id, {
+      rating: avgRating,
+      totalReviews: allReviews.length,
+    });
+
+    res.json(review);
+  });
+
+  /**
+   * PUT /api/users/:id/activity
+   * Track user activity (view, search)
+   * Protected route - owner only
+   */
+  trackActivity = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+    const { type, itemId, searchTerm } = req.body;
+
+    // Check ownership
+    if (id !== userId) {
+      res.status(403).json({ error: 'Forbidden: You can only track your own activity' });
+      return;
+    }
+
+    if (type === 'view' && itemId) {
+      // Add to viewedItems (keep last 50)
+      const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, id);
+      const viewedItems = user?.viewedItems || [];
+      const updated = [itemId, ...viewedItems.filter((i: string) => i !== itemId)].slice(0, 50);
+      await firestoreService.updateDocument(COLLECTIONS.USERS, id, { viewedItems: updated });
+    } else if (type === 'search' && searchTerm) {
+      // Add to searchHistory (keep last 20)
+      const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, id);
+      const searchHistory = user?.searchHistory || [];
+      const updated = [searchTerm, ...searchHistory.filter((t: string) => t !== searchTerm)].slice(0, 20);
+      await firestoreService.updateDocument(COLLECTIONS.USERS, id, { searchHistory: updated });
+    } else {
+      res.status(400).json({ error: 'Invalid activity type or missing data' });
+      return;
+    }
+
+    res.json({ message: 'Activity tracked' });
+  });
+
+  /**
+   * GET /api/users/:id/recommendations
+   * Get personalized recommendations for user
+   * Protected route - owner only
+   */
+  getRecommendations = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!.uid;
+    const { limit = 20 } = req.query;
+
+    // Check ownership
+    if (id !== userId) {
+      res.status(403).json({ error: 'Forbidden: You can only get your own recommendations' });
+      return;
+    }
+
+    // Get user profile
+    const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const { preferredStyles = [], size, gender, likedPosts = [], viewedItems = [], searchHistory = [] } = user;
+
+    // Fetch all available posts
+    const allPostsRaw = await firestoreService.queryDocuments<any>(
+      COLLECTIONS.POSTS,
+      {
+        orderBy: { field: 'createdAt', direction: 'desc' },
+        limit: 100, // Get more to score and filter
+      }
+    );
+
+    // Filter available posts (backward compatibility with old posts)
+    const allPosts = allPostsRaw.filter(post => {
+      // If post has status field, check if it's available
+      if (post.status) {
+        return post.status === 'available';
+      }
+      // For old posts without status, check isAvailable
+      return post.isAvailable !== false;
+    });
+
+    // Score each post
+    const scoredPosts = allPosts.map(post => {
+      let score = 0;
+
+      // +3 points for each matching tag with preferred styles
+      if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach((tag: string) => {
+          if (preferredStyles.includes(tag)) score += 3;
+        });
+      }
+
+      // +2 points if size matches
+      if (size && post.size === size) score += 2;
+
+      // +2 points for similar to liked posts (same tags/brand)
+      likedPosts.forEach((likedId: string) => {
+        const liked = allPosts.find(p => p.id === likedId);
+        if (liked) {
+          if (post.tags?.some((t: string) => liked.tags?.includes(t))) score += 2;
+          if (post.brand === liked.brand) score += 1;
+        }
+      });
+
+      // +1 point if viewed before
+      if (viewedItems.includes(post.id)) score += 1;
+
+      // +1 point if search history matches
+      searchHistory.forEach((term: string) => {
+        const lowerTerm = term.toLowerCase();
+        if (post.title.toLowerCase().includes(lowerTerm) ||
+            post.brand.toLowerCase().includes(lowerTerm)) {
+          score += 1;
+        }
+      });
+
+      return { ...post, score };
+    });
+
+    // Sort by score desc and return top N
+    const recommendations = scoredPosts
+      .sort((a, b) => b.score - a.score)
+      .slice(0, Number(limit))
+      .map(post => ({
+        ...post,
+        tags: post.tags || [],
+        status: post.status || 'available',
+        savedBy: post.savedBy || [],
+        comments: post.comments || [],
+        authorAvatarUrl: post.authorAvatarUrl || undefined,
+      }));
+
+    res.json(recommendations);
   });
 }
 

@@ -1,42 +1,79 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { postsApi } from '../../services/api';
+import { postsApi, usersApi } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import { ProductCard } from '../post/ProductCard';
 import type { Post } from '../../types/entities';
 
 export function FeaturedItemsSection() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    async function fetchLatestPosts() {
+    async function fetchPosts() {
       try {
-        const response = await postsApi.getAll({ limit: 4 });
-        // Backend returns array directly, not { posts: [...] }
-        setPosts(Array.isArray(response.data) ? response.data : []);
+        if (user?.uid) {
+          // If user is logged in, try FOR YOU recommendations
+          try {
+            const response = await usersApi.getRecommendations(user.uid, { limit: 8 });
+            const recommendations = Array.isArray(response.data) ? response.data : [];
+
+            // If no recommendations, fallback to latest posts
+            if (recommendations.length === 0) {
+              const fallbackResponse = await postsApi.getPosts({ limit: 8 });
+              const posts = fallbackResponse.data?.posts || fallbackResponse.data || [];
+              setPosts(Array.isArray(posts) ? posts : []);
+            } else {
+              setPosts(recommendations);
+            }
+          } catch (err) {
+            // If recommendations fail, show latest posts
+            const fallbackResponse = await postsApi.getPosts({ limit: 8 });
+            const posts = fallbackResponse.data?.posts || fallbackResponse.data || [];
+            setPosts(Array.isArray(posts) ? posts : []);
+          }
+        } else {
+          // If not logged in, show latest posts
+          const response = await postsApi.getPosts({ limit: 8 });
+          const posts = response.data?.posts || response.data || [];
+          setPosts(Array.isArray(posts) ? posts : []);
+        }
       } catch (error) {
-        console.error('Error fetching latest posts:', error);
+        console.error('Error fetching posts:', error);
+        // Final fallback - try to get any posts
+        try {
+          const finalResponse = await postsApi.getPosts({ limit: 8 });
+          const posts = finalResponse.data?.posts || finalResponse.data || [];
+          setPosts(Array.isArray(posts) ? posts : []);
+        } catch {
+          setPosts([]);
+        }
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchLatestPosts();
-  }, []);
+    fetchPosts();
+  }, [user?.uid]);
 
   return (
     <section className="py-24 px-4 md:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-fayte text-4xl md:text-6xl text-tradey-black text-center mb-4">
-          See what's on TRADEY
+          {user ? 'FOR YOU' : 'See what\'s on TRADEY'}
         </h2>
 
         <p className="font-garamond text-lg md:text-xl text-center text-gray-600 mb-16 max-w-2xl mx-auto">
-          Explore the latest unique pieces from our community of conscious fashion lovers
+          {user
+            ? 'Personalized picks based on your style preferences and activity'
+            : 'Explore the latest unique pieces from our community of conscious fashion lovers'
+          }
         </p>
 
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="aspect-square bg-gray-200 rounded-lg mb-3"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -45,26 +82,9 @@ export function FeaturedItemsSection() {
             ))}
           </div>
         ) : posts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
             {posts.map((post) => (
-              <Link
-                key={post.id}
-                to={`/item/${post.id}`}
-                className="group cursor-pointer"
-              >
-                <div className="aspect-square overflow-hidden rounded-lg bg-gray-100 mb-3 shadow-md hover:shadow-xl transition-shadow duration-300">
-                  <img
-                    src={post.images?.[0] || 'https://via.placeholder.com/400'}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <h3 className="font-fayte text-lg text-tradey-black truncate group-hover:text-tradey-red transition-colors">
-                  {post.title}
-                </h3>
-                <p className="font-garamond text-sm text-gray-600">{post.brand}</p>
-                <p className="font-garamond text-xs text-gray-500 mt-1">{post.authorLocation}</p>
-              </Link>
+              <ProductCard key={post.id} post={post} showSaveButton={!!user} showAuthor={true} />
             ))}
           </div>
         ) : (

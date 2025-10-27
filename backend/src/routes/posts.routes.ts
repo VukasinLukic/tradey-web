@@ -63,4 +63,13 @@ router.post('/:id/like', authenticate, postController.toggleLike);
 // POST /api/posts/:id/toggle-availability - Toggle availability (owner only)
 router.post('/:id/toggle-availability', authenticate, postController.toggleAvailability);
 
+// POST /api/posts/:id/save - Toggle save/bookmark
+router.post('/:id/save', authenticate, postController.toggleSave);
+
+// POST /api/posts/:id/comments - Add comment
+router.post('/:id/comments', authenticate, postController.addComment);
+
+// PUT /api/posts/:id/status - Update status (owner only)
+router.put('/:id/status', authenticate, postController.updateStatus);
+
 export default router;

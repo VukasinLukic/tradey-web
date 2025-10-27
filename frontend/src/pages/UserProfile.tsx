@@ -4,17 +4,25 @@ import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserPosts } from '../hooks/useUserPosts';
 import { useFollowUser } from '../hooks/useFollowUser';
 import { useFollowers } from '../hooks/useFollowers';
+import { useCreateChat } from '../hooks/useCreateChat';
 import { LoadingState } from '../components/ui/LoadingState';
 import { useState } from 'react';
+import { usersApi } from '../services/api';
+import type { Review } from '../shared/types/user.types';
 
 export function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const { userProfile, loading: profileLoading } = useUserProfile(id);
+  const { userProfile, loading: profileLoading, refetch: refetchProfile } = useUserProfile(id);
   const { posts, loading: postsLoading } = useUserPosts(id);
   const { toggleFollow, loading: followLoading } = useFollowUser();
   const { followers, refetch: refetchFollowers } = useFollowers(id);
+  const { createChat, loading: chatLoading } = useCreateChat();
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   // Fetch current user's profile to check if following
   const { userProfile: currentUserProfile, refetch: refetchCurrentUser } = useUserProfile(user?.uid);
@@ -34,6 +42,37 @@ export function UserProfilePage() {
         refetchFollowers();
       }
     }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!id || !user || !reviewComment.trim()) return;
+
+    setReviewLoading(true);
+    try {
+      await usersApi.addReview(id, {
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+      });
+
+      // Refetch profile to update reviews
+      refetchProfile();
+
+      // Reset form and close modal
+      setReviewRating(5);
+      setReviewComment('');
+      setShowReviewModal(false);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review. Please try again.');
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!id || !userProfile) return;
+    // Just create chat without initial message
+    await createChat(id);
   };
 
   if (profileLoading) {
@@ -132,37 +171,83 @@ export function UserProfilePage() {
                   {userProfile.location}
                 </p>
               )}
+
+              {/* Rating Display - Always show, even with 0 reviews */}
+              <div className="flex items-center gap-2 justify-center md:justify-start mt-3">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`w-5 h-5 ${
+                        star <= Math.round(userProfile.rating || 0)
+                          ? 'fill-yellow-400 stroke-yellow-400'
+                          : 'fill-none stroke-tradey-black/20'
+                      }`}
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                      />
+                    </svg>
+                  ))}
+                </div>
+                <span className="font-sans text-sm text-tradey-black/60">
+                  {(userProfile.rating || 0).toFixed(1)} ({userProfile.totalReviews || 0} {userProfile.totalReviews === 1 ? 'review' : 'reviews'})
+                </span>
+              </div>
             </div>
 
             {/* Action Buttons */}
             {!isOwnProfile && user && (
-              <div className="w-full md:w-auto flex items-center gap-3">
-                {/* Report Button */}
+              <div className="w-full md:w-auto flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  {/* Report Button */}
+                  <button
+                    onClick={() => setShowReportModal(true)}
+                    className="p-3 border border-tradey-black/20 text-tradey-black/60 hover:text-tradey-red hover:border-tradey-red transition-colors"
+                    title="Report User"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
+                      />
+                    </svg>
+                  </button>
+
+                  {/* Follow Button */}
+                  <button
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                    className={`px-12 py-3 font-sans text-sm font-medium transition-all ${
+                      isFollowing
+                        ? 'bg-white border border-tradey-black/20 text-tradey-black hover:bg-tradey-black/5'
+                        : 'bg-tradey-red text-white hover:bg-red-700'
+                    }`}
+                  >
+                    {followLoading ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
+                  </button>
+                </div>
+
+                {/* Send Message Button */}
                 <button
-                  onClick={() => setShowReportModal(true)}
-                  className="p-3 border border-tradey-black/20 text-tradey-black/60 hover:text-tradey-red hover:border-tradey-red transition-colors"
-                  title="Report User"
+                  onClick={handleSendMessage}
+                  disabled={chatLoading}
+                  className="w-full px-6 py-2 bg-tradey-black text-white font-sans text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
-                    />
-                  </svg>
+                  {chatLoading ? 'Sending...' : 'Send Message'}
                 </button>
-                
-                {/* Follow Button */}
+
+                {/* Leave Review Button */}
                 <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`px-12 py-3 font-sans text-sm font-medium transition-all ${
-                    isFollowing
-                      ? 'bg-white border border-tradey-black/20 text-tradey-black hover:bg-tradey-black/5'
-                      : 'bg-tradey-red text-white hover:bg-red-700'
-                  }`}
+                  onClick={() => setShowReviewModal(true)}
+                  className="w-full px-6 py-2 border border-tradey-black/20 text-tradey-black font-sans text-sm hover:border-tradey-black hover:bg-tradey-black/5 transition-colors"
                 >
-                  {followLoading ? 'Loading...' : isFollowing ? 'Unfollow' : 'Follow'}
+                  Leave a Review
                 </button>
               </div>
             )}
@@ -179,6 +264,85 @@ export function UserProfilePage() {
             )}
           </div>
         </div>
+
+        {/* Reviews Section */}
+        {userProfile.reviews && userProfile.reviews.length > 0 && (
+          <div className="bg-white border border-tradey-black/10 p-8 mb-8 shadow-sm">
+            <h2 className="font-fayte text-2xl text-tradey-black mb-6 uppercase">
+              Reviews ({userProfile.totalReviews})
+            </h2>
+            <div className="space-y-6 max-h-[600px] overflow-y-auto">
+              {userProfile.reviews.map((review: Review) => (
+                <div key={review.id} className="pb-6 border-b border-tradey-black/10 last:border-0">
+                  <div className="flex items-start gap-4">
+                    {/* Reviewer Avatar */}
+                    <Link to={`/user/${review.reviewerId}`} className="flex-shrink-0">
+                      {review.reviewerAvatarUrl ? (
+                        <img
+                          src={review.reviewerAvatarUrl}
+                          alt={review.reviewerUsername}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-tradey-black/10 flex items-center justify-center">
+                          <span className="font-sans text-lg text-tradey-black">
+                            {review.reviewerUsername.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Review Content */}
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between mb-2">
+                        <Link
+                          to={`/user/${review.reviewerId}`}
+                          className="font-sans font-semibold text-tradey-black hover:text-tradey-red transition-colors"
+                        >
+                          {review.reviewerUsername}
+                        </Link>
+                        <span className="font-sans text-xs text-tradey-black/40">
+                          {new Date(review.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
+
+                      {/* Star Rating */}
+                      <div className="flex gap-1 mb-3">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <svg
+                            key={star}
+                            className={`w-4 h-4 ${
+                              star <= review.rating
+                                ? 'fill-yellow-400 stroke-yellow-400'
+                                : 'fill-none stroke-tradey-black/20'
+                            }`}
+                            strokeWidth={1.5}
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                            />
+                          </svg>
+                        ))}
+                      </div>
+
+                      {/* Review Comment */}
+                      <p className="font-sans text-sm text-tradey-black/80 whitespace-pre-wrap leading-relaxed">
+                        {review.comment}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Items Section */}
         <div>
@@ -202,6 +366,16 @@ export function UserProfilePage() {
                       alt={post.title}
                       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
+
+                    {/* Style badge - Minimal */}
+                    {post.style && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <div className="bg-white/90 backdrop-blur-sm px-2 py-1 font-sans text-[10px] font-medium tracking-wide uppercase text-tradey-black shadow-sm">
+                          {post.style}
+                        </div>
+                      </div>
+                    )}
+
                     {!post.isAvailable && (
                       <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
                         <span className="font-sans text-xs text-tradey-black/60 tracking-wider">
@@ -280,6 +454,85 @@ export function UserProfilePage() {
                   className="flex-1 px-6 py-3 bg-tradey-red text-white font-sans text-sm font-medium hover:bg-red-700 transition-colors"
                 >
                   Submit Report
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Review Modal */}
+        {showReviewModal && (
+          <div
+            className="fixed inset-0 bg-tradey-black/60 flex items-center justify-center z-50 px-4"
+            onClick={() => setShowReviewModal(false)}
+          >
+            <div
+              className="bg-white border border-tradey-black/10 p-8 max-w-md w-full shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="font-fayte text-2xl text-tradey-black mb-4 uppercase">Leave a Review</h3>
+
+              {/* Rating Selector */}
+              <div className="mb-6">
+                <label className="font-sans text-sm font-semibold text-tradey-black mb-3 block">
+                  Rating
+                </label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <svg
+                        className={`w-8 h-8 ${
+                          star <= reviewRating
+                            ? 'fill-yellow-400 stroke-yellow-400'
+                            : 'fill-none stroke-tradey-black/20 hover:stroke-yellow-400'
+                        }`}
+                        strokeWidth={1.5}
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                        />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Review Comment */}
+              <div className="mb-6">
+                <label className="font-sans text-sm font-semibold text-tradey-black mb-3 block">
+                  Your Review
+                </label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your experience with this user..."
+                  className="w-full h-32 px-4 py-3 bg-white border border-tradey-black/20 text-tradey-black font-sans text-sm placeholder:text-tradey-black/40 focus:outline-none focus:border-tradey-red resize-none"
+                  disabled={reviewLoading}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowReviewModal(false)}
+                  disabled={reviewLoading}
+                  className="flex-1 px-6 py-3 border border-tradey-black/20 text-tradey-black font-sans text-sm font-medium hover:bg-tradey-black/5 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={reviewLoading || !reviewComment.trim()}
+                  className="flex-1 px-6 py-3 bg-tradey-red text-white font-sans text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {reviewLoading ? 'Submitting...' : 'Submit Review'}
                 </button>
               </div>
             </div>

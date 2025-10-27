@@ -11,6 +11,7 @@ import { ItemViewPage } from '../pages/ItemView';
 import { ChatPage } from '../pages/Chat';
 import { LikedPage } from '../pages/Liked';
 import { FollowingPage } from '../pages/Following';
+import { ReviewsPage } from '../pages/Reviews';
 import { UserProfilePage } from '../pages/UserProfile';
 import { NewPostPage } from '../pages/NewPost';
 import { EditPostPage } from '../pages/EditPost';
@@ -54,6 +55,7 @@ export function AppRoutes() {
         <Route path="/liked" element={<LikedPage />} />
         <Route path="/following" element={<FollowingPage />} />
         <Route path="/following/:id" element={<FollowingPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
       </Route>
 
       {/* 404 - Catch all */}

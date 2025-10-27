@@ -10,6 +10,28 @@ export const ClothingConditions = {
 };
 export type ClothingCondition = keyof typeof ClothingConditions;
 
+export type PostStatus = 'available' | 'traded' | 'reserved';
+
+export interface Comment {
+  id: string;
+  userId: string;
+  username: string;
+  avatarUrl?: string;
+  text: string;
+  createdAt: Date;
+}
+
+export interface Review {
+  id: string;
+  reviewerId: string;
+  reviewerUsername: string;
+  reviewerAvatarUrl?: string;
+  rating: number;
+  comment: string;
+  postId: string;
+  createdAt: Date;
+}
+
 export interface UserProfile {
   uid: string;
   username: string;
@@ -23,6 +45,19 @@ export interface UserProfile {
   likedPosts?: string[];
   createdAt: Timestamp | Date;
   role?: 'user' | 'admin' | 'moderator';
+
+  // New fields for personalization
+  preferredStyles?: string[];
+  size?: string;
+  gender?: 'male' | 'female' | 'unisex';
+  searchHistory?: string[];
+  viewedItems?: string[];
+  tradedItems?: string[];
+
+  // Ratings & reviews
+  rating?: number;
+  totalReviews?: number;
+  reviews?: Review[];
 }
 
 export interface Post {
@@ -41,6 +76,15 @@ export interface Post {
   authorId: string;
   authorUsername: string;
   authorLocation: string;
+  authorAvatarUrl?: string;
+
+  // New fields
+  tags: string[];
+  status: PostStatus;
+  savedBy: string[];
+  comments: Comment[];
+  averageRating?: number;
+  gender?: 'male' | 'female' | 'unisex';
 
   createdAt: Timestamp | Date | FieldValue;
   isAvailable: boolean;
