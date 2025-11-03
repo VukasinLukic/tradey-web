@@ -514,20 +514,35 @@ export class UserController {
       createdAt: new Date(),
     };
 
-    // Add review to user
-    await firestoreService.arrayUnion(COLLECTIONS.USERS, id, 'reviews', review);
+    // Use Firestore transaction to ensure atomic update
+    const { db } = await import('../config/firebaseAdmin');
+    const userRef = db.collection(COLLECTIONS.USERS).doc(id);
 
-    // Update average rating
-    const currentReviews = targetUser.reviews || [];
-    const allReviews = [...currentReviews, review];
-    const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    try {
+      await db.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userRef);
 
-    await firestoreService.updateDocument(COLLECTIONS.USERS, id, {
-      rating: avgRating,
-      totalReviews: allReviews.length,
-    });
+        if (!userDoc.exists) {
+          throw new Error('User not found during transaction');
+        }
 
-    res.json(review);
+        const userData = userDoc.data();
+        const currentReviews = userData?.reviews || [];
+        const allReviews = [...currentReviews, review];
+        const avgRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length;
+
+        transaction.update(userRef, {
+          reviews: allReviews,
+          rating: avgRating,
+          totalReviews: allReviews.length,
+        });
+      });
+
+      res.json(review);
+    } catch (error) {
+      console.error('Transaction failed:', error);
+      res.status(500).json({ error: 'Failed to add review' });
+    }
   });
 
   /**
@@ -600,8 +615,13 @@ export class UserController {
       }
     );
 
-    // Filter available posts (backward compatibility with old posts)
+    // Filter available posts (backward compatibility with old posts) and exclude user's own posts
     const allPosts = allPostsRaw.filter(post => {
+      // Exclude user's own posts
+      if (post.authorId === userId) {
+        return false;
+      }
+
       // If post has status field, check if it's available
       if (post.status) {
         return post.status === 'available';

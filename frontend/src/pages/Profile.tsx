@@ -204,16 +204,16 @@ export function ProfilePage() {
               </div>
             )}
 
-            {/* Rating */}
+            {/* Rating - Clickable */}
             {userProfile.rating !== undefined && userProfile.totalReviews !== undefined && userProfile.totalReviews > 0 && (
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex gap-1">
+              <Link to="/reviews" className="inline-flex items-center gap-3 mb-4 group/rating hover:opacity-80 transition-opacity">
+                <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg
                       key={star}
-                      className={`w-5 h-5 ${
+                      className={`w-4 h-4 ${
                         star <= Math.round(userProfile.rating || 0)
-                          ? 'fill-yellow-400 stroke-yellow-400'
+                          ? 'fill-tradey-red stroke-tradey-red'
                           : 'fill-none stroke-tradey-black/20'
                       }`}
                       strokeWidth={1.5}
@@ -227,10 +227,13 @@ export function ProfilePage() {
                     </svg>
                   ))}
                 </div>
-                <span className="font-sans text-tradey-black/60 text-sm">
-                  {userProfile.rating.toFixed(1)} ({userProfile.totalReviews} {userProfile.totalReviews === 1 ? 'review' : 'reviews'})
+                <span className="font-sans text-tradey-black font-semibold text-base group-hover/rating:underline">
+                  {userProfile.rating.toFixed(1)}
                 </span>
-              </div>
+                <span className="font-sans text-tradey-black/50 text-sm">
+                  ({userProfile.totalReviews})
+                </span>
+              </Link>
             )}
             
             {userProfile.bio && (
@@ -277,15 +280,6 @@ export function ProfilePage() {
                   </div>
                 </Link>
 
-                <Link
-                  to="/reviews"
-                  className="block group/stat hover:translate-x-2 transition-transform"
-                >
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-sans text-lg uppercase tracking-wide text-white/60 group-hover/stat:text-tradey-red transition-colors">My Reviews</span>
-                    <span className="font-fayte text-6xl group-hover/stat:text-tradey-red transition-colors">{userProfile.totalReviews || 0}</span>
-                  </div>
-                </Link>
               </div>
             </div>
           </div>
@@ -293,54 +287,54 @@ export function ProfilePage() {
           {/* Edit Profile Card - Red Accent */}
           <button
             onClick={() => setShowEditModal(true)}
-            className="bg-white border-2 border-tradey-black/10 p-8 relative overflow-hidden group hover:border-tradey-red hover:scale-[1.02] transition-all duration-300"
+            className="bg-white border-2 border-tradey-black/10 p-5 relative overflow-hidden group hover:border-tradey-red hover:scale-[1.02] transition-all duration-300"
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-tradey-red/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            
+
             <div className="relative z-10 flex flex-col items-center justify-center h-full">
-              <div className="w-20 h-20 border-2 border-tradey-black/20 flex items-center justify-center mb-6 group-hover:border-tradey-red group-hover:rotate-90 transition-all duration-500">
-                <svg className="w-12 h-12 stroke-tradey-black group-hover:stroke-tradey-red transition-colors" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="w-14 h-14 border-2 border-tradey-black/20 flex items-center justify-center mb-4 group-hover:border-tradey-red group-hover:rotate-90 transition-all duration-500">
+                <svg className="w-8 h-8 stroke-tradey-black group-hover:stroke-tradey-red transition-colors" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                 </svg>
               </div>
-              <h3 className="font-fayte text-4xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Edit</h3>
+              <h3 className="font-fayte text-2xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Edit</h3>
             </div>
           </button>
 
           {/* Messages Card - Blue Accent */}
           <Link
             to="/chat"
-            className="bg-white border-2 border-tradey-black/10 p-8 relative overflow-hidden group hover:border-tradey-blue hover:scale-[1.02] transition-all duration-300"
+            className="bg-white border-2 border-tradey-black/10 p-5 relative overflow-hidden group hover:border-tradey-blue hover:scale-[1.02] transition-all duration-300"
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-tradey-blue/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            
+
             <div className="relative z-10 flex flex-col items-center justify-center h-full">
-              <div className="w-20 h-20 border-2 border-tradey-black/20 flex items-center justify-center mb-6 group-hover:border-tradey-blue group-hover:-rotate-12 transition-all duration-500">
-                <svg className="w-12 h-12 stroke-tradey-black group-hover:stroke-tradey-blue transition-colors" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="w-14 h-14 border-2 border-tradey-black/20 flex items-center justify-center mb-4 group-hover:border-tradey-blue group-hover:-rotate-12 transition-all duration-500">
+                <svg className="w-8 h-8 stroke-tradey-black group-hover:stroke-tradey-blue transition-colors" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
               </div>
-              <h3 className="font-fayte text-4xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-blue transition-colors">Messages</h3>
+              <h3 className="font-fayte text-2xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-blue transition-colors">Messages</h3>
             </div>
           </Link>
 
           {/* Liked Items Card - Heart Red */}
           <Link
             to="/liked"
-            className="bg-white border-2 border-tradey-black/10 p-8 relative overflow-hidden group hover:border-tradey-red hover:scale-[1.02] transition-all duration-300"
+            className="bg-white border-2 border-tradey-black/10 p-5 relative overflow-hidden group hover:border-tradey-red hover:scale-[1.02] transition-all duration-300"
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-tradey-red/5 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            
+
             <div className="relative z-10 flex flex-col items-center justify-center h-full">
-              <div className="w-20 h-20 border-2 border-tradey-black/20 flex items-center justify-center mb-6 group-hover:border-tradey-red group-hover:scale-110 transition-all duration-500">
-                <svg className="w-12 h-12 stroke-tradey-black group-hover:stroke-tradey-red group-hover:fill-tradey-red transition-all" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="w-14 h-14 border-2 border-tradey-black/20 flex items-center justify-center mb-4 group-hover:border-tradey-red group-hover:scale-110 transition-all duration-500">
+                <svg className="w-8 h-8 stroke-tradey-black group-hover:stroke-tradey-red group-hover:fill-tradey-red transition-all" fill="none" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
               </div>
-              <h3 className="font-fayte text-4xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Liked</h3>
+              <h3 className="font-fayte text-2xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Liked</h3>
             </div>
           </Link>
         </div>

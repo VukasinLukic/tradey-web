@@ -7,6 +7,7 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { Avatar } from '../components/ui/Avatar';
 import { EmojiPicker } from '../components/chat/EmojiPicker';
 import { fetchMultipleUsers } from '../hooks/useUserData';
+import { chatApi } from '../services/api';
 
 interface UserData {
   uid: string;
@@ -97,6 +98,23 @@ export function ChatPage() {
     setMessageText(prev => prev + emoji);
     setShowEmojiPicker(false);
     textareaRef.current?.focus();
+  };
+
+  const handleDeleteChat = async () => {
+    if (!selectedChatId) return;
+
+    const confirmed = window.confirm('Da li ste sigurni da želite da obrišete ovaj chat?');
+    if (!confirmed) return;
+
+    try {
+      await chatApi.deleteChat(selectedChatId);
+      setSelectedChatId(null);
+      // Refresh chats list
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      alert('Greška pri brisanju chata. Pokušajte ponovo.');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -276,6 +294,17 @@ export function ChatPage() {
                   <p className="font-sans font-semibold text-tradey-black text-lg">
                     {selectedUser?.username || 'User'}
                   </p>
+                </button>
+
+                {/* Delete Chat Button */}
+                <button
+                  onClick={handleDeleteChat}
+                  className="p-2 hover:bg-tradey-red/10 rounded-full transition-colors flex-shrink-0 group"
+                  title="Obriši chat"
+                >
+                  <svg className="w-5 h-5 text-tradey-black/40 group-hover:text-tradey-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               </div>
 

@@ -9,7 +9,7 @@ import { ErrorBoundary } from './components/error/ErrorBoundary';
 function AppLayout() {
   const location = useLocation();
   useScrollToTop(); // Automatically scroll to top on route change
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/verify-email' || location.pathname === '/forgot-password';
   const isLandingPage = location.pathname === '/';
 
   // Auth pages (login/signup) - fullscreen without any chrome

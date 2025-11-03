@@ -78,9 +78,17 @@ export function LoginForm() {
 
       {/* Password Input */}
       <div>
-        <label htmlFor="password" className="block font-sans text-sm font-medium mb-2 text-tradey-black">
-          Password
-        </label>
+        <div className="flex justify-between items-center mb-2">
+          <label htmlFor="password" className="block font-sans text-sm font-medium text-tradey-black">
+            Password
+          </label>
+          <a
+            href="/forgot-password"
+            className="font-sans text-sm text-tradey-red hover:underline"
+          >
+            Forgot password?
+          </a>
+        </div>
         <input
           id="password"
           type="password"

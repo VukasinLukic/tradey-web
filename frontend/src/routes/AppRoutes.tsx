@@ -5,6 +5,8 @@ import { AuthWrapper } from '../components/layout/AuthWrapper';
 import { IndexPage } from '../pages/Index';
 import { LoginPage } from '../pages/Login';
 import { SignupPage } from '../pages/Signup';
+import { VerifyEmailPage } from '../pages/VerifyEmail';
+import { ForgotPasswordPage } from '../pages/ForgotPassword';
 import { ProfilePage } from '../pages/Profile';
 import { MarketplacePage } from '../pages/Marketplace';
 import { ItemViewPage } from '../pages/ItemView';
@@ -32,6 +34,8 @@ export function AppRoutes() {
       <Route path="/" element={<IndexPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/item/:id" element={<ItemViewPage />} />
       <Route path="/user/:id" element={<UserProfilePage />} />

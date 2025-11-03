@@ -18,13 +18,19 @@ export class ChatController {
     const userId = req.user!.uid;
 
     // Get chats where user is a participant
-    const chats = await firestoreService.queryDocuments<Chat>(
+    const allChats = await firestoreService.queryDocuments<Chat>(
       COLLECTIONS.CHATS,
       {
         filters: [['participants', 'array-contains', userId]],
         orderBy: { field: 'updatedAt', direction: 'desc' },
       }
     );
+
+    // Filter out chats that user has deleted (soft delete)
+    const chats = allChats.filter(chat => {
+      const deletedFor = (chat.deletedFor as string[]) || [];
+      return !deletedFor.includes(userId);
+    });
 
     res.json(chats);
   });
@@ -340,25 +346,33 @@ export class ChatController {
       return;
     }
 
-    // Get all unread messages
+    // Get all messages (we'll filter unread ones)
     const messagesSnapshot = await db
       .collection(COLLECTIONS.CHATS)
       .doc(chatId)
       .collection(COLLECTIONS.MESSAGES)
-      .where('readBy', 'not-in', [[userId]])
       .get();
 
-    // Update messages in batch
-    const batch = db.batch();
-    messagesSnapshot.docs.forEach(doc => {
-      batch.update(doc.ref, {
-        readBy: admin.firestore.FieldValue.arrayUnion(userId),
-      });
+    // Filter to get only unread messages for this user
+    const unreadDocs = messagesSnapshot.docs.filter(doc => {
+      const data = doc.data();
+      const readBy = data.readBy || [];
+      return !readBy.includes(userId);
     });
 
-    await batch.commit();
+    // Update unread messages in batch
+    if (unreadDocs.length > 0) {
+      const batch = db.batch();
+      unreadDocs.forEach(doc => {
+        batch.update(doc.ref, {
+          readBy: admin.firestore.FieldValue.arrayUnion(userId),
+        });
+      });
 
-    res.json({ success: true, messagesMarked: messagesSnapshot.size });
+      await batch.commit();
+    }
+
+    res.json({ success: true, messagesMarked: unreadDocs.length });
   });
 
   /**
@@ -382,28 +396,46 @@ export class ChatController {
       return;
     }
 
-    // In a real app, you might want to implement soft delete or just hide chat for user
-    // For now, we'll delete the entire chat and messages if both participants agree
-    // Or implement a "deletedFor" field to track who deleted it
+    // Implement soft delete using deletedFor field
+    // This tracks which users have "deleted" the chat from their view
+    const deletedFor = (chat.deletedFor as string[]) || [];
 
-    // Simple implementation: delete entire chat
-    // Delete all messages first
-    const messagesSnapshot = await db
-      .collection(COLLECTIONS.CHATS)
-      .doc(chatId)
-      .collection(COLLECTIONS.MESSAGES)
-      .get();
+    if (!deletedFor.includes(userId)) {
+      // Add user to deletedFor array
+      await firestoreService.arrayUnion(COLLECTIONS.CHATS, chatId, 'deletedFor', userId);
+    }
 
-    const batch = db.batch();
-    messagesSnapshot.docs.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
+    // Check if both participants have deleted the chat
+    const allParticipantsDeleted = chat.participants.every((p: string) =>
+      [...deletedFor, userId].includes(p)
+    );
 
-    // Delete chat document
-    await firestoreService.deleteDocument(COLLECTIONS.CHATS, chatId);
+    if (allParticipantsDeleted) {
+      // If both users have deleted it, permanently delete the chat and messages
+      try {
+        const messagesSnapshot = await db
+          .collection(COLLECTIONS.CHATS)
+          .doc(chatId)
+          .collection(COLLECTIONS.MESSAGES)
+          .get();
 
-    res.json({ message: 'Chat deleted successfully' });
+        const batch = db.batch();
+        messagesSnapshot.docs.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+
+        // Delete chat document
+        await firestoreService.deleteDocument(COLLECTIONS.CHATS, chatId);
+
+        res.json({ message: 'Chat permanently deleted', permanent: true });
+      } catch (error) {
+        console.error('Error permanently deleting chat:', error);
+        res.json({ message: 'Chat hidden from your view', permanent: false });
+      }
+    } else {
+      res.json({ message: 'Chat hidden from your view', permanent: false });
+    }
   });
 }
 

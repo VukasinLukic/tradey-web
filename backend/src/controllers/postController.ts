@@ -16,6 +16,10 @@ export class PostController {
   getPosts = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { q, tag, creator, limit = 20, offset = 0, condition, size, status } = req.query;
 
+    // Validate and sanitize pagination parameters
+    const validatedLimit = Math.min(Math.max(Number(limit) || 20, 1), 100); // Between 1 and 100
+    const validatedOffset = Math.max(Number(offset) || 0, 0); // No negative offsets
+
     const filters: Array<[string, FirebaseFirestore.WhereFilterOp, any]> = [];
 
     // Filter by creator
@@ -39,7 +43,7 @@ export class PostController {
     }
 
     // Fetch with limit + 1 to check if there are more results
-    const fetchLimit = Number(limit) + 1;
+    const fetchLimit = validatedLimit + 1;
     const posts = await firestoreService.queryDocuments<Post>(
       COLLECTIONS.POSTS,
       {
@@ -60,11 +64,10 @@ export class PostController {
     });
 
     // Client-side offset (Firestore doesn't have native offset)
-    const offsetNum = Number(offset);
-    let paginatedPosts = availablePosts.slice(offsetNum, offsetNum + Number(limit));
+    let paginatedPosts = availablePosts.slice(validatedOffset, validatedOffset + validatedLimit);
 
     // Check if there are more results
-    const hasMore = availablePosts.length > offsetNum + Number(limit);
+    const hasMore = availablePosts.length > validatedOffset + validatedLimit;
 
     // Client-side search filter for query (title, description, brand)
     let filteredPosts = paginatedPosts;
@@ -93,8 +96,8 @@ export class PostController {
       posts: postsWithDefaults,
       total: posts.length,
       hasMore,
-      offset: offsetNum,
-      limit: Number(limit),
+      offset: validatedOffset,
+      limit: validatedLimit,
     });
   });
 
@@ -347,17 +350,19 @@ export class PostController {
       return;
     }
 
-    // Get user's liked posts
+    // Check current state to determine toggle direction
     const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, userId);
     const likedPosts = (user?.likedPosts as string[]) || [];
+    const isCurrentlyLiked = likedPosts.includes(id);
 
-    // Toggle like
-    if (likedPosts.includes(id)) {
-      // Unlike
+    // Use atomic operations - arrayUnion and arrayRemove are idempotent
+    // If the post is already liked, arrayRemove will remove it
+    // If not liked, arrayUnion will add it
+    // Both operations are safe to call multiple times
+    if (isCurrentlyLiked) {
       await firestoreService.arrayRemove(COLLECTIONS.USERS, userId, 'likedPosts', id);
       res.json({ liked: false });
     } else {
-      // Like
       await firestoreService.arrayUnion(COLLECTIONS.USERS, userId, 'likedPosts', id);
       res.json({ liked: true });
     }

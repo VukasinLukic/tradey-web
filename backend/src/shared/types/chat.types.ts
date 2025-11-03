@@ -4,6 +4,7 @@ export interface Chat {
   lastMessage: string;
   lastMessageAt: Date;
   updatedAt: Date;
+  deletedFor?: string[]; // Users who have "deleted" this chat (soft delete)
 }
 
 export interface Message {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { usersApi } from '../../services/api';
 import { BELGRADE_MUNICIPALITIES } from '../../constants/locations';
@@ -38,10 +38,16 @@ export function SignupForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Step 3: Force token refresh to ensure it's cached
+      // Step 3: Send email verification
+      await sendEmailVerification(user, {
+        url: window.location.origin + '/profile', // Redirect URL after verification
+        handleCodeInApp: false,
+      });
+
+      // Step 4: Force token refresh to ensure it's cached
       await user.getIdToken(true);
 
-      // Step 4: Create user profile in backend (which writes to Firestore)
+      // Step 5: Create user profile in backend (which writes to Firestore)
       await usersApi.createProfile({
         uid: user.uid,
         username,
@@ -50,8 +56,8 @@ export function SignupForm() {
         location,
       });
 
-      // Step 5: Navigate to profile page
-      navigate('/profile');
+      // Step 6: Navigate to email verification page
+      navigate('/verify-email', { state: { email: user.email } });
     } catch (error) {
       // Handle Firebase Auth errors
       const firebaseError = error as { code?: string; response?: { data?: { error?: string } }; message?: string };
