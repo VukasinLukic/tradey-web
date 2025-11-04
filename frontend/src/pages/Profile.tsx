@@ -11,6 +11,8 @@ import { auth } from '../firebase/config';
 import { usersApi } from '../services/api';
 import { compressImage, isValidImageFile, formatFileSize } from '../utils/imageCompression';
 import { PreferencesModal } from '../components/user/PreferencesModal';
+import { TrustBadge } from '../components/ui/TrustBadge';
+import { getUserBadges } from '../utils/badges';
 // Toast replacement - simple alert
 const showToast = (message: string, type: 'success' | 'error') => {
   console.log(`[${type.toUpperCase()}]:`, message);
@@ -190,9 +192,15 @@ export function ProfilePage() {
 
           {/* Name & Bio */}
           <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <h1 className="font-fayte text-5xl md:text-6xl lg:text-7xl text-tradey-black mb-2 tracking-tight uppercase break-words">
-              {userProfile.username}
-            </h1>
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
+              <h1 className="font-fayte text-5xl md:text-6xl lg:text-7xl text-tradey-black tracking-tight uppercase break-words">
+                {userProfile.username}
+              </h1>
+              {/* Trust Badges */}
+              {getUserBadges(userProfile, posts.length).map((badge) => (
+                <TrustBadge key={badge} type={badge} />
+              ))}
+            </div>
 
             {userProfile.location && (
               <div className="flex items-center gap-2 text-tradey-black/50 mb-4">
@@ -320,9 +328,9 @@ export function ProfilePage() {
             </div>
           </Link>
 
-          {/* Liked Items Card - Heart Red */}
+          {/* Wishlist Card - Heart Red */}
           <Link
-            to="/liked"
+            to="/wishlist"
             className="bg-white border-2 border-tradey-black/10 p-5 relative overflow-hidden group hover:border-tradey-red hover:scale-[1.02] transition-all duration-300"
           >
             {/* Animated Background */}
@@ -334,7 +342,7 @@ export function ProfilePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
                 </svg>
               </div>
-              <h3 className="font-fayte text-2xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Liked</h3>
+              <h3 className="font-fayte text-2xl text-tradey-black uppercase tracking-wide group-hover:text-tradey-red transition-colors">Wishlist</h3>
             </div>
           </Link>
         </div>

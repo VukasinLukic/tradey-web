@@ -11,7 +11,7 @@ import { ProfilePage } from '../pages/Profile';
 import { MarketplacePage } from '../pages/Marketplace';
 import { ItemViewPage } from '../pages/ItemView';
 import { ChatPage } from '../pages/Chat';
-import { LikedPage } from '../pages/Liked';
+import { WishlistPage } from '../pages/Wishlist';
 import { FollowingPage } from '../pages/Following';
 import { ReviewsPage } from '../pages/Reviews';
 import { UserProfilePage } from '../pages/UserProfile';
@@ -26,6 +26,7 @@ import { FAQPage } from '../pages/FAQ';
 import { PrivacyPage } from '../pages/Privacy';
 import { TermsOfUsePage } from '../pages/TermsOfUse';
 import { NotFoundPage } from '../pages/NotFound';
+import { DashboardPage } from '../pages/Dashboard';
 
 export function AppRoutes() {
   return (
@@ -39,6 +40,7 @@ export function AppRoutes() {
       <Route path="/marketplace" element={<MarketplacePage />} />
       <Route path="/item/:id" element={<ItemViewPage />} />
       <Route path="/user/:id" element={<UserProfilePage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
 
       {/* Static Pages */}
       <Route path="/about" element={<AboutUsPage />} />
@@ -56,7 +58,7 @@ export function AppRoutes() {
         <Route path="/post/new" element={<NewPostPage />} />
         <Route path="/edit-post/:id" element={<EditPostPage />} />
         <Route path="/chat" element={<ChatPage />} />
-        <Route path="/liked" element={<LikedPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/following" element={<FollowingPage />} />
         <Route path="/following/:id" element={<FollowingPage />} />
         <Route path="/reviews" element={<ReviewsPage />} />

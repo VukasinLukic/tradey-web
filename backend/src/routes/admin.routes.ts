@@ -24,7 +24,10 @@ router.get('/stats', requireAdmin, adminController.getStats);
 // DELETE /api/admin/posts/:id - Delete post
 router.delete('/posts/:id', requireAdmin, adminController.deletePost);
 
-// DELETE /api/admin/users/:id - Delete user
+// POST /api/admin/users/:id/ban - Ban user and delete all content
+router.post('/users/:id/ban', requireAdmin, adminController.toggleBan);
+
+// DELETE /api/admin/users/:id - Delete user (backwards compatibility - calls toggleBan)
 router.delete('/users/:id', requireAdmin, adminController.deleteUser);
 
 export default router;

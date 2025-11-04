@@ -43,6 +43,7 @@ export interface UserProfile {
   following?: string[]; // UIDs of users this user follows
   followers?: string[]; // UIDs of users who follow this user
   likedPosts?: string[];
+  blockedUsers?: string[]; // UIDs of users this user has blocked
   createdAt: Timestamp | Date;
   role?: 'user' | 'admin' | 'moderator';
 

@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useCurrentUserProfile } from '../hooks/useCurrentUserProfile';
 import { LoadingState } from '../components/ui/LoadingState';
 import { EmptyState, EmptyIcons } from '../components/ui/EmptyState';
 import { ClothingConditions } from '../shared/types/post.types';
@@ -13,6 +14,7 @@ type FeedMode = 'all' | 'forYou';
 
 export function MarketplacePage() {
   const { user } = useAuth();
+  const { blockedUsers } = useCurrentUserProfile();
 
   const [feedMode, setFeedMode] = useState<FeedMode>('all');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -22,6 +24,12 @@ export function MarketplacePage() {
   const [error, setError] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
+
+  // Filter out posts from blocked users
+  const filteredPosts = useMemo(() => {
+    if (!blockedUsers || blockedUsers.length === 0) return posts;
+    return posts.filter(post => !blockedUsers.includes(post.authorId));
+  }, [posts, blockedUsers]);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -251,14 +259,14 @@ export function MarketplacePage() {
 
             {hasActiveFilters && (
               <p className="text-tradey-black/60 font-sans text-sm mt-4">
-                {posts.length} {posts.length === 1 ? 'item' : 'items'}
+                {filteredPosts.length} {filteredPosts.length === 1 ? 'item' : 'items'}
               </p>
             )}
           </div>
         )}
 
         {/* Product Grid */}
-        {posts.length === 0 ? (
+        {filteredPosts.length === 0 ? (
           <EmptyState
             icon={hasActiveFilters ? <EmptyIcons.NoSearch /> : <EmptyIcons.NoItems />}
             title={hasActiveFilters ? 'Nema rezultata' : 'Nema artikala'}
@@ -273,7 +281,7 @@ export function MarketplacePage() {
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {posts.map((post) => (
+              {filteredPosts.map((post) => (
                 <SharedProductCard key={post.id} post={post} showSaveButton={true} showAuthor={true} />
               ))}
             </div>

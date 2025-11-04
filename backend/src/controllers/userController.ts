@@ -122,6 +122,11 @@ export class UserController {
         following: user.following,
         followers: user.followers,
         createdAt: user.createdAt,
+        // Include review data for public view
+        rating: user.rating,
+        totalReviews: user.totalReviews,
+        reviews: user.reviews,
+        role: user.role,
       };
       res.json(publicUser);
       return;
@@ -137,6 +142,7 @@ export class UserController {
   getUserPosts = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { limit = 20 } = req.query;
+    const currentUserId = req.user?.uid; // May be undefined if not authenticated
 
     // Check if user exists
     const userExists = await firestoreService.documentExists(COLLECTIONS.USERS, id);
@@ -145,7 +151,9 @@ export class UserController {
       return;
     }
 
-    const posts = await firestoreService.queryDocuments(
+    const isOwner = currentUserId === id;
+
+    let posts = await firestoreService.queryDocuments(
       COLLECTIONS.POSTS,
       {
         filters: [['authorId', '==', id]],
@@ -153,6 +161,17 @@ export class UserController {
         limit: Number(limit),
       }
     );
+
+    // Filter out unavailable posts for non-owners
+    if (!isOwner) {
+      posts = posts.filter((post: any) => {
+        // Check both status field (new) and isAvailable field (old)
+        if (post.status) {
+          return post.status === 'available';
+        }
+        return post.isAvailable !== false;
+      });
+    }
 
     res.json(posts);
   });

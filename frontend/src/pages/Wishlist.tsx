@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useLikedPosts } from '../hooks/useLikedPosts';
+import { useWishlistPosts } from '../hooks/useWishlistPosts';
 import { useLikePost } from '../hooks/useLikePost';
 import { LoadingState } from '../components/ui/LoadingState';
 import { EmptyState } from '../components/ui/EmptyState';
 import { PostCard } from '../components/post/PostCard';
 
-export function LikedPage() {
+export function WishlistPage() {
   const { user } = useAuth();
-  const { posts, loading, error, refetch } = useLikedPosts(user?.uid);
+  const { posts, loading, error, refetch } = useWishlistPosts(user?.uid);
   const { toggleLike } = useLikePost();
   const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
 
@@ -20,23 +20,23 @@ export function LikedPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleUnlike = async (postId: string) => {
+  const handleRemoveFromWishlist = async (postId: string) => {
     const success = await toggleLike(postId);
     if (success) {
-      // Refetch liked posts to update the list
+      // Refetch wishlist posts to update the list
       refetch();
     }
   };
 
   if (loading || !minimumLoadingPassed) {
-    return <LoadingState message="Učitavanje sačuvanih artikala..." size="lg" />;
+    return <LoadingState message="Učitavanje wishliste..." size="lg" />;
   }
 
   if (error) {
     return (
       <div className="text-center py-12">
         <p className="text-tradey-red font-garamond text-lg">
-          Greška pri učitavanju sačuvanih artikala. Molimo pokušajte ponovo.
+          Greška pri učitavanju wishliste. Molimo pokušajte ponovo.
         </p>
       </div>
     );
@@ -47,7 +47,7 @@ export function LikedPage() {
       {/* Header */}
       <div className="mb-12">
         <h1 className="font-fayte text-5xl md:text-7xl text-tradey-black mb-2 tracking-tight uppercase">
-          Liked
+          Wishlist
         </h1>
         <p className="font-sans text-tradey-black/60 text-sm">
           Your saved items for future trades
@@ -71,8 +71,8 @@ export function LikedPage() {
               />
             </svg>
           }
-          title="Još nemate sačuvanih artikala"
-          description="Istražujte marketplace i sačuvajte artikle koji vam se dopadaju!"
+          title="Još nemate artikala u wishlisti"
+          description="Istražujte marketplace i dodajte artikle u wishlistu!"
           actionLabel="Istražite Marketplace"
           actionLink="/marketplace"
         />
@@ -81,14 +81,14 @@ export function LikedPage() {
           {posts.map(post => (
             <div key={post.id} className="relative group">
               <PostCard post={post} />
-              {/* Unlike button overlay */}
+              {/* Remove from wishlist button overlay */}
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  handleUnlike(post.id);
+                  handleRemoveFromWishlist(post.id);
                 }}
                 className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
-                aria-label="Unlike item"
+                aria-label="Remove from wishlist"
               >
                 <svg
                   className="w-4 h-4 fill-tradey-red"

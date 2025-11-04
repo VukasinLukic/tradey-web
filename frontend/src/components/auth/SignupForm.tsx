@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../../firebase/config';
 import { usersApi } from '../../services/api';
-import { BELGRADE_MUNICIPALITIES } from '../../constants/locations';
+import { CityAutocomplete } from '../ui/CityAutocomplete';
 
 export function SignupForm() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [location, setLocation] = useState(BELGRADE_MUNICIPALITIES[0]);
+  const [location, setLocation] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -149,23 +149,17 @@ export function SignupForm() {
           />
         </div>
 
-        {/* Location Select */}
+        {/* Location Autocomplete */}
         <div>
           <label htmlFor="location" className="block font-sans text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-tradey-black">
-            Location (Belgrade)
+            City / Location
           </label>
-          <select
-            id="location"
+          <CityAutocomplete
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-tradey-white border border-tradey-black/20 rounded-lg text-tradey-black text-sm sm:text-base font-sans focus:outline-none focus:ring-2 focus:ring-tradey-red focus:border-transparent transition-all"
-          >
-            {BELGRADE_MUNICIPALITIES.map((loc) => (
-              <option key={loc} value={loc} className="bg-tradey-white text-tradey-black">
-                {loc}
-              </option>
-            ))}
-          </select>
+            onChange={setLocation}
+            required
+            placeholder="e.g. Beograd, Novi Sad..."
+          />
         </div>
       </div>
 

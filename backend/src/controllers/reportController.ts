@@ -73,8 +73,8 @@ export class ReportController {
       return;
     }
 
-    // Create report
-    const report: Report = {
+    // Create report (only include description if it exists)
+    const report: any = {
       id: admin.firestore().collection('_').doc().id,
       reporterId: userId,
       reporterUsername: reporter.username,
@@ -83,10 +83,14 @@ export class ReportController {
       targetOwnerId,
       targetOwnerUsername,
       category: category as ReportCategory,
-      description: description ? sanitizeText(description) : undefined,
       status: 'pending',
       createdAt: new Date(),
     };
+
+    // Only add description if it's provided
+    if (description && description.trim()) {
+      report.description = sanitizeText(description);
+    }
 
     await firestoreService.setDocument(COLLECTIONS.REPORTS, report.id, report);
 
@@ -101,26 +105,54 @@ export class ReportController {
   getReports = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { status, targetType, limit = 50 } = req.query;
 
-    const filters: Array<[string, FirebaseFirestore.WhereFilterOp, any]> = [];
+    try {
+      // Build Firestore query directly
+      const db = admin.firestore();
+      let query: FirebaseFirestore.Query = db.collection(COLLECTIONS.REPORTS);
 
-    if (status) {
-      filters.push(['status', '==', status as string]);
-    }
-
-    if (targetType) {
-      filters.push(['targetType', '==', targetType as string]);
-    }
-
-    const reports = await firestoreService.queryDocuments<Report>(
-      COLLECTIONS.REPORTS,
-      {
-        filters,
-        orderBy: { field: 'createdAt', direction: 'desc' },
-        limit: Number(limit),
+      // Apply filters
+      if (status) {
+        query = query.where('status', '==', status as string);
       }
-    );
 
-    res.json({ reports, total: reports.length });
+      if (targetType) {
+        query = query.where('targetType', '==', targetType as string);
+      }
+
+      // Limit results
+      query = query.limit(Number(limit));
+
+      // Execute query
+      const snapshot = await query.get();
+      let reports: Report[] = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        reports.push({
+          id: doc.id,
+          ...data,
+        } as Report);
+      });
+
+      // Sort in memory by createdAt (newest first)
+      reports = reports.sort((a, b) => {
+        // Handle Firestore Timestamp objects or Date strings
+        const getTime = (dateValue: any): number => {
+          if (!dateValue) return 0;
+          if (typeof dateValue === 'object' && 'toDate' in dateValue) {
+            return dateValue.toDate().getTime();
+          }
+          return new Date(dateValue).getTime();
+        };
+
+        return getTime(b.createdAt) - getTime(a.createdAt);
+      });
+
+      res.json({ reports, total: reports.length });
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      res.status(500).json({ error: 'Failed to fetch reports' });
+    }
   });
 
   /**
@@ -130,7 +162,6 @@ export class ReportController {
    */
   updateReport = asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const userId = req.user!.uid;
     const { status, adminNotes } = req.body;
 
     if (!status || !['pending', 'reviewed', 'resolved', 'dismissed'].includes(status)) {
@@ -147,7 +178,7 @@ export class ReportController {
     const updates: Partial<Report> = {
       status,
       reviewedAt: new Date(),
-      reviewedBy: userId,
+      reviewedBy: req.user?.uid || 'admin', // Fallback to 'admin' if no user uid
     };
 
     if (adminNotes) {

@@ -9,6 +9,10 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { useState } from 'react';
 import { usersApi } from '../services/api';
 import type { Review } from '../shared/types/user.types';
+import { ReportButton } from '../components/moderation/ReportButton';
+import { BlockButton } from '../components/moderation/BlockButton';
+import { TrustBadge } from '../components/ui/TrustBadge';
+import { getUserBadges } from '../utils/badges';
 
 export function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -124,9 +128,15 @@ export function UserProfilePage() {
 
             {/* Profile Info */}
             <div className="flex-grow text-center md:text-left">
-              <h1 className="font-fayte text-3xl md:text-4xl text-tradey-black mb-2 uppercase">
-                @{userProfile.username}
-              </h1>
+              <div className="flex items-center gap-3 justify-center md:justify-start mb-2">
+                <h1 className="font-fayte text-3xl md:text-4xl text-tradey-black uppercase">
+                  @{userProfile.username}
+                </h1>
+                {/* Trust Badges */}
+                {getUserBadges(userProfile, posts.length).map((badge) => (
+                  <TrustBadge key={badge} type={badge} />
+                ))}
+              </div>
 
               {/* Following / Followers Count */}
               <div className="flex gap-6 justify-center md:justify-start mb-4">
@@ -204,21 +214,6 @@ export function UserProfilePage() {
             {!isOwnProfile && user && (
               <div className="w-full md:w-auto flex flex-col gap-3">
                 <div className="flex items-center gap-3">
-                  {/* Report Button */}
-                  <button
-                    onClick={() => setShowReportModal(true)}
-                    className="p-3 border border-tradey-black/20 text-tradey-black/60 hover:text-tradey-red hover:border-tradey-red transition-colors"
-                    title="Report User"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
-                      />
-                    </svg>
-                  </button>
-
                   {/* Follow Button */}
                   <button
                     onClick={handleFollow}
@@ -249,6 +244,17 @@ export function UserProfilePage() {
                 >
                   Leave a Review
                 </button>
+
+                {/* Report & Block Buttons */}
+                <div className="pt-1 flex justify-center gap-4">
+                  <ReportButton targetType="user" targetId={id!} />
+                  <BlockButton
+                    userId={id!}
+                    username={userProfile.username}
+                    isBlocked={currentUserProfile?.blockedUsers?.includes(id!) || false}
+                    onBlockToggle={refetchCurrentUser}
+                  />
+                </div>
               </div>
             )}
 
@@ -264,85 +270,6 @@ export function UserProfilePage() {
             )}
           </div>
         </div>
-
-        {/* Reviews Section */}
-        {userProfile.reviews && userProfile.reviews.length > 0 && (
-          <div className="bg-white border border-tradey-black/10 p-8 mb-8 shadow-sm">
-            <h2 className="font-fayte text-2xl text-tradey-black mb-6 uppercase">
-              Reviews ({userProfile.totalReviews})
-            </h2>
-            <div className="space-y-6 max-h-[600px] overflow-y-auto">
-              {userProfile.reviews.map((review: Review) => (
-                <div key={review.id} className="pb-6 border-b border-tradey-black/10 last:border-0">
-                  <div className="flex items-start gap-4">
-                    {/* Reviewer Avatar */}
-                    <Link to={`/user/${review.reviewerId}`} className="flex-shrink-0">
-                      {review.reviewerAvatarUrl ? (
-                        <img
-                          src={review.reviewerAvatarUrl}
-                          alt={review.reviewerUsername}
-                          className="w-12 h-12 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-tradey-black/10 flex items-center justify-center">
-                          <span className="font-sans text-lg text-tradey-black">
-                            {review.reviewerUsername.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </Link>
-
-                    {/* Review Content */}
-                    <div className="flex-1">
-                      <div className="flex items-baseline justify-between mb-2">
-                        <Link
-                          to={`/user/${review.reviewerId}`}
-                          className="font-sans font-semibold text-tradey-black hover:text-tradey-red transition-colors"
-                        >
-                          {review.reviewerUsername}
-                        </Link>
-                        <span className="font-sans text-xs text-tradey-black/40">
-                          {new Date(review.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </span>
-                      </div>
-
-                      {/* Star Rating */}
-                      <div className="flex gap-1 mb-3">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <svg
-                            key={star}
-                            className={`w-4 h-4 ${
-                              star <= review.rating
-                                ? 'fill-yellow-400 stroke-yellow-400'
-                                : 'fill-none stroke-tradey-black/20'
-                            }`}
-                            strokeWidth={1.5}
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                            />
-                          </svg>
-                        ))}
-                      </div>
-
-                      {/* Review Comment */}
-                      <p className="font-sans text-sm text-tradey-black/80 whitespace-pre-wrap leading-relaxed">
-                        {review.comment}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Items Section */}
         <div>
@@ -420,6 +347,99 @@ export function UserProfilePage() {
             </div>
           )}
         </div>
+
+        {/* Reviews Section */}
+        {userProfile.reviews && userProfile.reviews.length > 0 && (
+          <div className="bg-white border border-tradey-black/10 p-8 mt-8 shadow-sm">
+            <h2 className="font-fayte text-2xl text-tradey-black mb-6 uppercase">
+              Reviews ({userProfile.totalReviews})
+            </h2>
+            <div className="space-y-6 max-h-[600px] overflow-y-auto">
+              {userProfile.reviews.map((review: Review) => {
+                // Parse the date properly - handle both Firestore Timestamp and ISO string
+                let reviewDate: Date;
+                if (review.createdAt && typeof review.createdAt === 'object' && 'seconds' in review.createdAt) {
+                  // Firestore Timestamp
+                  reviewDate = new Date((review.createdAt as any).seconds * 1000);
+                } else if (review.createdAt) {
+                  // ISO string or other date format
+                  reviewDate = new Date(review.createdAt);
+                } else {
+                  reviewDate = new Date(); // Fallback to now
+                }
+
+                return (
+                  <div key={review.id} className="pb-6 border-b border-tradey-black/10 last:border-0">
+                    <div className="flex items-start gap-4">
+                      {/* Reviewer Avatar */}
+                      <Link to={`/user/${review.reviewerId}`} className="flex-shrink-0">
+                        {review.reviewerAvatarUrl ? (
+                          <img
+                            src={review.reviewerAvatarUrl}
+                            alt={review.reviewerUsername}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-tradey-black/10 flex items-center justify-center">
+                            <span className="font-sans text-lg text-tradey-black">
+                              {review.reviewerUsername.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </Link>
+
+                      {/* Review Content */}
+                      <div className="flex-1">
+                        <div className="flex items-baseline justify-between mb-2">
+                          <Link
+                            to={`/user/${review.reviewerId}`}
+                            className="font-sans font-semibold text-tradey-black hover:text-tradey-red transition-colors"
+                          >
+                            {review.reviewerUsername}
+                          </Link>
+                          <span className="font-sans text-xs text-tradey-black/40">
+                            {reviewDate.toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </span>
+                        </div>
+
+                        {/* Star Rating */}
+                        <div className="flex gap-1 mb-3">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <svg
+                              key={star}
+                              className={`w-4 h-4 ${
+                                star <= review.rating
+                                  ? 'fill-yellow-400 stroke-yellow-400'
+                                  : 'fill-none stroke-tradey-black/20'
+                              }`}
+                              strokeWidth={1.5}
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                              />
+                            </svg>
+                          ))}
+                        </div>
+
+                        {/* Review Comment */}
+                        <p className="font-sans text-sm text-tradey-black/80 whitespace-pre-wrap leading-relaxed">
+                          {review.comment}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Report Modal */}
         {showReportModal && (

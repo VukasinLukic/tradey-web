@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { postsApi, usersApi } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useCurrentUserProfile } from '../../hooks/useCurrentUserProfile';
 import { ProductCard } from '../post/ProductCard';
 import type { Post } from '../../types/entities';
 
@@ -9,6 +10,13 @@ export function FeaturedItemsSection() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { blockedUsers } = useCurrentUserProfile();
+
+  // Filter out posts from blocked users
+  const filteredPosts = useMemo(() => {
+    if (!blockedUsers || blockedUsers.length === 0) return posts;
+    return posts.filter(post => !blockedUsers.includes(post.authorId));
+  }, [posts, blockedUsers]);
 
   useEffect(() => {
     async function fetchPosts() {
@@ -81,9 +89,9 @@ export function FeaturedItemsSection() {
               </div>
             ))}
           </div>
-        ) : posts.length > 0 ? (
+        ) : filteredPosts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <ProductCard key={post.id} post={post} showSaveButton={!!user} showAuthor={true} />
             ))}
           </div>

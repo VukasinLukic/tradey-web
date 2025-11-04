@@ -10,6 +10,8 @@ import { ClothingConditions } from '../shared/types/post.types';
 import type { Comment, Post } from '../shared/types/post.types';
 import { postsApi, usersApi } from '../services/api';
 import { ProductCard } from '../components/post/ProductCard';
+import { ReportButton } from '../components/moderation/ReportButton';
+import { ShareButton } from '../components/ui/ShareButton';
 
 export function ItemViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +21,6 @@ export function ItemViewPage() {
   const { createChat, loading: chatLoading } = useCreateChat();
   const { toggleLike } = useLikePost();
   const [mainImage, setMainImage] = useState<string | null>(null);
-  const [showShareModal, setShowShareModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -73,24 +74,6 @@ export function ItemViewPage() {
     await createChat(post.authorId, message);
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: post?.title,
-          text: `Check out this item: ${post?.title}`,
-          url: window.location.href,
-        })
-        .catch(() => setShowShareModal(true));
-    } else {
-      setShowShareModal(true);
-    }
-  };
-
-  const copyLinkToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setShowShareModal(false);
-  };
 
   const handleDelete = async () => {
     if (!id) return;
@@ -318,17 +301,17 @@ export function ItemViewPage() {
                       <svg className={`w-4 h-4 ${isLiked ? 'fill-white' : 'fill-none'}`} stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                       </svg>
-                      {isLiked ? 'Liked' : 'Like'}
+                      {isLiked ? 'In Wishlist' : 'Add to Wishlist'}
                     </button>
-                    <button
-                      onClick={handleShare}
-                      className="px-4 py-2 bg-tradey-black/5 text-tradey-black hover:bg-tradey-black/10 font-sans text-sm transition-colors flex items-center justify-center gap-2"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                      Share
-                    </button>
+                    <ShareButton
+                      url={window.location.href}
+                      title={post.title}
+                      description={`${post.brand} - ${post.size} - ${post.type}`}
+                    />
+                  </div>
+                  {/* Report Button */}
+                  <div className="pt-2 flex justify-center">
+                    <ReportButton targetType="post" targetId={id!} />
                   </div>
                 </>
               )}
@@ -477,35 +460,6 @@ export function ItemViewPage() {
           </div>
         )}
       </div>
-
-      {/* Share Modal - Minimal */}
-      {showShareModal && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center px-4"
-          onClick={() => setShowShareModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-fayte text-2xl text-tradey-black uppercase mb-6">Share This Item</h3>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={window.location.href}
-                readOnly
-                className="flex-1 px-4 py-3 bg-tradey-black/5 rounded-lg font-sans text-sm"
-              />
-              <button
-                onClick={copyLinkToClipboard}
-                className="px-6 py-3 bg-tradey-black text-white font-sans text-sm uppercase tracking-wide hover:bg-tradey-red transition-colors rounded-lg"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Delete Modal - Minimal */}
       {showDeleteModal && (

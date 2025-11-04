@@ -22,6 +22,7 @@ export function useUserProfile(uid: string | undefined) {
       } catch (err) {
         console.error('Error fetching user profile:', err);
         setError(err as Error);
+        setUserProfile(null); // Clear profile on error
 
         // Handle 404 - user not found
         const axiosError = err as { response?: { status?: number } };
@@ -47,6 +48,7 @@ export function useUserProfile(uid: string | undefined) {
         } catch (err) {
           console.error('Error fetching user profile:', err);
           setError(err as Error);
+          setUserProfile(null); // Clear profile on error
           const axiosError = err as { response?: { status?: number } };
           if (axiosError.response?.status === 404) {
             console.log('User profile not found');

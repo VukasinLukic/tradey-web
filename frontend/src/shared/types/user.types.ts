@@ -20,6 +20,7 @@ export interface UserProfile {
   following?: string[];
   followers?: string[];
   likedPosts?: string[];
+  blockedUsers?: string[];
   createdAt: Date;
   role?: 'user' | 'admin';
 

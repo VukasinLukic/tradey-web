@@ -27,6 +27,12 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
 
+      // Add admin token if available
+      const adminToken = localStorage.getItem('adminToken');
+      if (adminToken) {
+        config.headers['x-admin-token'] = adminToken;
+      }
+
       // Set Content-Type only for non-FormData requests
       // FormData will automatically set correct Content-Type with boundary
       if (!(config.data instanceof FormData)) {
@@ -289,6 +295,11 @@ export const usersApi = {
    */
   getRecommendations: (id: string, params?: { limit?: number }) =>
     apiClient.get(`/users/${id}/recommendations`, { params }),
+
+  /**
+   * Block/Unblock user
+   */
+  toggleBlock: (id: string) => apiClient.post(`/users/${id}/block`),
 };
 
 /**
@@ -343,6 +354,74 @@ export const chatApi = {
    * Mark all messages as read in a chat
    */
   markAllAsRead: (chatId: string) => apiClient.post(`/chats/${chatId}/read-all`),
+};
+
+/**
+ * Reports API
+ */
+export const reportsApi = {
+  /**
+   * Create a new report
+   */
+  createReport: (data: {
+    targetType: 'post' | 'comment' | 'user';
+    targetId: string;
+    category: 'spam' | 'inappropriate' | 'scam' | 'harassment' | 'fake' | 'other';
+    description?: string;
+  }) => apiClient.post('/reports', data),
+
+  /**
+   * Get all reports (admin only)
+   */
+  getReports: (params?: {
+    status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed';
+    targetType?: 'post' | 'comment' | 'user';
+    limit?: number;
+  }) => apiClient.get('/reports', { params }),
+
+  /**
+   * Update report status (admin only)
+   */
+  updateReport: (id: string, data: {
+    status: 'pending' | 'reviewed' | 'resolved' | 'dismissed';
+    adminNotes?: string;
+  }) => apiClient.put(`/reports/${id}`, data),
+};
+
+/**
+ * Admin API
+ */
+export const adminApi = {
+  /**
+   * Admin login
+   */
+  login: (credentials: { username: string; password: string }) =>
+    apiClient.post('/admin/login', credentials),
+
+  /**
+   * Admin logout
+   */
+  logout: () => apiClient.post('/admin/logout'),
+
+  /**
+   * Get platform statistics (admin only)
+   */
+  getStats: () => apiClient.get('/admin/stats'),
+
+  /**
+   * Delete post (admin only)
+   */
+  deletePost: (id: string) => apiClient.delete(`/admin/posts/${id}`),
+
+  /**
+   * Delete user (admin only)
+   */
+  deleteUser: (id: string) => apiClient.delete(`/admin/users/${id}`),
+
+  /**
+   * Ban/Unban user (admin only)
+   */
+  toggleBan: (id: string) => apiClient.post(`/admin/users/${id}/ban`),
 };
 
 /**

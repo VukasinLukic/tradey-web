@@ -21,7 +21,12 @@
       "Bash(if exist \"backend\\src\\shared\"\" rmdir /s /q \"backendsrcshared\" && xcopy \"shared\" \"backendsrcshared\"\" /E /I /Y)",
       "Bash(cp:*)",
       "Bash(npx ts-node:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(ren:*)",
+      "Bash(ren hooksuseLikedPosts.ts useWishlistPosts.ts)",
+      "Bash(move pagesLiked.tsx pagesWishlist.tsx)",
+      "Bash(move hooksuseLikedPosts.ts hooksuseWishlistPosts.ts)"
     ],
     "deny": [],
     "ask": []

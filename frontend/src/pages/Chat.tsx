@@ -27,6 +27,7 @@ export function ChatPage() {
   const [userDataMap, setUserDataMap] = useState<Map<string, UserData>>(new Map());
   const [minimumLoadingPassed, setMinimumLoadingPassed] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [openMenuChatId, setOpenMenuChatId] = useState<string | null>(null);
 
   // Ensure minimum loading time
   useEffect(() => {
@@ -100,15 +101,16 @@ export function ChatPage() {
     textareaRef.current?.focus();
   };
 
-  const handleDeleteChat = async () => {
-    if (!selectedChatId) return;
-
+  const handleDeleteChat = async (chatId: string) => {
     const confirmed = window.confirm('Da li ste sigurni da želite da obrišete ovaj chat?');
     if (!confirmed) return;
 
     try {
-      await chatApi.deleteChat(selectedChatId);
-      setSelectedChatId(null);
+      await chatApi.deleteChat(chatId);
+      if (selectedChatId === chatId) {
+        setSelectedChatId(null);
+      }
+      setOpenMenuChatId(null);
       // Refresh chats list
       window.location.reload();
     } catch (error) {
@@ -206,39 +208,78 @@ export function ChatPage() {
               chats.map(chat => {
                 const otherUser = getOtherParticipant(chat.participants);
                 const isSelected = selectedChatId === chat.id;
+                const isMenuOpen = openMenuChatId === chat.id;
 
                 return (
-                  <button
+                  <div
                     key={chat.id}
-                    onClick={() => setSelectedChatId(chat.id)}
-                    className={`w-full p-4 flex items-center gap-3 hover:bg-tradey-black/5 transition-colors border-b border-tradey-black/5 ${
+                    className={`w-full p-4 flex items-center gap-3 hover:bg-tradey-black/5 transition-colors border-b border-tradey-black/5 relative ${
                       isSelected ? 'bg-tradey-red/5 border-l-4 border-l-tradey-red' : ''
                     }`}
                   >
-                    {/* Avatar */}
-                    <Avatar
-                      src={otherUser?.avatarUrl}
-                      alt={otherUser?.username || 'User'}
-                      userId={otherUser?.uid}
-                      size="lg"
-                      clickable
-                    />
+                    <button
+                      onClick={() => setSelectedChatId(chat.id)}
+                      className="flex items-center gap-3 flex-1 min-w-0"
+                    >
+                      {/* Avatar */}
+                      <Avatar
+                        src={otherUser?.avatarUrl}
+                        alt={otherUser?.username || 'User'}
+                        userId={otherUser?.uid}
+                        size="lg"
+                        clickable
+                      />
 
-                    {/* Chat Info */}
-                    <div className="flex-1 min-w-0 text-left">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-sans font-semibold text-tradey-black text-sm truncate">
-                          {otherUser?.username || 'User'}
+                      {/* Chat Info */}
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-sans font-semibold text-tradey-black text-sm truncate">
+                            {otherUser?.username || 'User'}
+                          </p>
+                          <span className="font-sans text-xs text-tradey-black/40 ml-2 flex-shrink-0">
+                            {formatTimestamp(chat.lastMessageAt)}
+                          </span>
+                        </div>
+                        <p className="font-sans text-xs text-tradey-black/50 truncate">
+                          {chat.lastMessage || 'Nova konverzacija'}
                         </p>
-                        <span className="font-sans text-xs text-tradey-black/40 ml-2 flex-shrink-0">
-                          {formatTimestamp(chat.lastMessageAt)}
-                        </span>
                       </div>
-                      <p className="font-sans text-xs text-tradey-black/50 truncate">
-                        {chat.lastMessage || 'Nova konverzacija'}
-                      </p>
+                    </button>
+
+                    {/* Three dots menu */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuChatId(isMenuOpen ? null : chat.id);
+                        }}
+                        className="p-2 hover:bg-tradey-black/10 rounded-full transition-colors"
+                        aria-label="Chat options"
+                      >
+                        <svg className="w-5 h-5 text-tradey-black/60" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg>
+                      </button>
+
+                      {/* Dropdown menu */}
+                      {isMenuOpen && (
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-tradey-black/10 rounded shadow-lg z-50 min-w-[150px]">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteChat(chat.id);
+                            }}
+                            className="w-full px-4 py-2 text-left font-sans text-sm text-tradey-red hover:bg-tradey-red/10 transition-colors flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete Chat
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })
             )}
@@ -267,7 +308,7 @@ export function ChatPage() {
           ) : (
             <>
               {/* Chat Header */}
-              <div className="px-3 py-3 pt-14 md:pt-4 md:p-4 border-b border-tradey-black/10 bg-white flex items-center gap-3">
+              <div className="px-3 py-3 pt-14 md:pt-4 md:p-4 border-b border-tradey-black/10 bg-white flex items-center gap-3 relative z-10">
                 {/* Back button (mobile only) */}
                 <button
                   onClick={() => setSelectedChatId(null)}
@@ -294,17 +335,6 @@ export function ChatPage() {
                   <p className="font-sans font-semibold text-tradey-black text-lg">
                     {selectedUser?.username || 'User'}
                   </p>
-                </button>
-
-                {/* Delete Chat Button */}
-                <button
-                  onClick={handleDeleteChat}
-                  className="p-2 hover:bg-tradey-red/10 rounded-full transition-colors flex-shrink-0 group"
-                  title="Obriši chat"
-                >
-                  <svg className="w-5 h-5 text-tradey-black/40 group-hover:text-tradey-red transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
                 </button>
               </div>
 

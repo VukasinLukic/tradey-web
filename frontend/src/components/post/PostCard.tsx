@@ -18,8 +18,8 @@ export function PostCard({ post }: PostCardProps) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-white truncate">{post.title}</h3>
-      <p className="mt-1 text-xs text-gray-400">{post.brand}</p>
+      <h3 className="mt-2 text-sm font-semibold text-tradey-black truncate">{post.title}</h3>
+      <p className="mt-1 text-xs text-tradey-black/60">{post.brand}</p>
     </Link>
   );
 }

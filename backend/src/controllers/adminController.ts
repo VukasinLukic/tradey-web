@@ -102,30 +102,33 @@ export class AdminController {
   });
 
   /**
-   * DELETE /api/admin/users/:id
-   * Delete a user account (admin action)
+   * POST /api/admin/users/:id/ban
+   * Ban a user and delete all their content
    * Protected route - requires admin
    */
-  deleteUser = asyncHandler(async (req: Request, res: Response) => {
+  toggleBan = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    // Get user to delete avatar
+    // Get user
     const user = await firestoreService.getDocument<any>(COLLECTIONS.USERS, id);
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    // Delete avatar from storage
+    console.log(`🔨 Starting ban process for user: ${id}`);
+
+    // 1. Delete avatar from storage
     if (user.avatarUrl) {
       try {
         await storageService.deleteImage(user.avatarUrl);
+        console.log('✅ Avatar deleted');
       } catch (error) {
         console.error('Error deleting avatar:', error);
       }
     }
 
-    // Delete all user's posts
+    // 2. Delete all user's posts and their images
     const userPosts = await firestoreService.queryDocuments<any>(
       COLLECTIONS.POSTS,
       {
@@ -133,6 +136,8 @@ export class AdminController {
         limit: 1000,
       }
     );
+
+    console.log(`📦 Found ${userPosts.length} posts to delete`);
 
     for (const post of userPosts) {
       // Delete post images
@@ -149,11 +154,72 @@ export class AdminController {
       await firestoreService.deleteDocument(COLLECTIONS.POSTS, post.id);
     }
 
-    // Delete user from Firestore
+    console.log('✅ All posts deleted');
+
+    // 3. Delete all chats where user is a participant
+    const allChats = await firestoreService.queryDocuments<any>(
+      COLLECTIONS.CHATS,
+      { limit: 10000 }
+    );
+
+    const userChats = allChats.filter((chat: any) =>
+      chat.participants?.includes(id)
+    );
+
+    console.log(`💬 Found ${userChats.length} chats to delete`);
+
+    for (const chat of userChats) {
+      await firestoreService.deleteDocument(COLLECTIONS.CHATS, chat.id);
+    }
+
+    console.log('✅ All chats deleted');
+
+    // 4. Remove user from other users' following/followers arrays
+    const allUsers = await firestoreService.queryDocuments<any>(
+      COLLECTIONS.USERS,
+      { limit: 10000 }
+    );
+
+    for (const otherUser of allUsers) {
+      let needsUpdate = false;
+      const updates: any = {};
+
+      if (otherUser.following?.includes(id)) {
+        updates.following = otherUser.following.filter((uid: string) => uid !== id);
+        needsUpdate = true;
+      }
+
+      if (otherUser.followers?.includes(id)) {
+        updates.followers = otherUser.followers.filter((uid: string) => uid !== id);
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
+        await firestoreService.updateDocument(COLLECTIONS.USERS, otherUser.uid, updates);
+      }
+    }
+
+    console.log('✅ Removed from following/followers lists');
+
+    // 5. Delete user profile
     await firestoreService.deleteDocument(COLLECTIONS.USERS, id);
 
-    res.json({ message: 'User and all their content deleted successfully' });
+    console.log('✅ User profile deleted');
+    console.log(`🔨 Ban complete for user: ${id}`);
+
+    res.json({
+      message: 'User banned and all content deleted successfully',
+      deletedPosts: userPosts.length,
+      deletedChats: userChats.length
+    });
   });
+
+  /**
+   * DELETE /api/admin/users/:id
+   * Delete a user account (admin action) - kept for backwards compatibility
+   * Protected route - requires admin
+   */
+  deleteUser = this.toggleBan;
 }
 
 export default new AdminController();
