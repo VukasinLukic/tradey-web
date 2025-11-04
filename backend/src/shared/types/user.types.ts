@@ -35,5 +35,10 @@ export interface UserProfile {
   rating: number;
   totalReviews: number;
   reviews: Review[];
+
+  // Moderation
+  blockedUsers?: string[]; // User IDs this user has blocked
+  isBanned?: boolean; // Admin ban status
+  banReason?: string;
 }
 

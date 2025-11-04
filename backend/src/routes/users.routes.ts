@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import userController from '../controllers/userController';
 import { authenticate, optionalAuthenticate } from '../middleware/authMiddleware';
+import { validateImageFiles } from '../middleware/fileValidation';
+import { requireAdmin } from '../middleware/adminMiddleware';
 import multer from 'multer';
 
 const router = Router();
@@ -49,7 +51,7 @@ router.get('/:id/followers', optionalAuthenticate, userController.getFollowers);
  */
 
 // PUT /api/users/:id - Update user profile (owner only)
-router.put('/:id', authenticate, upload.single('avatar'), userController.updateUser);
+router.put('/:id', authenticate, upload.single('avatar'), validateImageFiles, userController.updateUser);
 
 // POST /api/users/:id/follow - Follow/unfollow user
 router.post('/:id/follow', authenticate, userController.toggleFollow);
@@ -71,5 +73,11 @@ router.put('/:id/activity', authenticate, userController.trackActivity);
 
 // GET /api/users/:id/recommendations - Get personalized recommendations
 router.get('/:id/recommendations', authenticate, userController.getRecommendations);
+
+// POST /api/users/:id/block - Block/unblock user
+router.post('/:id/block', authenticate, userController.toggleBlock);
+
+// POST /api/users/:id/ban - Ban/unban user (admin only)
+router.post('/:id/ban', requireAdmin, userController.toggleBan);
 
 export default router;

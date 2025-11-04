@@ -3,9 +3,10 @@ import { CorsOptions } from 'cors';
 // Parse CORS_ORIGIN environment variable (can be comma-separated list)
 const getAllowedOrigins = (): string[] => {
   const envOrigins = process.env.CORS_ORIGIN;
+  const nodeEnv = process.env.NODE_ENV;
 
-  // Default development origins (support multiple Vite ports)
-  const defaultOrigins = [
+  // Development origins (only used in development mode)
+  const devOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
@@ -16,18 +17,34 @@ const getAllowedOrigins = (): string[] => {
     'http://localhost:3000',
   ];
 
-  if (!envOrigins) {
-    return defaultOrigins;
+  // In production, ONLY use explicitly configured origins
+  if (nodeEnv === 'production') {
+    if (!envOrigins) {
+      console.error('⚠️  WARNING: CORS_ORIGIN not set in production! No origins will be allowed.');
+      return [];
+    }
+
+    // Production mode: use ONLY explicitly configured origins
+    const productionOrigins = envOrigins
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin.length > 0);
+
+    return productionOrigins;
   }
 
-  // Split by comma and trim whitespace, filter out empty strings
-  const productionOrigins = envOrigins
-    .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
+  // Development mode: allow dev origins + any configured origins
+  if (envOrigins) {
+    const configuredOrigins = envOrigins
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin.length > 0);
 
-  // Combine production and development origins (development origins for backward compatibility)
-  return [...new Set([...productionOrigins, ...defaultOrigins])];
+    return [...new Set([...devOrigins, ...configuredOrigins])];
+  }
+
+  // Development with no explicit config
+  return devOrigins;
 };
 
 export const corsOptions: CorsOptions = {
@@ -38,4 +55,10 @@ export const corsOptions: CorsOptions = {
 };
 
 // Log allowed origins on startup
-console.log('🌍 CORS allowed origins:', getAllowedOrigins());
+const allowedOrigins = getAllowedOrigins();
+console.log('🌍 CORS Configuration:');
+console.log('   Environment:', process.env.NODE_ENV || 'development');
+console.log('   Allowed origins:', allowedOrigins.length > 0 ? allowedOrigins : 'NONE (⚠️  WARNING)');
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
+  console.error('   ❌ CRITICAL: No CORS origins configured for production!');
+}

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import postController from '../controllers/postController';
 import { authenticate, optionalAuthenticate } from '../middleware/authMiddleware';
 import { postCreationLimiter } from '../middleware/rateLimiter';
+import { validateImageFiles } from '../middleware/fileValidation';
 import multer from 'multer';
 
 const router = Router();
@@ -43,6 +44,7 @@ router.post(
   authenticate,
   postCreationLimiter,
   upload.array('images', 5),
+  validateImageFiles, // Real MIME type verification
   postController.createPost
 );
 
@@ -51,6 +53,7 @@ router.put(
   '/:id',
   authenticate,
   upload.array('images', 5),
+  validateImageFiles, // Real MIME type verification
   postController.updatePost
 );
 

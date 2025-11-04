@@ -20,7 +20,8 @@
       "Bash(done)",
       "Bash(if exist \"backend\\src\\shared\"\" rmdir /s /q \"backendsrcshared\" && xcopy \"shared\" \"backendsrcshared\"\" /E /I /Y)",
       "Bash(cp:*)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

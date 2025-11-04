@@ -7,6 +7,7 @@ import { createPostSchema, updatePostSchema } from '../shared/constants/validati
 import { Post } from '../shared/types';
 import admin from 'firebase-admin';
 import { asyncHandler } from '../middleware/errorHandler';
+import { sanitizeText, sanitizeObject } from '../utils/sanitize';
 
 export class PostController {
   /**
@@ -137,9 +138,21 @@ export class PostController {
     console.log('Received body:', JSON.stringify(req.body, null, 2));
     console.log('Received files:', req.files);
 
+    // Sanitize user inputs to prevent XSS attacks
+    const sanitizedBody = sanitizeObject(req.body, [
+      'title',
+      'description',
+      'brand',
+      'condition',
+      'size',
+      'location',
+      'type',
+      'style',
+    ]);
+
     // Images are handled by multer, so we can omit them from body validation
     const bodySchema = createPostSchema.omit({ images: true });
-    const validation = bodySchema.safeParse(req.body);
+    const validation = bodySchema.safeParse(sanitizedBody);
 
     if (!validation.success) {
       res.status(400).json({
@@ -234,9 +247,21 @@ export class PostController {
       }
     }
 
+    // Sanitize user inputs to prevent XSS attacks
+    const sanitizedBody = sanitizeObject(req.body, [
+      'title',
+      'description',
+      'brand',
+      'condition',
+      'size',
+      'location',
+      'type',
+      'style',
+    ]);
+
     // Images are handled separately, so omit from validation
     const bodySchema = updatePostSchema.omit({ images: true });
-    const validation = bodySchema.safeParse(req.body);
+    const validation = bodySchema.safeParse(sanitizedBody);
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
@@ -460,7 +485,7 @@ export class PostController {
       userId,
       username: user?.username || 'Unknown',
       avatarUrl: user?.avatarUrl || undefined,
-      text: text.trim(),
+      text: sanitizeText(text), // Sanitize comment text to prevent XSS
       createdAt: admin.firestore.Timestamp.now(),
     };
 

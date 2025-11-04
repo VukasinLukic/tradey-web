@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { apiLimiter } from './middleware/rateLimiter';
+import { httpsRedirect } from './middleware/httpsRedirect';
 import { corsOptions } from './config/cors';
 
 
@@ -34,6 +36,41 @@ const PORTS = [
 /**
  * Middleware Setup
  */
+
+// HTTPS enforcement (must be first to catch all requests)
+app.use(httpsRedirect);
+
+// Security headers with Helmet.js
+app.use(helmet({
+  // Content Security Policy
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for React
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"], // Allow images from Firebase Storage
+      connectSrc: ["'self'", "https://*.googleapis.com", "https://*.firebaseio.com"], // Firebase APIs
+      fontSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  // Clickjacking protection
+  frameguard: { action: 'deny' },
+  // XSS protection
+  xssFilter: true,
+  // MIME sniffing protection
+  noSniff: true,
+  // Hide X-Powered-By header
+  hidePoweredBy: true,
+  // HSTS (HTTP Strict Transport Security) - only in production
+  hsts: process.env.NODE_ENV === 'production' ? {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  } : false,
+}));
 
 // CORS
 app.use(cors(corsOptions));

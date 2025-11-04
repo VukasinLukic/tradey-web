@@ -6,6 +6,8 @@ import { COLLECTIONS } from '../shared/constants/firebasePaths';
 import { createUserProfileSchema, updateUserProfileSchema } from '../shared/constants/validationSchemas';
 import { UserProfile } from '../shared/types';
 import { asyncHandler } from '../middleware/errorHandler';
+import { sanitizeText, sanitizeObject } from '../utils/sanitize';
+import admin from 'firebase-admin';
 
 export class UserController {
   /**
@@ -16,8 +18,16 @@ export class UserController {
   createUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.uid;
 
+    // Sanitize user inputs to prevent XSS attacks
+    const sanitizedBody = sanitizeObject(req.body, [
+      'username',
+      'email',
+      'location',
+      'bio',
+    ]);
+
     // Validate request body
-    const validation = createUserProfileSchema.safeParse(req.body);
+    const validation = createUserProfileSchema.safeParse(sanitizedBody);
     if (!validation.success) {
       res.status(400).json({
         error: 'Validation failed',
@@ -39,39 +49,51 @@ export class UserController {
       return;
     }
 
-    // Check if username is unique
-    const usersWithSameUsername = await firestoreService.queryDocuments(
-      COLLECTIONS.USERS,
-      {
-        filters: [['username', '==', validation.data.username]],
-        limit: 1,
+    // Use Firestore transaction to ensure username uniqueness (prevents race conditions)
+    const db = admin.firestore();
+    const usersRef = db.collection(COLLECTIONS.USERS);
+
+    try {
+      await db.runTransaction(async (transaction) => {
+        // Query for existing username within transaction
+        const usernameQuery = usersRef.where('username', '==', validation.data.username).limit(1);
+        const snapshot = await transaction.get(usernameQuery);
+
+        if (!snapshot.empty) {
+          throw new Error('USERNAME_TAKEN');
+        }
+
+        // Create user profile
+        const newUserProfile: UserProfile = {
+          uid: validation.data.uid,
+          username: validation.data.username,
+          email: validation.data.email,
+          phone: validation.data.phone,
+          location: validation.data.location,
+          createdAt: new Date(),
+          following: [],
+          followers: [],
+          likedPosts: [],
+          rating: 0,
+          totalReviews: 0,
+          reviews: [],
+        };
+
+        // Set the document within transaction
+        const userDocRef = usersRef.doc(userId);
+        transaction.set(userDocRef, newUserProfile);
+
+        return newUserProfile;
+      }).then((newUserProfile) => {
+        res.status(201).json(newUserProfile);
+      });
+    } catch (error: any) {
+      if (error.message === 'USERNAME_TAKEN') {
+        res.status(400).json({ error: 'Username already taken' });
+        return;
       }
-    );
-
-    if (usersWithSameUsername.length > 0) {
-      res.status(400).json({ error: 'Username already taken' });
-      return;
+      throw error;
     }
-
-    // Create user profile
-    const newUserProfile: UserProfile = {
-      uid: validation.data.uid,
-      username: validation.data.username,
-      email: validation.data.email,
-      phone: validation.data.phone,
-      location: validation.data.location,
-      createdAt: new Date(),
-      following: [],
-      followers: [],
-      likedPosts: [],
-      rating: 0,
-      totalReviews: 0,
-      reviews: [],
-    };
-
-    await firestoreService.setDocument(COLLECTIONS.USERS, userId, newUserProfile);
-
-    res.status(201).json(newUserProfile);
   });
   /**
    * GET /api/users/:id
@@ -165,8 +187,15 @@ export class UserController {
 
     console.log('✅ Current user data:', user);
 
+    // Sanitize user inputs to prevent XSS attacks
+    const sanitizedBody = sanitizeObject(req.body, [
+      'username',
+      'location',
+      'bio',
+    ]);
+
     // Validate request body
-    const validation = updateUserProfileSchema.safeParse(req.body);
+    const validation = updateUserProfileSchema.safeParse(sanitizedBody);
     if (!validation.success) {
       console.error('❌ Validation failed:', validation.error.issues);
       res.status(400).json({
@@ -194,29 +223,42 @@ export class UserController {
       }
     }
 
-    // Check if username is being changed and ensure it's unique
-    if (validation.data.username && validation.data.username !== user.username) {
-      const usersWithSameUsername = await firestoreService.queryDocuments(
-        COLLECTIONS.USERS,
-        {
-          filters: [['username', '==', validation.data.username]],
-          limit: 1,
-        }
-      );
-
-      if (usersWithSameUsername.length > 0) {
-        res.status(400).json({ error: 'Username already taken' });
-        return;
-      }
-    }
-
-    // Update user
+    // Update user with transaction if username is being changed
     const updateData: any = { ...validation.data };
     if (avatarUrl) {
       updateData.avatarUrl = avatarUrl;
     }
 
-    await firestoreService.updateDocument(COLLECTIONS.USERS, id, updateData);
+    // Check if username is being changed and use transaction for uniqueness
+    if (validation.data.username && validation.data.username !== user.username) {
+      const db = admin.firestore();
+      const usersRef = db.collection(COLLECTIONS.USERS);
+
+      try {
+        await db.runTransaction(async (transaction) => {
+          // Query for existing username within transaction
+          const usernameQuery = usersRef.where('username', '==', validation.data.username).limit(1);
+          const snapshot = await transaction.get(usernameQuery);
+
+          if (!snapshot.empty) {
+            throw new Error('USERNAME_TAKEN');
+          }
+
+          // Update the document within transaction
+          const userDocRef = usersRef.doc(id);
+          transaction.update(userDocRef, updateData);
+        });
+      } catch (error: any) {
+        if (error.message === 'USERNAME_TAKEN') {
+          res.status(400).json({ error: 'Username already taken' });
+          return;
+        }
+        throw error;
+      }
+    } else {
+      // No username change, simple update
+      await firestoreService.updateDocument(COLLECTIONS.USERS, id, updateData);
+    }
 
     // Fetch updated user
     const updatedUser = await firestoreService.getDocument<UserProfile>(COLLECTIONS.USERS, id);
@@ -502,14 +544,14 @@ export class UserController {
       return;
     }
 
-    // Create review object
+    // Create review object with sanitized comment
     const review = {
       id: Date.now().toString(),
       reviewerId: userId,
       reviewerUsername: reviewer.username,
       reviewerAvatarUrl: reviewer.avatarUrl || undefined,
       rating,
-      comment: comment.trim(),
+      comment: sanitizeText(comment), // Sanitize to prevent XSS
       postId: postId || null,
       createdAt: new Date(),
     };
@@ -682,6 +724,88 @@ export class UserController {
       }));
 
     res.json(recommendations);
+  });
+
+  /**
+   * POST /api/users/:id/block
+   * Block/unblock a user
+   * Protected route - requires authentication
+   */
+  toggleBlock = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params; // target user to block
+    const userId = req.user!.uid; // blocker
+
+    // Cannot block yourself
+    if (id === userId) {
+      res.status(400).json({ error: 'You cannot block yourself' });
+      return;
+    }
+
+    // Get current user
+    const user = await firestoreService.getDocument<UserProfile>(COLLECTIONS.USERS, userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Check if target user exists
+    const targetUser = await firestoreService.getDocument<UserProfile>(COLLECTIONS.USERS, id);
+    if (!targetUser) {
+      res.status(404).json({ error: 'Target user not found' });
+      return;
+    }
+
+    // Check if already blocked
+    const blockedUsers = user.blockedUsers || [];
+    const isBlocked = blockedUsers.includes(id);
+
+    if (isBlocked) {
+      // Unblock
+      const updated = blockedUsers.filter(uid => uid !== id);
+      await firestoreService.updateDocument(COLLECTIONS.USERS, userId, {
+        blockedUsers: updated,
+      });
+      res.json({ message: 'User unblocked successfully', isBlocked: false });
+    } else {
+      // Block
+      await firestoreService.arrayUnion(COLLECTIONS.USERS, userId, 'blockedUsers', id);
+      res.json({ message: 'User blocked successfully', isBlocked: true });
+    }
+  });
+
+  /**
+   * POST /api/users/:id/ban
+   * Ban/unban a user (admin only)
+   * Protected route - requires admin authentication
+   */
+  toggleBan = asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.params; // target user to ban
+    const { reason } = req.body;
+
+    // Get target user
+    const user = await firestoreService.getDocument<UserProfile>(COLLECTIONS.USERS, id);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    const isBanned = user.isBanned || false;
+
+    if (isBanned) {
+      // Unban
+      await firestoreService.updateDocument(COLLECTIONS.USERS, id, {
+        isBanned: false,
+        banReason: admin.firestore.FieldValue.delete(),
+      });
+      res.json({ message: 'User unbanned successfully', isBanned: false });
+    } else {
+      // Ban
+      await firestoreService.updateDocument(COLLECTIONS.USERS, id, {
+        isBanned: true,
+        banReason: reason ? sanitizeText(reason) : 'No reason provided',
+      });
+      res.json({ message: 'User banned successfully', isBanned: true });
+    }
   });
 }
 
