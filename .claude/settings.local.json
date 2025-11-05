@@ -26,7 +26,8 @@
       "Bash(ren:*)",
       "Bash(ren hooksuseLikedPosts.ts useWishlistPosts.ts)",
       "Bash(move pagesLiked.tsx pagesWishlist.tsx)",
-      "Bash(move hooksuseLikedPosts.ts hooksuseWishlistPosts.ts)"
+      "Bash(move hooksuseLikedPosts.ts hooksuseWishlistPosts.ts)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

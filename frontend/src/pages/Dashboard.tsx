@@ -127,47 +127,6 @@ export function DashboardPage() {
     }
   };
 
-  const handleBanUser = async (userId: string, username: string, reportId?: string) => {
-    const confirmed = window.confirm(`Banovati korisnika @${username}? Ovaj korisnik neće moći da pristupa platformi.`);
-    if (!confirmed) return;
-
-    try {
-      await adminApi.toggleBan(userId);
-      alert(`Korisnik @${username} uspešno banovan!`);
-
-      // If called from a report, mark it as resolved
-      if (reportId) {
-        await reportsApi.updateReport(reportId, { status: 'resolved' });
-      }
-
-      // Reload dashboard
-      await loadDashboardData();
-    } catch (error) {
-      console.error('Error banning user:', error);
-      alert('Greška pri banovanju korisnika');
-    }
-  };
-
-  const handleDeletePost = async (postId: string, reportId?: string) => {
-    const confirmed = window.confirm('Obrisati ovaj post? Ova akcija se ne može poništiti.');
-    if (!confirmed) return;
-
-    try {
-      await adminApi.deletePost(postId);
-      alert('Post uspešno obrisan!');
-
-      // If called from a report, mark it as resolved
-      if (reportId) {
-        await reportsApi.updateReport(reportId, { status: 'resolved' });
-      }
-
-      // Reload dashboard
-      await loadDashboardData();
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      alert('Greška pri brisanju posta');
-    }
-  };
 
   // Login Screen
   if (!isAuthenticated) {

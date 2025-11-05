@@ -214,12 +214,12 @@ export function ReportDetailModal({ report, onClose, onActionComplete }: ReportD
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Cena</p>
-                    <p className="font-sans text-lg font-semibold text-tradey-red">{post.price} RSD</p>
+                    <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Tip</p>
+                    <p className="font-sans text-sm text-tradey-black">{post.type}</p>
                   </div>
                   <div>
-                    <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Kategorija</p>
-                    <p className="font-sans text-sm text-tradey-black">{post.category}</p>
+                    <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Stil</p>
+                    <p className="font-sans text-sm text-tradey-black">{post.style}</p>
                   </div>
                 </div>
 
@@ -236,7 +236,12 @@ export function ReportDetailModal({ report, onClose, onActionComplete }: ReportD
 
                 <div>
                   <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Lokacija</p>
-                  <p className="font-sans text-sm text-tradey-black">{post.location}</p>
+                  <p className="font-sans text-sm text-tradey-black">{post.authorLocation}</p>
+                </div>
+
+                <div>
+                  <p className="font-sans text-xs text-tradey-black/40 uppercase mb-1">Trade Preferences</p>
+                  <p className="font-sans text-sm text-tradey-black/80 italic">{post.tradePreferences}</p>
                 </div>
 
                 <div>
