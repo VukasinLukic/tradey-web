@@ -41,16 +41,10 @@ export function SignupForm() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Step 3: Send email verification
-      await sendEmailVerification(user, {
-        url: window.location.origin + '/profile', // Redirect URL after verification
-        handleCodeInApp: false,
-      });
-
-      // Step 4: Force token refresh to ensure it's cached
+      // Step 3: Force token refresh to ensure it's cached
       await user.getIdToken(true);
 
-      // Step 5: Create user profile in backend (which writes to Firestore)
+      // Step 4: Create user profile in backend (which writes to Firestore)
       console.log('Creating user profile in backend for UID:', user.uid);
       await usersApi.createProfile({
         uid: user.uid,
@@ -61,8 +55,20 @@ export function SignupForm() {
       });
       console.log('User profile created successfully');
 
-      // Step 6: Navigate to email verification page
-      navigate('/verify-email', { state: { email: user.email } });
+      // Step 5: Try to send email verification (optional, don't block signup if it fails)
+      try {
+        await sendEmailVerification(user, {
+          url: window.location.origin + '/profile',
+          handleCodeInApp: false,
+        });
+        console.log('Email verification sent');
+      } catch (emailError) {
+        console.warn('Failed to send email verification:', emailError);
+        // Continue anyway - user can verify later
+      }
+
+      // Step 6: Navigate to profile page directly
+      navigate('/profile');
     } catch (error) {
       // Handle Firebase Auth errors
       const firebaseError = error as { code?: string; response?: { data?: { error?: string; errors?: any[] } }; message?: string };
