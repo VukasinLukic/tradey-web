@@ -23,8 +23,11 @@ export function SignupForm() {
       setError('Password must be at least 6 characters long.');
       return;
     }
-    if (!/^\d{9,10}$/.test(phone.replace(/\s+/g, ''))) {
-      setError('Please enter a valid phone number (9-10 digits).');
+
+    // Remove all non-digit characters from phone
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.length < 9 || cleanPhone.length > 15) {
+      setError('Please enter a valid phone number (9-15 digits).');
       return;
     }
 
@@ -48,19 +51,24 @@ export function SignupForm() {
       await user.getIdToken(true);
 
       // Step 5: Create user profile in backend (which writes to Firestore)
+      console.log('Creating user profile in backend for UID:', user.uid);
       await usersApi.createProfile({
         uid: user.uid,
         username,
         email: user.email!,
-        phone: phone.replace(/\s+/g, ''), // Remove spaces from phone number
+        phone: cleanPhone, // Use cleaned phone number
         location,
       });
+      console.log('User profile created successfully');
 
       // Step 6: Navigate to email verification page
       navigate('/verify-email', { state: { email: user.email } });
     } catch (error) {
       // Handle Firebase Auth errors
-      const firebaseError = error as { code?: string; response?: { data?: { error?: string } }; message?: string };
+      const firebaseError = error as { code?: string; response?: { data?: { error?: string; errors?: any[] } }; message?: string };
+
+      console.error('Signup error:', error);
+
       if (firebaseError.code) {
         switch (firebaseError.code) {
           case 'auth/email-already-in-use':
@@ -74,20 +82,26 @@ export function SignupForm() {
             break;
           default:
             setError('An unexpected error occurred. Please try again.');
-            console.error(error);
             break;
         }
       }
       // Handle backend API errors
       else if (firebaseError.response) {
-        const message = firebaseError.response.data?.error || 'Failed to create user profile.';
+        const { data } = firebaseError.response;
+        let message = data?.error || 'Failed to create user profile.';
+
+        // If validation errors exist, show the first one
+        if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+          const firstError = data.errors[0];
+          message = firstError.message || firstError.path?.[0] || message;
+        }
+
         setError(message);
-        console.error('Backend error:', firebaseError.response.data);
+        console.error('Backend error:', data);
       }
       // Handle network errors
       else {
         setError('Network error. Please check if the backend is running.');
-        console.error(error);
       }
     } finally {
       setLoading(false);

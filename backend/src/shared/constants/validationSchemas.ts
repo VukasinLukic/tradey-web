@@ -22,7 +22,7 @@ export const createUserProfileSchema = z.object({
   uid: z.string().min(1, 'User ID is required'),
   username: z.string().min(3, 'Username must be at least 3 characters').max(30, 'Username must be less than 30 characters'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().regex(/^\d{9,10}$/, 'Phone number must be 9-10 digits'),
+  phone: z.string().regex(/^\d{9,15}$/, 'Phone number must be 9-15 digits (digits only)'),
   location: z.string().min(1, 'Location is required'),
 });
 
@@ -31,7 +31,7 @@ export const updateUserProfileSchema = z.object({
   bio: z.string().max(500).optional().or(z.literal('')),
   location: z.string().optional().or(z.literal('')),
   avatarUrl: z.string().url().optional().or(z.literal('')),
-  phone: z.string().regex(/^\d{9,10}$/).optional().or(z.literal(''))
+  phone: z.string().regex(/^\d{9,15}$/).optional().or(z.literal(''))
 });
 
 // Chat validation schemas
