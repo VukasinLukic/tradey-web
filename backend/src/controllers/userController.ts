@@ -18,23 +18,33 @@ export class UserController {
   createUser = asyncHandler(async (req: AuthRequest, res: Response) => {
     const userId = req.user!.uid;
 
+    console.log('🔵 CREATE USER - Request received:');
+    console.log('   UID:', userId);
+    console.log('   Body:', req.body);
+
     // Sanitize user inputs to prevent XSS attacks
     const sanitizedBody = sanitizeObject(req.body, [
       'username',
       'email',
+      'phone',
       'location',
       'bio',
     ]);
 
+    console.log('🔵 Sanitized body:', sanitizedBody);
+
     // Validate request body
     const validation = createUserProfileSchema.safeParse(sanitizedBody);
     if (!validation.success) {
+      console.error('❌ Validation failed:', validation.error.issues);
       res.status(400).json({
         error: 'Validation failed',
         errors: validation.error.issues,
       });
       return;
     }
+
+    console.log('✅ Validation passed:', validation.data);
 
     // Ensure the UID in the body matches the authenticated user
     if (validation.data.uid !== userId) {
@@ -83,11 +93,14 @@ export class UserController {
         const userDocRef = usersRef.doc(userId);
         transaction.set(userDocRef, newUserProfile);
 
+        console.log('✅ User profile created in transaction:', newUserProfile);
         return newUserProfile;
       }).then((newUserProfile) => {
+        console.log('✅ Sending success response:', newUserProfile);
         res.status(201).json(newUserProfile);
       });
     } catch (error: any) {
+      console.error('❌ Error creating user:', error);
       if (error.message === 'USERNAME_TAKEN') {
         res.status(400).json({ error: 'Username already taken' });
         return;
