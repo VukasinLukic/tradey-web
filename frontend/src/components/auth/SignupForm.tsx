@@ -67,11 +67,11 @@ export function SignupForm() {
         // Continue anyway - user can verify later
       }
 
-      // Step 6: Small delay to ensure Firestore replicas are synced
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Step 6: Wait for Firestore replicas to sync (1 second)
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Step 7: Navigate to profile page directly
-      navigate('/profile');
+      // Step 7: Navigate to home page (profile may still be syncing)
+      navigate('/');
     } catch (error) {
       // Handle Firebase Auth errors
       const firebaseError = error as { code?: string; response?: { data?: { error?: string; errors?: any[] } }; message?: string };
