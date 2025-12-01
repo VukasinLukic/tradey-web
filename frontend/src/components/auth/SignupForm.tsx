@@ -46,14 +46,14 @@ export function SignupForm() {
 
       // Step 4: Create user profile in backend (which writes to Firestore)
       console.log('Creating user profile in backend for UID:', user.uid);
-      await usersApi.createProfile({
+      const profileResponse = await usersApi.createProfile({
         uid: user.uid,
         username,
         email: user.email!,
         phone: cleanPhone, // Use cleaned phone number
         location,
       });
-      console.log('User profile created successfully');
+      console.log('User profile created successfully:', profileResponse.data);
 
       // Step 5: Try to send email verification (optional, don't block signup if it fails)
       try {
@@ -67,7 +67,10 @@ export function SignupForm() {
         // Continue anyway - user can verify later
       }
 
-      // Step 6: Navigate to profile page directly
+      // Step 6: Small delay to ensure Firestore replicas are synced
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Step 7: Navigate to profile page directly
       navigate('/profile');
     } catch (error) {
       // Handle Firebase Auth errors
