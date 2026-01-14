@@ -28,7 +28,11 @@
       "Bash(move pagesLiked.tsx pagesWishlist.tsx)",
       "Bash(move hooksuseLikedPosts.ts hooksuseWishlistPosts.ts)",
       "Bash(git add:*)",
-      "Bash(del railway.toml railway.json)"
+      "Bash(del railway.toml railway.json)",
+      "Bash(pip show:*)",
+      "Bash(py:*)",
+      "Bash(node --version:*)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []
