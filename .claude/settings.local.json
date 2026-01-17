@@ -32,7 +32,9 @@
       "Bash(pip show:*)",
       "Bash(py:*)",
       "Bash(node --version:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
